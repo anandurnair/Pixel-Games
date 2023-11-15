@@ -1,0 +1,82 @@
+<%- include('./includes/adminHeader.ejs'); -%>
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Edit Game</h1>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Edit game details
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <form role="form" action="/editGame/<%= game._id %>" method="post"  enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label>Game name</label>
+                                        <input class="form-control" type="text" name="gameName" value="<%= game.gameName %>" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea class="form-control" name="description" id="" cols="30" rows="10" required><%= game.description %></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Genre</label>
+                                        <input class="form-control" type="text" name="genre" value="<%= game.genre %>" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Price</label>
+                                        <input class="form-control" type="text" name="price" value="<%= game.price %>"  required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Released</label>
+                                        <input class="form-control" type="date" name="released" value="<%= game.released.toISOString().split('T')[0] %>" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Publisher</label>
+                                        <input class="form-control" type="text" name="publisher" value="<%= game.publisher %>" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Size</label>
+                                        <input class="form-control" type="text" name="gameSize" value="<%= game.gameSize %>" required>
+                                    </div>
+                                    <div class="form-group" >
+                                        <label>Current Image</label>
+                                        <img src="<%= game.gameImage %>" alt="Current Image" style="max-width: 300px;max-height: 200px;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>New Image</label>
+                                        <input class="form-control" type="file" name="gameImage" >
+                                    </div>
+                                    
+                                    <a href=""><button type="submit" class="btn btn-default">Submit Button</button></a>
+                                    <a href="/editGame"> <button type="reset" class="btn btn-default">Reset Button</button></a>
+                                   
+                                </form>
+                            </div>
+                            <!-- /.col-lg-6 (nested) -->
+                            
+                            <!-- /.col-lg-6 (nested) -->
+                        </div>
+                        <!-- /.row (nested) -->
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+</div>
+
+<%- include('./includes/adminFooter.ejs'); -%>

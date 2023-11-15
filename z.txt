@@ -1,0 +1,43 @@
+
+
+Next week:
+
+User signup with otp/login   
+Admin login   
+User management admin(list, block/unblock)
+Genre management admin
+Game management admin(add/edit games)
+List products in user
+Product details page
+
+
+
+
+
+
+pending topics:
+
+
+unique users
+resend otp
+product details
+signup authentication
+authentication in insert user
+edit responsive nav bar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
