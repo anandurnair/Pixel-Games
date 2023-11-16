@@ -86,18 +86,18 @@
       // Get form elements
       var fullNameInput = document.forms["signupForm"]["fullName"];
       var emailInput = document.forms["signupForm"]["email"];
-      var phoneInput = document.forms["signupForm"]["phone"];
+      
       var passwordInput = document.forms["signupForm"]["password"];
 
       // Reset error messages
       var errorFullName = document.getElementById("errorFullName");
       var errorEmail = document.getElementById("errorEmail");
-      var errorPhone = document.getElementById("errorPhone");
+     
       var errorPassword = document.getElementById("errorPassword");
 
       errorFullName.textContent = "";
       errorEmail.textContent = "";
-      errorPhone.textContent = "";
+  
       errorPassword.textContent = "";
 
       // Validate full name (should not contain numbers)
@@ -113,10 +113,7 @@
       }
 
       // Validate phone number (basic format, without dashes or spaces)
-      if (!/^\d{10}$/.test(phoneInput.value)) {
-        errorPhone.textContent = "Invalid phone number.";
-        return false;
-      }
+   
 
       // Validate password (should contain at least 6 characters)
       if (passwordInput.value.length < 6) {

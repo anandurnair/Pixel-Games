@@ -112,6 +112,7 @@ router.post("/signupData", async (req, res) => {
       if (!user) {
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
+            console.error("Error sending OTP email:", error);
             return res.status(500).json({ error: "Error sending OTP email" });
           }
 
@@ -225,16 +226,21 @@ router.get("/adminLogin", (req, res) => {
 });
 
 router.post("/adminLoginData", (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (email == adminEmail && password == adminPassword) {
-    req.session.adminLogIn = true;
-    res.redirect("/adminDashboard");
-  } else {
-    res.render("admin/pages/login.ejs", {
-      err: true,
-      message: "Invalid Email / password",
-    });
+    if (email == adminEmail && password == adminPassword) {
+      req.session.adminLogIn = true;
+      res.redirect("/adminDashboard");
+    } else {
+      res.render("admin/pages/login.ejs", {
+        err: true,
+        message: "Invalid Email / password",
+      });
+    }
+  } catch (error) {
+    console.error("Error in admin login:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -335,20 +341,35 @@ router.post("/insertUserData", async (req, res) => {
 //edit user
 
 router.get("/editUser/:id", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
+  
   try {
-    const users = await Users.findById(req.params.id);
-    res.render("admin/pages/editUser", { users });
+    if (req.session.adminLogIn) {
+      const users = await Users.findById(req.params.id);
+      res.render("admin/pages/editUser", { users });
+    } else {
+      res.redirect("/adminLogin");
+    }
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 router.post("/editUser/:id", async (req, res) => {
   try {
-    await Users.findByIdAndUpdate(req.params.id, req.body);
+    const { fullName, userName, email, phone, country, password } = req.body;
+
+    // Validate input fields here
+
+    const updatedUser = {
+      fullName,
+      userName,
+      email,
+      phone,
+      country,
+      password,
+    };
+    await Users.findByIdAndUpdate(req.params.id, updatedUser);
     res.redirect("/userList");
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -392,12 +413,16 @@ router.get("/unblock/:id", async (req, res) => {
 //game list
 
 router.get("/gameList", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
+  try {
+    if (req.session.adminLogIn) {
+      const games = await Games.find();
+      res.render("admin/pages/gameList", { games, message: "" });
+    } else {
+      res.redirect("/adminLogin");
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
-  const games = await Games.find();
-  res.render("admin/pages/gameList", { games, message: "" });
 });
 
 //search game
@@ -434,7 +459,7 @@ router.get("/insertGame", (req, res) => {
   } else {
     res.redirect("/adminLogin");
   }
-  res.render("admin/pages/insertGame");
+  res.render("admin/pages/insertGame", { message1: "" });
 });
 
 router.post("/insertGameData", upload.single("gameImage"), async (req, res) => {
@@ -448,40 +473,48 @@ router.post("/insertGameData", upload.single("gameImage"), async (req, res) => {
       publisher,
       gameSize,
     } = req.body;
+    const games = await Games.findOne({ gameName });
+    if (!games) {
+      const croppedImageData = JSON.parse(req.body.croppedImageData);
 
-    const croppedImageData = JSON.parse(req.body.croppedImageData);
+      // Construct the image URL based on the destination folder and filename
+      const gameImage = req.file
+        ? `/views/gameImages/${req.file.filename}`
+        : "";
 
-    // Construct the image URL based on the destination folder and filename
-    const gameImage = req.file ? `/views/gameImages/${req.file.filename}` : "";
+      // Create a new game instance
+      const newGame = new Games({
+        gameName,
+        description,
+        genre,
+        price,
+        released,
+        publisher,
+        gameSize,
+        gameImage,
+        croppedImageData,
+      });
 
-    // Create a new game instance
-    const newGame = new Games({
-      gameName,
-      description,
-      genre,
-      price,
-      released,
-      publisher,
-      gameSize,
-      gameImage,
-      croppedImageData,
-    });
+      // Save the game to the database
+      await newGame.save();
 
-    // Save the game to the database
-    await newGame.save();
+      if (req.file) {
+        const imagePath = path.join(
+          __dirname,
+          "views",
+          "gameImages",
+          req.file.filename
+        );
+        fs.unlinkSync(imagePath);
+      }
 
-    if (req.file) {
-      const imagePath = path.join(
-        __dirname,
-        "views",
-        "gameImages",
-        req.file.filename
-      );
-      fs.unlinkSync(imagePath);
+      // Render the insertGame page
+      res.render("admin/pages/insertGame");
+    } else {
+      res.render("admin/pages/insertGame", {
+        message1: "Game is already exists",
+      });
     }
-
-    // Render the insertGame page
-    res.render("admin/pages/insertGame");
   } catch (error) {
     console.error(error);
 
@@ -524,13 +557,14 @@ router.get("/editGame/:id", async (req, res) => {
   }
   try {
     const game = await Games.findById(req.params.id);
-    res.render("admin/pages/editGame", { game });
+    res.render("admin/pages/editGame", { game, message1: "" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
 router.post("/editGame/:id", upload.single("gameImage"), async (req, res) => {
   try {
+    const game = await Games.findById(req.params.id);
     const gameId = req.params.id;
 
     // Get other details from the request body
@@ -544,31 +578,39 @@ router.post("/editGame/:id", upload.single("gameImage"), async (req, res) => {
       gameSize,
     } = req.body;
 
-    // Check if a new image was uploaded
-    const gameImage = req.file
-      ? `/views/gameImages/${req.file.filename}`
-      : undefined;
+    const games = await Games.findOne({ gameName });
+    if (games) {
+      // Check if a new image was uploaded
+      const gameImage = req.file
+        ? `/views/gameImages/${req.file.filename}`
+        : undefined;
 
-    // Prepare the update object with the fields that are provided
-    const updateObject = {
-      gameName,
-      description,
-      genre,
-      price,
-      released,
-      publisher,
-      gameSize,
-    };
+      // Prepare the update object with the fields that are provided
+      const updateObject = {
+        gameName,
+        description,
+        genre,
+        price,
+        released,
+        publisher,
+        gameSize,
+      };
 
-    // If a new image is provided, add it to the update object
-    if (gameImage !== undefined) {
-      updateObject.gameImage = gameImage;
+      // If a new image is provided, add it to the update object
+      if (gameImage !== undefined) {
+        updateObject.gameImage = gameImage;
+      }
+
+      // Update the game details in the database
+      await Games.findByIdAndUpdate(gameId, updateObject);
+
+      res.redirect("/gameList");
+    } else {
+      res.render("admin/pages/editGame", {
+        game,
+        message1: "User already exists",
+      });
     }
-
-    // Update the game details in the database
-    await Games.findByIdAndUpdate(gameId, updateObject);
-
-    res.redirect("/gameList");
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -675,15 +717,23 @@ router.get("/editGenre/:id", async (req, res) => {
   }
   try {
     const genre = await Genres.findById(req.params.id);
-    res.render("admin/pages/editGenre", { genre });
+    res.render("admin/pages/editGenre", { genre, message1: "" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
 router.post("/editGenre/:id", async (req, res) => {
   try {
-    await Genres.findByIdAndUpdate(req.params.id, req.body);
-    res.redirect("/genreList");
+    const genre = await Genres.findOne({ _id: req.params.id });
+    if (!genre) {
+      await Genres.findByIdAndUpdate(req.params.id, req.body);
+      res.redirect("/genreList");
+    } else {
+      res.render("admin/pages/editGenre", {
+        genre,
+        message1: "Genre is already exists",
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

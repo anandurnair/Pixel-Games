@@ -1,108 +1,224 @@
 <%- include('./includes/adminHeader.ejs'); -%>
 <div id="page-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">Insert Games</h1>
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Enter Games details
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <form role="form" method="post" action="/insertGameData" enctype="multipart/form-data">
-                                    <div class="form-group">
-                                        <label>Game name</label>
-                                        <input class="form-control" type="text" name="gameName" required>
-                                    </div>
-                                   
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                       <textarea class="form-control" name="description" id="" cols="30" rows="10" required></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Genre</label>
-                                        <input class="form-control" type="text" name="genre" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Price</label>
-                                        <input class="form-control" type="text" name="price"  required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Released</label>
-                                        <input class="form-control" type="date" name="released" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Publisher</label>
-                                        <input class="form-control" type="text" name="publisher" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Size</label>
-                                        <input class="form-control" type="text" name="gameSize" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Image</label>
-                                        <input class="form-control" type="file" name="gameImage" id="imageInput" required>
-                                        <img id="croppedImage" style="max-width: 100%;">
-                                        <input type="hidden" name="croppedImageData" id="croppedImageData">
-                                      </div>
-                                    
-                                    
-                                    <a href=""><button type="submit" class="btn btn-default">Submit Button</button></a>
-                                    <a href="/insertGame"> <button type="reset" class="btn btn-default">Reset Button</button></a>
-                                   
-                                </form>
-                            </div>
-                            <!-- /.col-lg-6 (nested) -->
-                            
-                            <!-- /.col-lg-6 (nested) -->
-                        </div>
-                        <!-- /.row (nested) -->
-                    </div>
-                    <!-- /.panel-body -->
-                </div>
-                <!-- /.panel -->
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">Insert Games</h1>
+      </div>
+      <!-- /.col-lg-12 -->
     </div>
-    <!-- /.container-fluid -->
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">Enter Games details</div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <span style="color: red;"><%= message1 %></span>
+                <form
+                  role="form"
+                  method="post"
+                  action="/insertGameData"
+                  enctype="multipart/form-data"
+                  onsubmit="return validateForm()"
+                >
+                  <div class="form-group">
+                    <label>Game name</label>
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="gameName"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Description</label>
+                    <textarea
+                      class="form-control"
+                      name="description"
+                      id="description"
+                      cols="30"
+                      rows="10"
+                      required
+                    ></textarea>
+                    <div id="errorDescription" style="color: red"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Genre</label>
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="genre"
+                      id="genre"
+                      required
+                    />
+                    <div id="errorGenre" style="color: red"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Price</label>
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="price"
+                      id="price"
+                      required
+                    />
+                    <div id="errorPrice" style="color: red"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Released</label>
+                    <input
+                      class="form-control"
+                      type="date"
+                      name="released"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Publisher</label>
+                    <input class="form-control" type="text" name="publisher" id="publisher" required>
+                    <div id="errorPublisher" style="color: red;"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Size</label>
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="gameSize"
+                      id="gameSize"
+                      required
+                    />
+                    <div id="errorGameSize" style="color: red"></div>
+                  </div>
+                  <div class="form-group">
+                    <label>Image</label>
+                    <input
+                      class="form-control"
+                      type="file"
+                      name="gameImage"
+                      id="imageInput"
+                      required
+                    />
+                    <img id="croppedImage" style="max-width: 100%" />
+                    <input
+                      type="hidden"
+                      name="croppedImageData"
+                      id="croppedImageData"
+                    />
+                  </div>
+
+                  <a href=""
+                    ><button type="submit" class="btn btn-default">
+                      Submit Button
+                    </button></a
+                  >
+                  <a href="/insertGame">
+                    <button type="reset" class="btn btn-default">
+                      Reset Button
+                    </button></a
+                  >
+                </form>
+              </div>
+              <!-- /.col-lg-6 (nested) -->
+
+              <!-- /.col-lg-6 (nested) -->
+            </div>
+            <!-- /.row (nested) -->
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var image = document.getElementById('croppedImage');
-      var input = document.getElementById('imageInput');
-      var croppedDataInput = document.getElementById('croppedImageData');
-      
-      var cropper = new Cropper(image, {
-        aspectRatio: 16 / 9, // Set your desired aspect ratio
-        viewMode: 1, // Set to 1 to restrict the crop box to the size of the canvas
-        crop: function (event) {
-          // Update the hidden input with cropped data
-          croppedDataInput.value = JSON.stringify(cropper.getData());
-        },
-      });
-  
-      input.addEventListener('change', function (e) {
-        var files = e.target.files;
-        var reader = new FileReader();
-  
-        reader.onload = function () {
-          // Set the image source and update the Cropper
-          image.src = reader.result;
-          cropper.replace(reader.result);
-        };
-  
-        reader.readAsDataURL(files[0]);
-      });
+
+
+    function validateForm() {
+        // Reset error messages
+        document.getElementById("errorDescription").textContent = "";
+        document.getElementById("errorGenre").textContent = "";
+        document.getElementById("errorPrice").textContent = "";
+        document.getElementById("errorGameSize").textContent = "";
+        document.getElementById("errorPublisher").textContent = "";
+    
+        // Validate description (minimum 20 words)
+        var description = document.getElementById("description").value;
+        var words = description.match(/\S+/g) || [];
+        if (words.length < 20) {
+          document.getElementById("errorDescription").textContent = "Description must contain a minimum of 20 words.";
+          return false;
+        }
+    
+        // Validate genre (should be a string)
+        var genre = document.getElementById("genre").value;
+        if (!isNaN(genre)) {
+          document.getElementById("errorGenre").textContent = "Genre must be a string.";
+          return false;
+        }
+    
+        // Validate price (should be a number)
+        var price = document.getElementById("price").value;
+        if (isNaN(price)) {
+          document.getElementById("errorPrice").textContent = "Price must be a number.";
+          return false;
+        }
+
+        var publisher = document.getElementById("publisher").value;
+        if (/\d/.test(publisher) || /[!@#$%^&*(),.?":{}|<>]/.test(publisher)) {
+          document.getElementById("errorPublisher").textContent = "Publisher must not contain numbers or special characters.";
+          return false;
+        }
+    
+        // Validate game size (should be a number)
+        var gameSize = document.getElementById("gameSize").value;
+        if (isNaN(gameSize)) {
+          document.getElementById("errorGameSize").textContent = "Size must be a number.";
+          return false;
+        }
+    
+        // If all validations pass, submit the form
+        return true;
+      }
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var image = document.getElementById("croppedImage");
+    var input = document.getElementById("imageInput");
+    var croppedDataInput = document.getElementById("croppedImageData");
+
+    var cropper = new Cropper(image, {
+      aspectRatio: 16 / 9, // Set your desired aspect ratio
+      viewMode: 1, // Set to 1 to restrict the crop box to the size of the canvas
+      crop: function (event) {
+        // Update the hidden input with cropped data
+        croppedDataInput.value = JSON.stringify(cropper.getData());
+      },
     });
-  </script>
+
+    input.addEventListener("change", function (e) {
+      var files = e.target.files;
+      var reader = new FileReader();
+
+      reader.onload = function () {
+        // Set the image source and update the Cropper
+        image.src = reader.result;
+        cropper.replace(reader.result);
+      };
+
+      reader.readAsDataURL(files[0]);
+    });
+  });
+</script>
 <%- include('./includes/adminFooter.ejs'); -%>
