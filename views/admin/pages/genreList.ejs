@@ -48,10 +48,10 @@
                                         <tr class="odd gradeX">
                                             <td><%= genre.id %></td>
                                             <td><%= genre.genreName %></td>
-                                            <td class="center"><% if (genre.isUnlist) { %>
-                                                <a href="/unblock/<%= genre._id %>">Unlist</a>
+                                            <td class="center"><% if (genre.unlistGenre==false) { %>
+                                                <a href="/unlistGenre/<%= genre._id %>">Unlist</a>
                                               <% } else { %>
-                                                <a href="/block/<%= genre._id %>">List</a>
+                                                <a href="/listGenre/<%= genre._id %>">List</a>
                                               <% } %></td>
                                             <td class="center"><a href="/editGenre/<%= genre._id %>">Edit</a></td>
     

@@ -17,14 +17,11 @@ Product details page
 
 pending topics:
 
-
-unique users
-resend otp
-product details
-signup authentication
-authentication in insert user
-edit responsive nav bar
-
+unique games
+unique Genre
+game validation 
+user insert validation
+remove phone field
 
 
 

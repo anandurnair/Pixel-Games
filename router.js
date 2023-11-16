@@ -6,44 +6,8 @@ const Genres = require("./Models/genre");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-
-const accountSid = "ACdbff5c74f03399ff963c51458f20dc6e";
-const authToken = "55689063dfb44a194f3cd6c7392d9b7e";
-const verifySid = "VAba4bafa31ae3ed26ea5f19d7228c98d1";
-const client = require("twilio")(accountSid, authToken);
-
-// const generateOTP = () => {
-//   return Math.floor(1000 + Math.random() * 9000).toString();
-// };
-
-const sendOTP = (phoneNumber) => {
-
-
-  try {
-
-    client.validationRequests.create({
-      friendlyName: 'My Phone Number',
-      phoneNumber: `+91${phoneNumber}`,  // Replace with the phone number you want to verify
-    })
-    .then(validation_request => console.log(validation_request.sid))
-    .catch(error => console.error(error));
-
-    console.log(phoneNumber);
-    client.verify.v2
-      .services(verifySid)
-      .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" })
-      .then((verification) => console.log(verification.status)).catch((err)=>console.log(err))
-  } catch (error) {
-    console.log(error)
-  }
-
-    // .then(() => {
-    //   const readline = require("readline").createInterface({
-    //     input: process.stdin,
-    //     output: process.stdout,
-    //   });
-    // });
-};
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 
 // Set up Multer for file uploads
 const storage = multer.diskStorage({
@@ -79,7 +43,7 @@ router.post("/loginData", async (req, res) => {
 
     if (
       email === user.email &&
-      password == user.password &&
+      bcrypt.compare(password, user.password) &&
       user.isBlocked == false
     ) {
       req.session.isLoggedIn = true;
@@ -102,50 +66,101 @@ router.get("/signup", (req, res) => {
   if (req.session.isLoggedIn) {
     res.redirect("/home");
   } else {
-    res.render("user-signup");
+    res.render("user-signup", { message1: "" });
   }
 });
-router.post("/signupData", async (req, res) => {
 
-  try {
-    if (req.session.isLoggedIn) {
-      res.redirect("/home");
-    } else {
-  
-      
-      const { fullName, email, phone, password } = req.body;
-      // const newUser = new Users({ fullName, email, phone,password });
-      // const savedUser = await newUser.save();
-      req.session.isLoggedIn = true;
-  
-      const phoneNumber = req.body.phone;
-      // const otp = generateOTP();
-      sendOTP(phoneNumber);
-      res.render("otp", { fullName, email, phone, password, error: "" });
+//OTP
+let generatedOTP = "";
+
+// Generate OTP function
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Create a Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "anandurpallam@gmail.com", // replace with your email
+    pass: "gxej hquc oifu hzdo", // replace with your password or an app-specific password
+  },
+});
+
+router.post("/signupData", async (req, res) => {
+  if (req.session.isLoggedIn) {
+    res.redirect("/home");
+  } else {
+    try {
+      const { fullName, email, password } = req.body;
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Generate OTP
+      generatedOTP = generateOTP();
+
+      // Compose email
+      const mailOptions = {
+        from: "anandurpallam@gmail.com", // replace with your email
+        to: email,
+        subject: "Your OTP Code",
+        text: `Your OTP code is: ${generatedOTP}`,
+      };
+      const user = await Users.findOne({ email });
+      console.log(user);
+
+      if (!user) {
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(500).json({ error: "Error sending OTP email" });
+          }
+
+          // Render the OTP page or do whatever you want after sending the OTP
+          res.render("otp", {
+            fullName,
+            email,
+            password: hashedPassword,
+            error: "",
+          });
+        });
+      } else {
+        res.render("user-signup", { message1: "User already exists" });
+      }
+      // Send email
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
     }
-  } catch (error) {
-    console.log(error)
   }
- 
 });
 
 //otp
 router.post("/otpData", async (req, res) => {
   try {
-    const { fullName, email, phone, password, otpCode } = req.body;
+    const { fullName, email, password, otpCode } = req.body;
 
-    const verification_check = await client.verify.v2
-      .services(verifySid)
-      .verificationChecks.create({ to: `+91${phone}`, code: otpCode });
+    // Perform OTP verification
+    const isOtpValid = otpCode === generatedOTP;
 
-    console.log(verification_check.status);
-
-    const newUser = new Users({ fullName, email, phone, password });
-    const savedUser = await newUser.save();
-
-    res.redirect("/home");
-  } catch (err) {
-    res.render("/user/otp", { error: "Incorrect OTP" });
+    if (isOtpValid) {
+      // If OTP is valid, create a new user
+      const newUser = new Users({ fullName, email, password });
+      const savedUser = await newUser.save();
+      req.session.isLoggedIn = true;
+      // Redirect to the next page or perform any other action
+      res.redirect("/home");
+    } else {
+      // If OTP is invalid, render the OTP page again with an error message
+      res.render("otp", {
+        fullName,
+        email,
+        password,
+        error: "Invalid OTP. Please try again.",
+      });
+    }
+  } catch (error) {
+    // Handle any errors that may occur during OTP verification or user creation
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -174,7 +189,6 @@ router.get("/home", async (req, res) => {
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
-
 
 router.get("/gameDetails/:id", async (req, res) => {
   try {
@@ -282,32 +296,40 @@ router.get("/insertUser", async (req, res) => {
   } else {
     res.redirect("/adminLogin");
   }
-  res.render("admin/pages/insertUser");
+  res.render("admin/pages/insertUser", { message1: "" });
 });
 
 router.post("/insertUserData", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
+  try {
+    if (req.session.adminLogIn) {
+      const { fullName, userName, email, phone, country, password } = req.body;
+      const users = await Users.find();
+      const newUser = new Users({
+        fullName,
+        userName,
+        email,
+        phone,
+        country,
+        password,
+      });
+
+      const user = await Users.findOne({ email });
+      console.log(user);
+
+      if (!user) {
+        const savedUser = await newUser.save();
+        res.redirect("/insertUser", { message1: "" });
+      } else {
+        res.render("admin/pages/insertUser", {
+          message1: "User already exists",
+        });
+      }
+    } else {
+      res.redirect("/insertUser");
+    }
+  } catch {
+    res.status(500).json({ error: "Internal server error" });
   }
-  const { fullName, userName, email, phone, country, password } = req.body;
-  const users = await Users.find();
-  const newUser = new Users({
-    fullName,
-    userName,
-    email,
-    phone,
-    country,
-    password,
-  });
-  newUser
-    .save()
-    .then(() => {
-      res.render("admin/pages/insertUser");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 });
 
 //edit user
@@ -442,14 +464,19 @@ router.post("/insertGameData", upload.single("gameImage"), async (req, res) => {
       publisher,
       gameSize,
       gameImage,
-      croppedImageData
+      croppedImageData,
     });
 
     // Save the game to the database
     await newGame.save();
 
     if (req.file) {
-      const imagePath = path.join(__dirname, "views", "gameImages", req.file.filename);
+      const imagePath = path.join(
+        __dirname,
+        "views",
+        "gameImages",
+        req.file.filename
+      );
       fs.unlinkSync(imagePath);
     }
 
@@ -460,6 +487,32 @@ router.post("/insertGameData", upload.single("gameImage"), async (req, res) => {
 
     // Handle the error and render an error page
     res.status(500).render("error", { error: "Internal Server Error" });
+  }
+});
+
+// In your router.js file or wherever you define your routes
+
+// Block a game
+router.get("/unlist/:id", async (req, res) => {
+  try {
+    const game = await Games.findById(req.params.id);
+    game.unlist = true; // Assuming you have a 'unlist' property in your Games model
+    await game.save();
+    res.redirect("/gameList"); // Redirect back to the game list page or another suitable page
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Unblock a game
+router.get("/list/:id", async (req, res) => {
+  try {
+    const game = await Games.findById(req.params.id);
+    game.unlist = false; // Assuming you have a 'unlist' property in your Games model
+    await game.save();
+    res.redirect("/gameList"); // Redirect back to the game list page or another suitable page
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -492,7 +545,9 @@ router.post("/editGame/:id", upload.single("gameImage"), async (req, res) => {
     } = req.body;
 
     // Check if a new image was uploaded
-    const gameImage = req.file ? `/views/gameImages/${req.file.filename}` : undefined;
+    const gameImage = req.file
+      ? `/views/gameImages/${req.file.filename}`
+      : undefined;
 
     // Prepare the update object with the fields that are provided
     const updateObject = {
@@ -520,7 +575,6 @@ router.post("/editGame/:id", upload.single("gameImage"), async (req, res) => {
   }
 });
 
-
 //genre list
 router.get("/genreList", async (req, res) => {
   if (req.session.adminLogIn) {
@@ -529,6 +583,29 @@ router.get("/genreList", async (req, res) => {
   }
   const genres = await Genres.find();
   res.render("admin/pages/genreList", { genres, message: "" });
+});
+
+router.get("/unlistGenre/:id", async (req, res) => {
+  try {
+    const genre = await Genres.findById(req.params.id);
+    genre.unlistGenre = true; // Assuming you have a 'unlist' property in your Games model
+    await genre.save();
+    res.redirect("/genreList"); // Redirect back to the game list page or another suitable page
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Unblock a game
+router.get("/listGenre/:id", async (req, res) => {
+  try {
+    const genre = await Genres.findById(req.params.id);
+    genre.unlistGenre = false; // Assuming you have a 'unlist' property in your Games model
+    await genre.save();
+    res.redirect("/genreList"); // Redirect back to the game list page or another suitable page
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 //search game
@@ -565,22 +642,28 @@ router.get("/insertGenre", (req, res) => {
   } else {
     res.redirect("/adminLogin");
   }
-  res.render("admin/pages/insertGenre");
+  res.render("admin/pages/insertGenre", { message1: "" });
 });
+
 router.post("/insertGenreData", async (req, res) => {
-  const { genreName } = req.body;
-  const genres = await Genres.find();
-  const newGenre = new Genres({
-    genreName,
-  });
-  newGenre
-    .save()
-    .then(() => {
-      res.render("admin/pages/insertGenre");
-    })
-    .catch((err) => {
-      console.log(err);
+  try {
+    const { genreName } = req.body;
+    const genre = await Genres.findOne({ genreName });
+    const newGenre = new Genres({
+      genreName,
     });
+
+    if (!genre) {
+      const savedGenre = await newGenre.save();
+      res.redirect("/genreList");
+    } else {
+      res.render("admin/pages/insertGenre", {
+        message1: "Genre is already exists",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 //edit genre

@@ -1,68 +1,161 @@
 <%- include('./includes/adminHeader.ejs'); -%>
+
+
 <div id="page-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">Insert User</h1>
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Enter user details
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <form role="form" action="/insertUserData" method="post">
-                                    <div class="form-group">
-                                        <label>Full name</label>
-                                        <input class="form-control" type="text" name="fullName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Username</label>
-                                        <input class="form-control" type="text" name="userName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <input class="form-control" type="email" name="email" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Phone</label>
-                                        <input class="form-control" type="text" name="phone"  required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Country</label>
-                                        <input class="form-control" type="text" name="country" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Password</label>
-                                        <input class="form-control" type="text" name="password" required>
-                                    </div>
-                                    
-                                    <a href=""><button type="submit" class="btn btn-default">Submit Button</button></a>
-                                    <a href="/insertUser"> <button type="reset" class="btn btn-default">Reset Button</button></a>
-                                   
-                                </form>
-                            </div>
-                            <!-- /.col-lg-6 (nested) -->
-                            
-                            <!-- /.col-lg-6 (nested) -->
-                        </div>
-                        <!-- /.row (nested) -->
-                    </div>
-                    <!-- /.panel-body -->
-                </div>
-                <!-- /.panel -->
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">Insert User</h1>
+      </div>
+      <!-- /.col-lg-12 -->
     </div>
-    <!-- /.container-fluid -->
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Enter user details
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <span><%= message1 %></span>
+                <form role="form" id="form1" action="/insertUserData" method="post" onsubmit="return validateForm()">
+                  <div class="form-group">
+                    <label>Full name</label>
+                    <div class="input-box">
+                      <input class="form-control" type="text" name="fullName" required />
+                      <div class="error-message" id="errorFullName"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Username</label>
+                    <div class="input-box">
+                      <input class="form-control" type="text" name="userName" required />
+                      <div class="error-message" id="errorUserName"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-box">
+                      <input class="form-control" type="email" name="email" required />
+                      <div class="error-message" id="errorEmail"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Phone</label>
+                    <div class="input-box">
+                      <input class="form-control" type="text" name="phone" required />
+                      <div class="error-message" id="errorPhone"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Country</label>
+                    <div class="input-box">
+                      <input class="form-control" type="text" name="country" required />
+                      <div class="error-message" id="errorCountry"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-box">
+                      <input class="form-control" type="password" name="password" required />
+                      <div class="error-message" id="errorPassword"></div>
+                    </div>
+                  </div>
+                  <div style="display: flex;">
+                    <div class="button input-box">
+                      <input type="submit" value="Submit Button" class="btn btn-default" />
+                    </div>
+                    <div class="button input-box">
+                      <input type="reset" value="Reset Button" class="btn btn-default" />
+                    </div>
+                  </div>
+                
+                </form>
+              </div>
+              <!-- /.col-lg-6 (nested) -->
+            </div>
+            <!-- /.row (nested) -->
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
 </div>
+
+<script>
+  let form1 = document.getElementById("form1");
+  let sEmail = document.getElementsByName("email")[0];
+  let sPassword = document.getElementsByName("password")[0];
+  let sFullName = document.getElementsByName("fullName")[0];
+  let sUserName = document.getElementsByName("userName")[0];
+
+  form1.addEventListener("submit", validateForm);
+
+  function validateForm(event) {
+    // Reset error messages
+    document.getElementById("errorFullName").textContent = "";
+    document.getElementById("errorUserName").textContent = "";
+    document.getElementById("errorEmail").textContent = "";
+    document.getElementById("errorPhone").textContent = "";
+    document.getElementById("errorCountry").textContent = "";
+    document.getElementById("errorPassword").textContent = "";
+
+    // Validate full name (should not contain numbers)
+    if (!/^[A-Za-z\s]+$/.test(sFullName.value)) {
+      document.getElementById("errorFullName").textContent = "Full name should not contain numbers.";
+      event.preventDefault();
+    }
+
+    // Validate username (if needed)
+    // You can add a similar validation for the username
+
+    // Validate email format
+    if (!/^\S+@\S+\.\S+$/.test(sEmail.value)) {
+      document.getElementById("errorEmail").textContent = "Invalid email address.";
+      event.preventDefault();
+    }
+
+    // Validate phone number (basic format, without dashes or spaces)
+    if (!/^\d{10}$/.test(document.getElementsByName("phone")[0].value)) {
+      document.getElementById("errorPhone").textContent = "Invalid phone number.";
+      event.preventDefault();
+    }
+
+    // Validate country (if needed)
+    // You can add a similar validation for the country
+
+    // Validate password (should contain at least 6 characters)
+    if (sPassword.value.length < 6) {
+      document.getElementById("errorPassword").textContent = "Password must contain at least 6 characters.";
+      event.preventDefault();
+    }
+  }
+
+  function errFunction() {
+    document.getElementById('errorPassword').style.display = 'none';
+  }
+
+  const signUpButton = document.getElementById("signUp");
+  const signInButton = document.getElementById("signIn");
+  const container = document.getElementById("container");
+
+  signUpButton.addEventListener("click", () => {
+    container.classList.add("right-panel-active");
+  });
+
+  signInButton.addEventListener("click", () => {
+    container.classList.remove("right-panel-active");
+  });
+</script>
+
+
+
 
 <%- include('./includes/adminFooter.ejs'); -%>

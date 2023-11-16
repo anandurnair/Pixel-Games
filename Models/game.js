@@ -4,6 +4,7 @@ const mongoose = require("../config/db"); // Import the mongoose connection from
 const gameSchema = new mongoose.Schema({
   gameName: {
     type: String,
+    unique:true
   },
   description: {
     type: String,
@@ -25,7 +26,8 @@ const gameSchema = new mongoose.Schema({
   },
   gameImage: {
     type: String,
-  }
+  },
+  unlist:Boolean
   
 });
 

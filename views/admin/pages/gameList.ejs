@@ -52,6 +52,8 @@
                                 </thead>
                                 <tbody>
                                     <% games.forEach(game=>{ %>
+
+                                       
                                     <tr class="odd gradeX">
                                         <td><%= game.id %></td>
                                         <td><%= game.gameName %></td>
@@ -62,10 +64,10 @@
                                         <td class="center"><%= game.publisher %></td>
                                         <td class="center"><%= game.gameSize %></td>
                                         <td class="center"><%= game.gameImage %></td>
-                                        <td class="center"><% if (game.unlist) { %>
-                                            <a href="/unblock/<%= game._id %>">Unlist</a>
+                                        <td class="center"><% if (game.unlist==false) { %>
+                                            <a href="/Unlist/<%= game._id %>">Unlist</a>
                                           <% } else { %>
-                                            <a href="/block/<%= game._id %>">list</a>
+                                            <a href="/list/<%= game._id %>">list</a>                                                                                                                                            
                                           <% } %></td>
                                         <td class="center"><a href="/editGame/<%= game._id %>">Edit</a></td>
 

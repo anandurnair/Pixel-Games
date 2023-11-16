@@ -7,21 +7,26 @@ const userSchema = new mongoose.Schema({
   },
   userName: {
     type: String,
+    unique: true,
   },
   email: {
     type: String,
+    unique: true,
   },
   country: {
     type: String,
   },
   phone: {
     type: String,
+    unique: true,
   },
   password: String,
 
   isBlocked: {
-     type: Boolean, 
-     default: false }
+    type: Boolean,
+    default: false,
+  }
+ 
 });
 
 const Users = mongoose.model("users", userSchema);
