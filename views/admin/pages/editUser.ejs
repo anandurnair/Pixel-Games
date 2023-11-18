@@ -6,9 +6,7 @@
             <div class="col-lg-12">
                 <h1 class="page-header">Edit User</h1>
             </div>
-            <!-- /.col-lg-12 -->
         </div>
-        <!-- /.row -->
         <div class="row">
             <div class="col-lg-12">
                 <div class="panel panel-default">
@@ -18,15 +16,13 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-6">
-                                <form role="form" action="/editUser/<%= users._id %>" method="post">
+                                <form role="form" action="/editUser/<%= users._id %>" method="post" onsubmit="return validateForm()">
                                     <div class="form-group">
                                         <label>Full name</label>
                                         <input class="form-control" type="text" name="fullName" value="<%= users.fullName %>" >
+                                        <div class="error-message" id="errorFullName" style="color: red;"></div>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Username</label>
-                                        <input class="form-control" type="text" name="userName" value="<%= users.userName %>" required>
-                                    </div>
+                                   
                                     <div class="form-group">
                                         <label>Email</label>
                                         <input class="form-control" type="email" name="email" value="<%= users.email %>" required>
@@ -34,33 +30,59 @@
                                     <div class="form-group">
                                         <label>Phone</label>
                                         <input class="form-control" type="text" name="phone" value="<%= users.phone %>"  >
+                                        <div class="error-message" id="errorPhone" style="color: red;"></div>
                                     </div>
                                     <div class="form-group">
                                         <label>Country</label>
                                         <input class="form-control" type="text" name="country" value="<%= users.country %>" >
+                                        <div class="error-message" id="errorCountry" style="color: red;"></div>
                                     </div>
                                    
-                                    
-                                    <a href=""><button type="submit" class="btn btn-default">Submit Button</button></a>
-                                    <a href="/insertUser"> <button type="reset" class="btn btn-default">Reset Button</button></a>
-                                   
+                                    <button type="submit" class="btn btn-default">Submit Button</button>
+                                    <a href="/editUser/<%= users._id %>"> <button type="button" class="btn btn-default">Reset Button</button></a>
                                 </form>
                             </div>
-                            <!-- /.col-lg-6 (nested) -->
-                            
-                            <!-- /.col-lg-6 (nested) -->
                         </div>
-                        <!-- /.row (nested) -->
                     </div>
-                    <!-- /.panel-body -->
                 </div>
-                <!-- /.panel -->
             </div>
-            <!-- /.col-lg-12 -->
         </div>
-        <!-- /.row -->
     </div>
-    <!-- /.container-fluid -->
 </div>
 
+<script>
+  function validateForm() {
+    // Reset error messages
+    document.getElementById("errorFullName").textContent = "";
+    document.getElementById("errorPhone").textContent = "";
+    document.getElementById("errorCountry").textContent = "";
+
+    // Validate full name (should not contain numbers and max 50 letters)
+    const fullNameInput = document.getElementsByName("fullName")[0];
+    const fullNameValue = fullNameInput.value.trim();
+    if (!/^[A-Za-z\s]+$/.test(fullNameValue) || fullNameValue.length > 50) {
+      document.getElementById("errorFullName").textContent = "Full name should not contain numbers and should be up to 50 letters.";
+      return false;
+    }
+
+    // Validate phone number (should be numeric and 10 digits)
+    const phoneInput = document.getElementsByName("phone")[0];
+    const phoneValue = phoneInput.value.trim();
+    if (!/^\d{10}$/.test(phoneValue)) {
+      document.getElementById("errorPhone").textContent = "Invalid phone number. It should be numeric and 10 digits.";
+      return false;
+    }
+
+    // Validate country (should not contain numbers and max 40 characters)
+    const countryInput = document.getElementsByName("country")[0];
+    const countryValue = countryInput.value.trim();
+    if (!/^[A-Za-z\s]+$/.test(countryValue) || countryValue.length > 40) {
+      document.getElementById("errorCountry").textContent = "Country should not contain numbers and should be up to 40 characters.";
+      return false;
+    }
+
+    // Form is valid, you can submit
+    return true;
+  }
+</script>
 <%- include('./includes/adminFooter.ejs'); -%>

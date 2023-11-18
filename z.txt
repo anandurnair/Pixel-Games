@@ -1,40 +1,40 @@
 
+	
+Pendings:
 
-Next week:
+- move logic into controllers
+- cleanup code
+- handle and communicate errors
 
-User signup with otp/login   
-Admin login   
-User management admin(list, block/unblock)
-Genre management admin
-Game management admin(add/edit games)
-List products in user
-Product details page
+User
+- validate signup fields
+- set password rules
+- OTP resend 
+- OTP expiry
+- display proper error when blocked user attempts auth
 
-
-
-
-
-
-pending topics:
-
-unique games
-unique Genre
-game validation 
-user insert validation
-remove phone field
-
-
+Admin
+- remove id from genre list
+- when adding game, genre shouldn’t be a text field but it should be based on genres existing in db
+- indicate unit in size field
+- handle image validation error and display error message
+- remove description from product listing. Only display key information 
+- product edit shows "user already exists"
+- validate fields on product: -ve values, empty fields, input formats
+- logout blocked users
 
 
 
+Next Week
 
-
-
-
-
-
-
-
-
-
-
+User side : 
+User profile(Show user details, show address, show orders, Add address, edit profile, cancel orders, forgot password).
+Cart management (Add to cart, list products in cart, remove products from cart). 
+*Inventory/Stock management.*
+Checkout page(Multiple address,edit and saved address)
+Purchase with COD.
+Order Management-Order cancellation option, Order history and status 
+Admin side : 
+Order Management
+Turn on screen reader support
+To enable screen reader support, press Ctrl+Alt+Z To learn about keyboard shortcuts, press Ctrl+slash

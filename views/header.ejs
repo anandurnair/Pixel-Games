@@ -100,13 +100,13 @@
                 <div class="col-lg-3">
                     <div class="q" style="margin-top: 20px;">
                         <!-- <a href="/home"><img src="" alt=""></a> -->
-                       <a href="/home" id="title" style="text-decoration: none; color:#fff">Pixel Games</a>
+                       <a href="/home/?userId=<%= user._id %>" id="title" style="text-decoration: none; color:#fff">Pixel Games</a>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a href="/home">Home</a></li>
+                            <li class="active"><a href="/home/?userId=<%= user._id %>">Home</a></li>
                             <li><a href="./shop-grid.html">Categories</a></li>
                             <li><a href="#">Library</a>
                                 <!-- <ul class="header__menu__dropdown">
@@ -124,7 +124,7 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         
-                        <div class="header__cart__price"><a href="/userProfile"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;"><i class="fa-solid fa-user" style="color: #ffffff;"> </i>  &nbsp; Profile </button></span></div></a>&nbsp;
+                        <div class="header__cart__price"><a href="/userProfile"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;"><i class="fa-solid fa-user" style="color: #ffffff;"> </i>  &nbsp; <%= user.fullName %> </button></span></div></a>&nbsp;
                         <div class="header__cart__price"><a href="/logout"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;">LOGOUT</button></span></div></a>
                     </div>
                 </div>

@@ -112,6 +112,8 @@
                       name="croppedImageData"
                       id="croppedImageData"
                     />
+                    <div id="errorImage" style="color: red;"></div>
+
                   </div>
 
                   <a href=""
@@ -152,6 +154,8 @@
         document.getElementById("errorPrice").textContent = "";
         document.getElementById("errorGameSize").textContent = "";
         document.getElementById("errorPublisher").textContent = "";
+        document.getElementById("errorImage").textContent = ""; // Add this line
+
     
         // Validate description (minimum 20 words)
         var description = document.getElementById("description").value;
@@ -187,7 +191,12 @@
           document.getElementById("errorGameSize").textContent = "Size must be a number.";
           return false;
         }
-    
+        var imageInput = document.getElementById("imageInput");
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        if (!allowedExtensions.exec(imageInput.value)) {
+            document.getElementById("errorImage").textContent = "Invalid file type. Please upload a valid image file.";
+            return false;
+        }
         // If all validations pass, submit the form
         return true;
       }

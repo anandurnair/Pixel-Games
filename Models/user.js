@@ -5,10 +5,6 @@ const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
   },
-  userName: {
-    type: String,
-    unique: true,
-  },
   email: {
     type: String,
     unique: true,
@@ -18,15 +14,13 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    
   },
   password: String,
 
   isBlocked: {
     type: Boolean,
     default: false,
-  }
- 
+  },
 });
 
 const Users = mongoose.model("users", userSchema);

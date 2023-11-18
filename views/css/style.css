@@ -854,6 +854,9 @@ ol {
 	content: "";
 	opacity: 0;
 }
+.error-message{
+	color: red;
+}
 
 .featured__controls ul li:last-child {
 	margin-right: 0;

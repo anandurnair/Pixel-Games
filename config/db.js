@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const uri = "mongodb://localhost:27017/pixel-games";
 
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(uri);
 const db = mongoose.connection;
 
 mongoose.connection.on("error", (err) => {

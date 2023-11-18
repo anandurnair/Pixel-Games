@@ -43,12 +43,15 @@
             <div class="title">Login</div>
             <form action="/loginData" method="post">
               <div class="input-boxes">
-                <% if(error){ %>
+                <% if(blockMessage){ %>
+                  <h3 style="color: rgb(233, 41, 41)">User was blocked</h3>
+                  <% }else if(userError){%> 
+                   
+               
                 <h3 style="color: rgb(233, 41, 41)">Invalid Email/Password</h3>
-                <% }else{ %> 
-                  <h3 style="color: rgb(233, 41, 41)"></h3>
-                  <% } %>
-
+                <% }%> 
+                 
+                  
                 <div class="input-box">
                   <i class="fas fa-envelope"></i>
                   <input

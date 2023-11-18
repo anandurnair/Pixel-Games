@@ -86,44 +86,42 @@
       // Get form elements
       var fullNameInput = document.forms["signupForm"]["fullName"];
       var emailInput = document.forms["signupForm"]["email"];
-      
       var passwordInput = document.forms["signupForm"]["password"];
-
+    
       // Reset error messages
       var errorFullName = document.getElementById("errorFullName");
       var errorEmail = document.getElementById("errorEmail");
-     
       var errorPassword = document.getElementById("errorPassword");
-
+    
       errorFullName.textContent = "";
       errorEmail.textContent = "";
-  
       errorPassword.textContent = "";
-
-      // Validate full name (should not contain numbers)
-      if (!/^[A-Za-z\s]+$/.test(fullNameInput.value)) {
-        errorFullName.textContent = "Full name should not contain numbers.";
+    
+      // Validate full name (should contain a minimum of 2 letters other than spaces)
+      if (!/^[A-Za-z\s]*[A-Za-z][A-Za-z\s]*$/.test(fullNameInput.value)) {
+        errorFullName.textContent = "Fill it correctly";
         return false;
       }
-
+    
       // Validate email format
       if (!/^\S+@\S+\.\S+$/.test(emailInput.value)) {
         errorEmail.textContent = "Invalid email address.";
         return false;
       }
-
-      // Validate phone number (basic format, without dashes or spaces)
-   
-
-      // Validate password (should contain at least 6 characters)
-      if (passwordInput.value.length < 6) {
-        errorPassword.textContent = "Password must contain at least 6 characters.";
+    
+      // Validate password
+      if (
+        !/(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}/.test(passwordInput.value)
+      ) {
+        errorPassword.textContent =
+          "Weak Password";
         return false;
       }
-
+    
       // If all validations pass, submit the form
       return true;
     }
+    
   </script>
 </body>
 

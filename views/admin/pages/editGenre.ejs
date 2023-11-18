@@ -19,14 +19,15 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <span style="color: red;"><%= message1 %></span>
-                                <form role="form" action="/editGenre/<%= genre._id %>" method="post">
+                                <form role="form" action="/editGenre/<%= genre._id %>" method="post" onsubmit="return validateGenreName()">
+
                                     <div class="form-group">
                                         <label>Genre name</label>
-                                        <input class="form-control" type="text" name="genreName" value="<%= genre.genreName %>" required>
+                                        <input id="genreName" class="form-control" type="text" name="genreName" value="<%= genre.genreName %>" required>
                                         <div id="errorGenreName" style="color: red;"></div>
-                                    </div> 
+                                    </div>
                                     <a href=""><button type="submit" class="btn btn-default">Submit Button</button></a>
-                                    <a href="/editGenre"> <button type="reset" class="btn btn-default">Reset Button</button></a>
+                                    <a href="/editGenre/<%= genre._id %>"> <button type="button" class="btn btn-default">Reset Button</button></a>
                                    
                                 </form>
                             </div>

@@ -9,750 +9,150 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
-// Set up Multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "views", "gameImages")); // Adjust the destination folder as needed
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
+const userController = require("./controllers/userController");
+const homeController = require("./controllers/homeController");
+const adminController = require("./controllers/adminController");
+const adminUser = require("./controllers/adminUser");
+const adminGame = require("./controllers/adminGame");
+const adminGenre = require("./controllers/adminGenre");
+const adminOrder = require("./controllers/adminOrder");
 
-const upload = multer({ storage: storage });
 
-var isLoggedIn;
-var fullName;
-var error = false;
+//middlewares
+
+
+const isBlocked= require('./middlewares/isBlocked');
+const userBlocked = require("./middlewares/isBlocked");
+const isValidUser = require('./middlewares/isValidUser')
+
 
 //login
-router.get("/", (req, res) => {
-  if (req.session.isLoggedIn) {
-    res.redirect("/home");
-  } else {
-    res.render("user-login", { error });
-  }
-});
-router.post("/loginData", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await Users.findOne({ email: email });
-
-    if (
-      email === user.email &&
-      bcrypt.compare(password, user.password) &&
-      user.isBlocked == false
-    ) {
-      req.session.isLoggedIn = true;
-      error = false;
-      res.redirect("/home");
-    } else {
-      error = true;
-      res.redirect("/");
-    }
-  } catch {
-    error = true;
-    // res.status(500).json({ error: "Internal server error" });
-    res.redirect("/");
-  }
-});
+router.get("/", userController.Login);
+router.post("/loginData",isValidUser,userBlocked, userController.LoginData);
 
 // signup
 
-router.get("/signup", (req, res) => {
-  if (req.session.isLoggedIn) {
-    res.redirect("/home");
-  } else {
-    res.render("user-signup", { message1: "" });
-  }
-});
+router.get("/signup", userController.signup);
 
 //OTP
-let generatedOTP = "";
 
-// Generate OTP function
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-// Create a Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "anandurpallam@gmail.com", // replace with your email
-    pass: "gxej hquc oifu hzdo", // replace with your password or an app-specific password
-  },
-});
-
-router.post("/signupData", async (req, res) => {
-  if (req.session.isLoggedIn) {
-    res.redirect("/home");
-  } else {
-    try {
-      const { fullName, email, password } = req.body;
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-      // Generate OTP
-      generatedOTP = generateOTP();
-
-      // Compose email
-      const mailOptions = {
-        from: "anandurpallam@gmail.com", // replace with your email
-        to: email,
-        subject: "Your OTP Code",
-        text: `Your OTP code is: ${generatedOTP}`,
-      };
-      const user = await Users.findOne({ email });
-      console.log(user);
-
-      if (!user) {
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.error("Error sending OTP email:", error);
-            return res.status(500).json({ error: "Error sending OTP email" });
-          }
-
-          // Render the OTP page or do whatever you want after sending the OTP
-          res.render("otp", {
-            fullName,
-            email,
-            password: hashedPassword,
-            error: "",
-          });
-        });
-      } else {
-        res.render("user-signup", { message1: "User already exists" });
-      }
-      // Send email
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  }
-});
+router.post("/signupData", userController.signupData);
 
 //otp
-router.post("/otpData", async (req, res) => {
-  try {
-    const { fullName, email, password, otpCode } = req.body;
-
-    // Perform OTP verification
-    const isOtpValid = otpCode === generatedOTP;
-
-    if (isOtpValid) {
-      // If OTP is valid, create a new user
-      const newUser = new Users({ fullName, email, password });
-      const savedUser = await newUser.save();
-      req.session.isLoggedIn = true;
-      // Redirect to the next page or perform any other action
-      res.redirect("/home");
-    } else {
-      // If OTP is invalid, render the OTP page again with an error message
-      res.render("otp", {
-        fullName,
-        email,
-        password,
-        error: "Invalid OTP. Please try again.",
-      });
-    }
-  } catch (error) {
-    // Handle any errors that may occur during OTP verification or user creation
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.post("/otpData",userBlocked, userController.otpData);
 
 // home
 
-router.get("/home", async (req, res) => {
-  if (req.session.isLoggedIn) {
-    const games = await Games.find();
-    const genres = await Genres.find();
-    res.render("home", { games, genres });
-  } else {
-    res.redirect("/");
-  }
-});
+router.get("/home",userBlocked, homeController.homePage);
 
-//game details
-// router.get("/gameDetails1/:id", async (req, res) => {
-//   try {
-//     if (req.session.isLoggedIn) {
-//       const game = await Games.findById(req.params.id);
-//       res.render("gameDetails1", { game });
-//     } else {
-//       res.redirect("/");
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
-router.get("/gameDetails/:id", async (req, res) => {
-  try {
-    if (req.session.isLoggedIn) {
-      const game = await Games.findById(req.params.id);
-      res.render("gameDetails", { game });
-    } else {
-      res.redirect("/");
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/gameDetails/:id",userBlocked, homeController.gameDetails);
 
 //logout
-router.get("/logout", (req, res) => {
-  req.session.isLoggedIn = false;
-  res.redirect("/");
-});
+router.get("/logout", homeController.userLogout);
 
 //ADMIN
-let adminEmail = "anandu123@gmail.com";
-let adminPassword = 123;
-var adminLogIn;
 
 //adminlogin
 
-router.get("/adminLogin", (req, res) => {
-  if (req.session.adminLogIn) {
-    res.redirect("/adminDashboard");
-  } else {
-    res.render("admin/pages/login.ejs");
-  }
-});
+router.get("/adminLogin", adminController.login);
 
-router.post("/adminLoginData", (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (email == adminEmail && password == adminPassword) {
-      req.session.adminLogIn = true;
-      res.redirect("/adminDashboard");
-    } else {
-      res.render("admin/pages/login.ejs", {
-        err: true,
-        message: "Invalid Email / password",
-      });
-    }
-  } catch (error) {
-    console.error("Error in admin login:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.post("/adminLoginData", adminController.loginData);
 
 // admin dashboard
 
-router.get("/adminDashboard", (req, res) => {
-  if (req.session.adminLogIn) {
-    res.render("admin/pages/index");
-  } else {
-    res.redirect("/adminLogin");
-  }
-});
+router.get("/adminDashboard", adminController.dashboard);
 
 //USER
 
 //user list
 
-router.get("/userList", async (req, res) => {
-  if (req.session.adminLogIn) {
-    const users = await Users.find();
-    res.render("admin/pages/userList", { users, message: "" });
-  } else {
-    res.redirect("/adminLogin");
-  }
-});
+router.get("/userList", adminUser.userList);
 
 //search User
 
-router.get("/searchUser", async (req, res) => {
-  const { fullName } = req.query;
-  try {
-    const users = await Users.find({
-      fullName: new RegExp("^" + fullName, "i"),
-    });
-
-    if (req.session.adminLogIn) {
-      if (users.length > 0) {
-        res.render("admin/pages/userList", { users, message: "", err: "" });
-      } else {
-        res.render("admin/pages/userList", {
-          users,
-          message: "No users found with that username",
-          err: "",
-        });
-      }
-    } else {
-      res.redirect("/adminLogin");
-    }
-  } catch (error) {
-    console.error("Error searching for users:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/searchUser", adminUser.searchUser);
 
 //  insert user
 
-router.get("/insertUser", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  res.render("admin/pages/insertUser", { message1: "" });
-});
+router.get("/insertUser", adminUser.insertUser);
 
-router.post("/insertUserData", async (req, res) => {
-  try {
-    if (req.session.adminLogIn) {
-      const { fullName, userName, email, phone, country, password } = req.body;
-      const users = await Users.find();
-      const newUser = new Users({
-        fullName,
-        userName,
-        email,
-        phone,
-        country,
-        password,
-      });
-
-      const user = await Users.findOne({ email });
-      console.log(user);
-
-      if (!user) {
-        const savedUser = await newUser.save();
-        res.redirect("/insertUser", { message1: "" });
-      } else {
-        res.render("admin/pages/insertUser", {
-          message1: "User already exists",
-        });
-      }
-    } else {
-      res.redirect("/insertUser");
-    }
-  } catch {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.post("/insertUserData", adminUser.insertUserData);
 
 //edit user
 
-router.get("/editUser/:id", async (req, res) => {
-  
-  try {
-    if (req.session.adminLogIn) {
-      const users = await Users.findById(req.params.id);
-      res.render("admin/pages/editUser", { users });
-    } else {
-      res.redirect("/adminLogin");
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/editUser/:id", adminUser.editUser);
 
-
-router.post("/editUser/:id", async (req, res) => {
-  try {
-    const { fullName, userName, email, phone, country, password } = req.body;
-
-    // Validate input fields here
-
-    const updatedUser = {
-      fullName,
-      userName,
-      email,
-      phone,
-      country,
-      password,
-    };
-    await Users.findByIdAndUpdate(req.params.id, updatedUser);
-    res.redirect("/userList");
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.post("/editUser/:id", adminUser.editUserData);
 
 // Block a user
-router.get("/block/:id", async (req, res) => {
-  if (req.session.adminLogIn) {
-    try {
-      const user = await Users.findById(req.params.id);
-      user.isBlocked = true;
-      await user.save();
-      res.redirect("/userList"); // Redirect back to the user list page or another suitable page
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  } else {
-    res.redirect("/adminLogin");
-  }
-});
+router.get("/block/:id", adminUser.blockUser);
 
 // Unblock a user
-router.get("/unblock/:id", async (req, res) => {
-  if (req.session.adminLogIn) {
-    try {
-      const user = await Users.findById(req.params.id);
-      user.isBlocked = false;
-      await user.save();
-      res.redirect("/userList"); // Redirect back to the user list page or another suitable page
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
-    }
-  } else {
-    res.redirect("/adminLogin");
-  }
-});
+router.get("/unblock/:id", adminUser.unblockUser);
 
 //GAME
 
 //game list
 
-router.get("/gameList", async (req, res) => {
-  try {
-    if (req.session.adminLogIn) {
-      const games = await Games.find();
-      res.render("admin/pages/gameList", { games, message: "" });
-    } else {
-      res.redirect("/adminLogin");
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/gameList", adminGame.gameList);
 
 //search game
 
-router.get("/searchGame", async (req, res) => {
-  const { gameName } = req.query;
-  try {
-    const games = await Games.find({
-      gameName: new RegExp("^" + gameName, "i"),
-    });
-
-    if (req.session.adminLogIn) {
-      if (games.length > 0) {
-        res.render("admin/pages/gameList", { games, message: "", err: "" });
-      } else {
-        res.render("admin/pages/gameList", {
-          games,
-          message: "No users found with that game name",
-          err: "",
-        });
-      }
-    } else {
-      res.redirect("/adminLogin");
-    }
-  } catch (error) {
-    console.error("Error searching for games:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/searchGame", adminGame.searchGame);
 
 //  insert game
-router.get("/insertGame", (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  res.render("admin/pages/insertGame", { message1: "" });
-});
+router.get("/insertGame", adminGame.insertGame);
 
-router.post("/insertGameData", upload.single("gameImage"), async (req, res) => {
-  try {
-    const {
-      gameName,
-      description,
-      genre,
-      price,
-      released,
-      publisher,
-      gameSize,
-    } = req.body;
-    const games = await Games.findOne({ gameName });
-    if (!games) {
-      const croppedImageData = JSON.parse(req.body.croppedImageData);
-
-      // Construct the image URL based on the destination folder and filename
-      const gameImage = req.file
-        ? `/views/gameImages/${req.file.filename}`
-        : "";
-
-      // Create a new game instance
-      const newGame = new Games({
-        gameName,
-        description,
-        genre,
-        price,
-        released,
-        publisher,
-        gameSize,
-        gameImage,
-        croppedImageData,
-      });
-
-      // Save the game to the database
-      await newGame.save();
-
-      if (req.file) {
-        const imagePath = path.join(
-          __dirname,
-          "views",
-          "gameImages",
-          req.file.filename
-        );
-        fs.unlinkSync(imagePath);
-      }
-
-      // Render the insertGame page
-      res.render("admin/pages/insertGame");
-    } else {
-      res.render("admin/pages/insertGame", {
-        message1: "Game is already exists",
-      });
-    }
-  } catch (error) {
-    console.error(error);
-
-    // Handle the error and render an error page
-    res.status(500).render("error", { error: "Internal Server Error" });
-  }
-});
+router.post(
+  "/insertGameData",
+  adminController.upload,
+  adminGame.insertGameData
+);
 
 // In your router.js file or wherever you define your routes
 
 // Block a game
-router.get("/unlist/:id", async (req, res) => {
-  try {
-    const game = await Games.findById(req.params.id);
-    game.unlist = true; // Assuming you have a 'unlist' property in your Games model
-    await game.save();
-    res.redirect("/gameList"); // Redirect back to the game list page or another suitable page
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/unlist/:id", adminGame.unlistGame);
 
 // Unblock a game
-router.get("/list/:id", async (req, res) => {
-  try {
-    const game = await Games.findById(req.params.id);
-    game.unlist = false; // Assuming you have a 'unlist' property in your Games model
-    await game.save();
-    res.redirect("/gameList"); // Redirect back to the game list page or another suitable page
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/list/:id", adminGame.listGame);
 
 //edit games
-router.get("/editGame/:id", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  try {
-    const game = await Games.findById(req.params.id);
-    res.render("admin/pages/editGame", { game, message1: "" });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-router.post("/editGame/:id", upload.single("gameImage"), async (req, res) => {
-  try {
-    const game = await Games.findById(req.params.id);
-    const gameId = req.params.id;
+router.get("/editGame/:id", adminGame.editGame);
 
-    // Get other details from the request body
-    const {
-      gameName,
-      description,
-      genre,
-      price,
-      released,
-      publisher,
-      gameSize,
-    } = req.body;
-
-    const games = await Games.findOne({ gameName });
-    if (games) {
-      // Check if a new image was uploaded
-      const gameImage = req.file
-        ? `/views/gameImages/${req.file.filename}`
-        : undefined;
-
-      // Prepare the update object with the fields that are provided
-      const updateObject = {
-        gameName,
-        description,
-        genre,
-        price,
-        released,
-        publisher,
-        gameSize,
-      };
-
-      // If a new image is provided, add it to the update object
-      if (gameImage !== undefined) {
-        updateObject.gameImage = gameImage;
-      }
-
-      // Update the game details in the database
-      await Games.findByIdAndUpdate(gameId, updateObject);
-
-      res.redirect("/gameList");
-    } else {
-      res.render("admin/pages/editGame", {
-        game,
-        message1: "User already exists",
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.post(
+  "/editGame/:id",
+  adminController.upload,
+  adminGame.editGameData
+);
 
 //genre list
-router.get("/genreList", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  const genres = await Genres.find();
-  res.render("admin/pages/genreList", { genres, message: "" });
-});
+router.get("/genreList", adminGenre.genreList);
 
-router.get("/unlistGenre/:id", async (req, res) => {
-  try {
-    const genre = await Genres.findById(req.params.id);
-    genre.unlistGenre = true; // Assuming you have a 'unlist' property in your Games model
-    await genre.save();
-    res.redirect("/genreList"); // Redirect back to the game list page or another suitable page
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/unlistGenre/:id", adminGenre.unlistGenre);
 
 // Unblock a game
-router.get("/listGenre/:id", async (req, res) => {
-  try {
-    const genre = await Genres.findById(req.params.id);
-    genre.unlistGenre = false; // Assuming you have a 'unlist' property in your Games model
-    await genre.save();
-    res.redirect("/genreList"); // Redirect back to the game list page or another suitable page
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/listGenre/:id", adminGenre.listGenre);
 
-//search game
+//search genre
 
-router.get("/searchGenre", async (req, res) => {
-  const { genreName } = req.query;
-  try {
-    const genre = await Genres.find({
-      genreName: new RegExp("^" + genreName, "i"),
-    });
-
-    if (req.session.adminLogIn) {
-      if (genre.length > 0) {
-        res.render("admin/pages/gameList", { genre, message: "", err: "" });
-      } else {
-        res.render("admin/pages/gameList", {
-          genre,
-          message: "No users found with that genre name",
-          err: "",
-        });
-      }
-    } else {
-      res.redirect("/adminLogin");
-    }
-  } catch (error) {
-    console.error("Error searching for genre:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/searchGenre", adminGenre.searchGenre);
 
 //  insert genre
-router.get("/insertGenre", (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  res.render("admin/pages/insertGenre", { message1: "" });
-});
+router.get("/insertGenre", adminGenre.insertGenre);
 
-router.post("/insertGenreData", async (req, res) => {
-  try {
-    const { genreName } = req.body;
-    const genre = await Genres.findOne({ genreName });
-    const newGenre = new Genres({
-      genreName,
-    });
-
-    if (!genre) {
-      const savedGenre = await newGenre.save();
-      res.redirect("/genreList");
-    } else {
-      res.render("admin/pages/insertGenre", {
-        message1: "Genre is already exists",
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.post("/insertGenreData", adminGenre.insertGenreData);
 
 //edit genre
 
-router.get("/editGenre/:id", async (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  try {
-    const genre = await Genres.findById(req.params.id);
-    res.render("admin/pages/editGenre", { genre, message1: "" });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-router.post("/editGenre/:id", async (req, res) => {
-  try {
-    const genre = await Genres.findOne({ _id: req.params.id });
-    if (!genre) {
-      await Genres.findByIdAndUpdate(req.params.id, req.body);
-      res.redirect("/genreList");
-    } else {
-      res.render("admin/pages/editGenre", {
-        genre,
-        message1: "Genre is already exists",
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+router.get("/editGenre/:id", adminGenre.editGenre);
+router.post("/editGenre/:id", adminGenre.editGenreData);
 
 //orders
 
-router.get("/orders", (req, res) => {
-  if (req.session.adminLogIn) {
-  } else {
-    res.redirect("/adminLogin");
-  }
-  res.render("admin/pages/orders", { users: "" });
-});
+router.get("/orders", adminOrder.orders);
 
 //Admin Logout
-router.get("/adminLogout", (req, res) => {
-  req.session.adminLogIn = false;
-  res.redirect("/adminLogin");
-});
+router.get("/adminLogout", adminController.adminLogout);
 
 module.exports = router;
