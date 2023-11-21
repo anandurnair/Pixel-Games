@@ -174,7 +174,7 @@
     
         // Validate price (should be a number)
         var price = document.getElementById("price").value;
-        if (isNaN(price)) {
+        if (isNaN(price) || parseFloat(price) <= 0) {
           document.getElementById("errorPrice").textContent = "Price must be a number.";
           return false;
         }
@@ -187,7 +187,7 @@
     
         // Validate game size (should be a number)
         var gameSize = document.getElementById("gameSize").value;
-        if (isNaN(gameSize)) {
+        if (isNaN(gameSize)|| parseFloat(gameSize) <= 0) {
           document.getElementById("errorGameSize").textContent = "Size must be a number.";
           return false;
         }

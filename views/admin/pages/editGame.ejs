@@ -149,14 +149,14 @@
     }
 
     // Validate price (should be a number and contain minimum one digit)
-    if (!/^\d+$/.test(price)) {
+    if (!/^\d+$/.test(price) || parseInt(price) <= 0) {
       document.getElementById("errorPrice").textContent =
         "Price must be a number ";
       return false;
     }
 
     // Validate game size (should be a number and does not contain any alphabets)
-    if (!/^\d+$/.test(gameSize)) {
+    if (!/^\d+$/.test(gameSize) || parseInt(gameSize) <= 0) {
       document.getElementById("errorGameSize").textContent =
         "Size must be a number ";
       return false;

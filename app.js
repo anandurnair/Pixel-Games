@@ -13,7 +13,7 @@ app.set("view engine", "ejs");
 // Serve static files
 // app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "views/admin")));
-;
+
 
 // app.use('/views/css', express.static(path.join(__dirname, 'views', 'css')));
 app.use('/views/gameImages', express.static(path.join(__dirname, 'views', 'gameImages')));

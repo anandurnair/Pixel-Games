@@ -10,9 +10,9 @@ const userBlocked= async(req,res,next)=>{
     const user = await Users.findOne({ $or: [{ email: email }, { _id: userId }] });
     console.log(user)
     if(user && user.isBlocked==true){
-        blockMessage=true
-        userError=false
-        res.redirect(`/?blockMessage=${blockMessage}&userError=${userError}`)
+        req.session.blockMessage=true
+        req.session.userError=false
+        res.redirect(`/`)
     }else{
         
         next()

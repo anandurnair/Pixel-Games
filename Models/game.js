@@ -19,7 +19,7 @@ const gameSchema = new mongoose.Schema({
     type: Date,
   },
   publisher: {
-    type: String,
+    type: String, 
   },
   gameSize: {
     type: String,
@@ -27,7 +27,11 @@ const gameSchema = new mongoose.Schema({
   gameImage: {
     type: String,
   },
-  unlist:Boolean
+  unlist:Boolean,
+  iscart:{
+    type:Boolean,
+    default:false
+  }
   
 });
 

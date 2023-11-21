@@ -23,11 +23,12 @@ const adminOrder = require("./controllers/adminOrder");
 
 const isBlocked= require('./middlewares/isBlocked');
 const userBlocked = require("./middlewares/isBlocked");
-const isValidUser = require('./middlewares/isValidUser')
+const isValidUser = require('./middlewares/isValidUser');
+const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
 
 
 //login
-router.get("/", userController.Login);
+router.get("/",userBlocked, userController.Login);
 router.post("/loginData",isValidUser,userBlocked, userController.LoginData);
 
 // signup
@@ -47,7 +48,29 @@ router.get("/home",userBlocked, homeController.homePage);
 
 router.get("/gameDetails/:id",userBlocked, homeController.gameDetails);
 
+router.get('/userProfile',userBlocked,homeController.userProfile)
+
+router.get('/editUserProfile',userBlocked,homeController.editUserProfile)
+router.post('/editProfileData',userBlocked,homeController.editProfileData)
+
+router.get('/changePassword',userBlocked,homeController.changePassword)
+router.post('/changePasswordData',userBlocked,homeController.changePasswordData)
+
+
+//cart
+
+
+router.get('/cart',isBlocked,homeController.cart)
+
+router.post('/addToCart/:id',isBlocked,homeController.addToCart)
+router.post('/removeCart/:id',isBlocked,homeController.removeCart)
+
+router.get('/checkout',isBlocked,homeController.checkout)
+
 //logout
+
+
+
 router.get("/logout", homeController.userLogout);
 
 //ADMIN
@@ -80,9 +103,9 @@ router.post("/insertUserData", adminUser.insertUserData);
 
 //edit user
 
-router.get("/editUser/:id", adminUser.editUser);
+// router.get("/editUser/:id", adminUser.editUser);
 
-router.post("/editUser/:id", adminUser.editUserData);
+// router.post("/editUser/:id", adminUser.editUserData);
 
 // Block a user
 router.get("/block/:id", adminUser.blockUser);

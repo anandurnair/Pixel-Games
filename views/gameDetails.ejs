@@ -1,5 +1,5 @@
-
 <%- include('header') %>
+
 <!-- Hero Section End -->
 
     <!-- Breadcrumb Section Begin -->
@@ -59,11 +59,24 @@
                                 </div>
                             </div>
                         </div> -->
+                       
                         <div class="product__details__price">₹ <%= game.price %></div>
 
-                        <a href="#" class="primary-btn">BUY NOW</a>
-                        <a href="#" class="primary-btn">ADD TO CARD</a>
-                        <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+
+                        <div style="display: flex;">
+                            <a href="#" class="primary-btn">BUY NOW</a>
+                            <% if(game.iscart==true){ %>
+                                <a href="/cart"> <button class="primary-btn">VIEW IN CART</button></a>
+                            <% }else{ %>
+                                <form action="/addToCart/<%= game._id %>" method="post">
+                                    <button type="submit"  class="primary-btn">ADD TO CARTt</button>
+                                  </form>
+                                
+                             <% } %>
+                            
+                            <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+                        </div>
+                        
                         <ul>
                             <li><b>Genre</b> <span><%= game.genre %></span></li>
                             <li><b>Size</b> <span><%= game.gameSize %> GB</span></li>
