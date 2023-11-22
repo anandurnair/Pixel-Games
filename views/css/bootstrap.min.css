@@ -1083,6 +1083,7 @@ pre code {
     max-width: 16.666667%;
   }
   .col-md-auto {
+    
     -ms-flex: 0 0 auto;
     flex: 0 0 auto;
     width: auto;

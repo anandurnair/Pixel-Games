@@ -127,58 +127,25 @@
               </div>
             </div>
             <div class="shoping__discount">
-              <h5>Choose Payment Method</h5>
+                <h5>Choose Payment Method</h5>
 
-              <div class="form-check form-check-inline radio-btn">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="inlineRadioOptions"
-                  id="inlineRadio1"
-                  value="option1"
-                  disabled
-                />
-                <label
-                  class="form-check-label"
-                  for="inlineRadio1"
-                  style="font-weight: 500; margin-right: 20px"
-                  >Credit Card</label
-                >
+                <div class="form-check form-check-inline radio-btn">
+                    <input class="form-check-input "  type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" disabled>
+                    <label class="form-check-label" for="inlineRadio1" style="font-weight: 500;margin-right:20px">Credit Card</label>
+                  </div>
+                  <div class="form-check form-check-inline radio-btn">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" disabled>
+                    <label class="form-check-label" for="inlineRadio2" style="font-weight: 500;margin-right:20px">Paypal</label>
+                  </div>
+                  <div class="form-check form-check-inline radio-btn">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                    <label class="form-check-label" for="inlineRadio2" style="font-weight: 500;margin-right:20px">Razorpay</label>
+                  </div>
               </div>
-              <div class="form-check form-check-inline radio-btn">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="inlineRadioOptions"
-                  id="inlineRadio2"
-                  value="option2"
-                  disabled
-                />
-                <label
-                  class="form-check-label"
-                  for="inlineRadio2"
-                  style="font-weight: 500; margin-right: 20px"
-                  >Paypal</label
-                >
-              </div>
-              <div class="form-check form-check-inline radio-btn">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="inlineRadioOptions"
-                  id="inlineRadio2"
-                  value="option2"
-                />
-                <label
-                  class="form-check-label"
-                  for="inlineRadio2"
-                  style="font-weight: 500; margin-right: 20px"
-                  >Razorpay</label
-                >
-              </div>
-            </div>
 
-            <!-- <div class="shoping__discount">
+            
+          
+          <!-- <div class="shoping__discount">
             <h5>Payment Details </h5>
 
             <div class="checkout__input">
@@ -204,29 +171,33 @@
                 </div>
             </div>
              -->
-
+            
             <!-- </div> -->
-          </div>
+            </div>
+
+
+
+
+
+
+
 
           <div class="col-lg-4 col-md-6">
             <div class="checkout__order">
               <h4>Your Order</h4>
-              <img
-                src="<%= game.gameImage %>"
-                alt=""
-                style="border-radius: 5px; margin-bottom: 20px"
-              />
               <div class="checkout__order__products">
                 Products <span>Total</span>
               </div>
               <ul>
+                <% items.forEach(game=>{ %>
                 <li><%= game.gameName %> <span>₹<%= game.price %></span></li>
+                <% }) %>
               </ul>
               <div class="checkout__order__subtotal">
-                Subtotal <span>₹<%= game.price %></span>
+                Subtotal <span><%= totalSum %></span>
               </div>
               <div class="checkout__order__total">
-                Total <span>₹<%= game.price %></span>
+                Total <span><%= totalSum %></span>
               </div>
               <!-- <div class="checkout__input__checkbox">
                                 <label for="acc-or">
@@ -251,11 +222,11 @@
                                     <span class="checkmark"></span>
                                 </label>
                             </div> -->
-              <form action="/placeOrder/<%= game._id %>" method="post">
-                <!-- Include other form fields as needed -->
-
-                <button type="submit" class="site-btn">PLACE ORDER</button>
-              </form>
+                            <form action="/cart/placeOrder" method="post">
+                              <!-- Include other form fields as needed -->
+              
+                              <button type="submit" class="site-btn">PLACE ORDER</button>
+                            </form>
             </div>
           </div>
         </div>

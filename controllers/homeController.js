@@ -2,8 +2,10 @@ const Games = require("../Models/game");
 const Genres = require("../Models/genre");
 const Users = require("../Models/user");
 const Cart = require("../Models/cart");
+const Orders=require("../Models/order")
 const bcrypt = require("bcrypt");
 const { ObjectId } = require("mongoose").Types;
+
 const homeController = {};
 
 homeController.homePage = async (req, res) => {
@@ -147,142 +149,270 @@ const calculateTotalSum = async (userId) => {
   }
 };
 
-homeController.cart = async (req, res) => {
-  try {
-    if (req.session.isLoggedIn) {
-      let userId = req.session.userId;
+  homeController.cart = async (req, res) => {
+    try {
+      if (req.session.isLoggedIn) {
+        let userId = req.session.userId;
 
-      const user = await Users.findById(userId);
+        const user = await Users.findById(userId);
 
-      const cart = await Cart.findOne({ userId }).populate("items.gameId");
-      const items = cart.items;
+        const cart = await Cart.findOne({ userId }).populate("items.gameId");
+        const items = cart.items;
 
-      const totalSum = await calculateTotalSum(userId);
-      console.log("Total Sum:", totalSum);
+        const totalSum = await calculateTotalSum(userId);
+        console.log("Total Sum:", totalSum);
+        let cartNull=''
+        if(cart==null){
+          cartNull="No Games in cart"
+        }else{
+          cartNull=""
+        }
+
+        if (!cart) {
+          console.log("Cart not found for user:", userId);
+          res.render("cart", { user, cart ,totalSum,cartNull});
+        } else {
+          res.render("cart", { user, items, totalSum,cartNull });
+        }
+      } else {
+        res.redirect("/");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  //add to cart
+  homeController.addToCart = async (req, res) => {
+    try {
+      const userId = req.session.userId;
+      const gameId = req.params.id;
+      const game = await Games.findById(gameId);
+
+      if (!game) {
+        return res.status(404).json({ error: "Game not found" });
+      }
+
+      // Ensure userId is set before creating or updating the cart
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is missing" });
+      }
+
+      let cart = await Cart.findOne({ userId });
 
       if (!cart) {
-        console.log("Cart not found for user:", userId);
-        res.render("cart", { user, cart });
-      } else {
-        res.render("cart", { user, items, totalSum });
+        cart = new Cart({ userId, items: [] });
+        await cart.save(); // Save the new cart document
       }
-    } else {
-      res.redirect("/");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
 
-//add to cart
-homeController.addToCart = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const gameId = req.params.id;
-    const game = await Games.findById(gameId);
+      if (!Array.isArray(cart.items)) {
+        return res.status(500).json({ error: "Invalid cart structure" });
+      }
 
-    if (!game) {
-      return res.status(404).json({ error: "Game not found" });
-    }
-
-    // Ensure userId is set before creating or updating the cart
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is missing" });
-    }
-
-    let cart = await Cart.findOne({ userId });
-
-    if (!cart) {
-      cart = new Cart({ userId, items: [] });
-      await cart.save(); // Save the new cart document
-    }
-
-    if (!Array.isArray(cart.items)) {
-      return res.status(500).json({ error: "Invalid cart structure" });
-    }
-
-    const existingItem = cart.items.find(
-      (item) => String(item.gameId) === String(gameId)
-    );
-
-    if (existingItem) {
-      return res.redirect(`/gameDetails/${game._id}`);
-    } else {
-      cart.items.push({
-        gameId,
-        gameName: game.gameName,
-        price: game.price,
-        released: game.released,
-        gameSize: game.gameSize,
-        gameImage: game.gameImage,
-      });
-      await Games.findByIdAndUpdate(gameId, { iscart: true });
-
-      console.log("Game added to cart");
-      await cart.save();
-      return res.redirect(`/gameDetails/${game._id}`);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-homeController.removeCart = async (req, res) => {
-  try {
-    if (req.session.isLoggedIn) {
-      let userId = req.session.userId;
-      userId = new ObjectId(userId);
-      let gameId = req.params.id;
-      
-    gameId = new ObjectId(gameId);
-   
-      console.log("userId:", userId);
-      console.log("gameId:", gameId);
-
-      const oneGame = await Cart.findOne(
-        { userId, "items._id": gameId },
-        { "items.$": 1 }
+      const existingItem = cart.items.find(
+        (item) => String(item.gameId) === String(gameId)
       );
-      console.log(oneGame)
-      const orginalgameId = oneGame.items[0].gameId;
-      
-      const game = await Games.updateOne(
-        { _id: orginalgameId },
-        { $set: { iscart: false } }
-      );          
-      // game.iscart=false
-      const result = await Cart.updateOne(
-        { userId },
-        { $pull: { items: { _id: gameId } } }
-      );
-      console.log("hi");
-      console.log('result :',result);
-      res.redirect("/cart");
-    } else {
-      res.redirect("/");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
 
-homeController.checkout = async (req, res) => {
-  try {
-    if (req.session.isLoggedIn) {
-      const userId = req.session.userId;
-      const user = await Users.findById(userId);
-      res.render("checkout", { user });
-    } else {
-      res.redirect("/");
+      if (existingItem) {
+        return res.redirect(`/gameDetails/${game._id}`);
+      } else {
+        cart.items.push({
+          gameId,
+          gameName: game.gameName,
+          price: game.price,
+          released: game.released,
+          gameSize: game.gameSize,
+          gameImage: game.gameImage,
+        });
+        await Games.findByIdAndUpdate(gameId, { iscart: true });
+
+        console.log("Game added to cart");
+        await cart.save();
+        return res.redirect(`/gameDetails/${game._id}`);
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
     }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+  };
+
+  homeController.removeCart = async (req, res) => {
+    try {
+      if (req.session.isLoggedIn) {
+        let userId = req.session.userId;
+        userId = new ObjectId(userId);
+        let gameId = req.params.id;
+        
+      gameId = new ObjectId(gameId);
+    
+        console.log("userId:", userId);
+        console.log("gameId:", gameId);
+
+        const oneGame = await Cart.findOne(
+          { userId, "items._id": gameId },
+          { "items.$": 1 }
+        );
+        console.log(oneGame)
+        const orginalgameId = oneGame.items[0].gameId;
+        
+        const game = await Games.updateOne(
+          { _id: orginalgameId },
+          { $set: { iscart: false } }
+        );          
+        // game.iscart=false
+        const result = await Cart.updateOne(
+          { userId },
+          { $pull: { items: { _id: gameId } } }
+        );
+        console.log("hi");
+        console.log('result :',result);
+        res.redirect("/cart");
+      } else {
+        res.redirect("/");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  homeController.cartCheckout = async (req, res) => {
+    try {
+      if (req.session.isLoggedIn) {
+        const userId = req.session.userId;
+        const user = await Users.findById(userId);
+        const cart = await Cart.findOne({ userId })
+        const items = cart.items;
+        const totalSum = await calculateTotalSum(userId);
+        
+        if (!cart) {
+          console.log("Cart not found for user:", userId);
+          res.render("cart", { user, cart });
+        } else {
+          res.render("cartCheckout", { user, items, totalSum });
+        }
+      } else {
+        res.redirect("/");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  homeController.checkout = async (req, res) => {
+    try {
+      if (req.session.isLoggedIn) {
+        const userId = req.session.userId;
+        const gameId =req.params.id
+        const user = await Users.findById(userId);
+        const game = await Games.findById(gameId);
+        res.render("checkout", { user ,game});
+      } else {
+        res.redirect("/");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+
+
+
+  
+
+
+
+
+  //place order
+
+  homeController.placeOrder = async (req, res) => {
+    try {
+      if (req.session.isLoggedIn) {
+        const userId = req.session.userId;
+        const gameId =req.params.id
+        const user = await Users.findById(userId);
+        const game = await Games.findById(gameId);
+        if (!game) {
+          return res.status(404).json({ error: "Game not found" });
+        }
+        if (!userId) {
+          return res.status(400).json({ error: "User ID is missing" });
+        }
+        let order = await Orders.findOne({ userId });
+        if (!order) {
+          order = new Orders({ userId, gameItems: [],totalAmount:game.price });
+          await order.save(); // Save the new cart document
+        }
+
+
+        order.gameItems.push({
+          gameId:gameId,
+          gameTitle:game.gameName,
+          gameImage:game.gameImage,
+          price:game.price
+        })
+  
+        // await Orders.findByIdAndUpdate(gameId, { iscart: true });
+
+        console.log("Order Placed");
+        await order.save();
+        res.render("orderSuccessful", { user ,game});
+      } else {
+        res.redirect("/");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  homeController.cartPlaceOrder = async (req, res) => {
+    try {
+      if (req.session.isLoggedIn) {
+        const userId = req.session.userId;
+        
+        const user = await Users.findById(userId);
+        const cart = await Cart.findOne({ userId });
+        const items = cart.items;
+        const totalSum = await calculateTotalSum(userId);
+  
+        if (!cart) {
+          res.render("cartCheckout", { user, cart });
+        } else {
+          items.forEach(async (game) => {
+            let order = await Orders.findOne({ userId });
+            if (!order) {
+              order = new Orders({ userId, gameItems: [], totalAmount: game.price });
+              await order.save();
+            }
+  
+            order.gameItems.push({
+              gameId: game._id,
+              gameTitle: game.gameName,
+              gameImage: game.gameImage,
+              price: game.price,
+            });
+            await order.save();
+          });
+  
+          console.log("Orders Placed");
+          res.render("orderSuccessful", { user });
+        }
+      } else {
+        res.redirect("/");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  
+
+
+
+
 
 homeController.userLogout = (req, res) => {
   req.session.destroy((err) => {

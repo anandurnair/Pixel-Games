@@ -65,7 +65,20 @@ router.get('/cart',isBlocked,homeController.cart)
 router.post('/addToCart/:id',isBlocked,homeController.addToCart)
 router.post('/removeCart/:id',isBlocked,homeController.removeCart)
 
-router.get('/checkout',isBlocked,homeController.checkout)
+router.get('/cart/checkout',isBlocked,homeController.cartCheckout)
+
+router.get('/checkout/:id',isBlocked,homeController.checkout)
+
+
+//PLACE ORDER
+
+// router.post('/cart/placeOrder/:id',isBlocked,homeController)
+
+router.post('/cart/placeOrder',isBlocked,homeController.cartPlaceOrder)
+router.post('/placeOrder/:id',isBlocked,homeController.placeOrder)
+
+
+
 
 //logout
 
@@ -173,7 +186,7 @@ router.post("/editGenre/:id", adminGenre.editGenreData);
 
 //orders
 
-router.get("/orders", adminOrder.orders);
+router.get("/orderlist", adminOrder.orderList);
 
 //Admin Logout
 router.get("/adminLogout", adminController.adminLogout);

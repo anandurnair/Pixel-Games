@@ -181,8 +181,18 @@ ol {
 	text-transform: uppercase;
 	display: inline-block;
 	padding: 13px 30px 12px;
-	background: #444444;
+	background: #05121B;
 	border: none;
+	border: 2px solid #fff;
+}
+.site-btn:hover{
+	color: #05121B;
+	background: #ffffff;
+}
+
+.radio-btn{
+	font-size: 20px;
+	color: #e2e0e0;
 }
 
 /* Preloder */
@@ -195,6 +205,24 @@ ol {
 	left: 0;
 	z-index: 999999;
 	background: #000;
+}
+#removeBtn{
+	color: #fff;
+	background-color: #05121B;
+	border: 2px solid #fff;
+	padding: 8px;
+	border-radius: 5px;
+}
+#removeBtn:hover{
+	background-color: #fff;
+	color: #05121B;
+}
+#couponCode{
+	width: 200px;
+    height: 45px;
+    font-size: 16px;
+    padding: 10px;
+	margin-right: 10px;
 }
 
 .loader {
@@ -331,6 +359,14 @@ ol {
 	display: inline-block;
 	margin-right: 40px;
 	cursor: pointer;
+}
+#moveToWishlist{
+	color: #ededed;
+	
+}
+#moveToWishlist:hover{
+	color: #a2a2a2;
+	
 }
 
 .header__top__right__language:hover ul {
@@ -2105,9 +2141,10 @@ ol {
 	color: #999999;
 	text-align: center;
 	background: #05121B;
-	border-top: 1px solid #b0b0b0;
+	text-align: left;
+	/* border-top: 1px solid #b0b0b0; */
 	padding: 12px 0 12px;
-	margin-bottom: 75px;
+	margin-bottom: 15px;
 }
 
 .checkout h6 span {
