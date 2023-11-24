@@ -11,6 +11,15 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      .showPassword{
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -62,15 +71,9 @@
                   />
                 </div>
                 <div class="input-box">
-                  <i class="fas fa-lock"></i>
-                  <input
-                    onclick="errFunction()"
-                    type="password"
-                    placeholder="Enter your password"
-                    name="password"
-                    required
-                  />
-                </div>
+                  <i class="fas fa-lock showPassword" id="togglePasswordIcon" onclick="togglePassword()"></i>
+                  <input type="password" placeholder="Enter your password" name="password" id="password" required />
+              </div>
                 <!-- <div class="text"><a href="#">Forgot password?</a></div> -->
                 <div class="button input-box">
                   <input type="submit" value="LogIn" />
@@ -86,6 +89,16 @@
     </div>
 
     <script>
+      function togglePassword() {
+        var passwordInput = document.getElementById("password");
+        var togglePasswordIcon = document.getElementById("togglePasswordIcon");
+
+        var type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+        passwordInput.setAttribute("type", type);
+
+        togglePasswordIcon.classList.toggle("fa-lock");
+        togglePasswordIcon.classList.toggle("fa-lock-open");
+    }
       function errFunction() {
         document.getElementById("err2").style.display = "none";
       }

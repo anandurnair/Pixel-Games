@@ -1,14 +1,13 @@
 // models/user.js
 const mongoose = require("../config/db"); // Import the mongoose connection from db.js
 
-const orderSchema = new mongoose.Schema({
+const installedGamesSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
     required: true,
   },
-  
- 
+
   gameItems: [
     {
       gameId: {
@@ -25,23 +24,11 @@ const orderSchema = new mongoose.Schema({
       price: {
         type: Number,
       },
-      orderDate: {
-        type: Date,
-       
-      },
-      orderStatus: {
-        type: String,
-        enum: ["pending", "processing", "Downloaded", "canceled"],
-        
-      },
     },
   ],
-  totalAmount: {
-    type: Number,
-
-  },
+  
 });
 
-const Orders = mongoose.model("order", orderSchema);
+const installedGames = mongoose.model("installedGames", installedGamesSchema);
 
-module.exports = Orders;
+module.exports = installedGames;

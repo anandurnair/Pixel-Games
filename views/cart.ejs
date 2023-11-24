@@ -33,28 +33,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% items.forEach(game=>{ %>                
-                                <tr>
-                                    <td class="shoping__cart__item">
-                                        <img src="<%= game.gameImage %>" width="200px" alt="">
-                                        <h5><%= game.gameName %></h5>
-                                    </td>
-                                    <td class="shoping__cart__price">
-                                        ₹<%= game.price %>
-                                    </td>
-                                    <td class="shoping__cart__item__close">
-                                        <a href="" id="moveToWishlist">Move to Wishlist&nbsp;<i class="fa-regular fa-square-plus" style="color: #ffffff;"></i></a>
-                                    </td>
-                                    <td class="shoping__cart__item__close" >
-                                        <form action="/removeCart/<%= game._id%>" method="post">
-
-                                            <!-- <button type="submit"><span class="icon_close"></span></button> -->
-                                            <button type="submit" id="removeBtn">Remove</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                              <% }) %>
+                                <% if (items !== null && items !== undefined) { %>
+                                    <% items.forEach(game => { %>                
+                                        <tr>
+                                            <td class="shoping__cart__item">
+                                                <img src="<%= game.gameImage %>" width="200px" alt="">
+                                                <h5><%= game.gameName %></h5>
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                ₹<%= game.price %>
+                                            </td>
+                                            <td class="shoping__cart__item__close">
+                                                <a href="" id="moveToWishlist">Move to Wishlist&nbsp;<i class="fa-regular fa-square-plus" style="color: #ffffff;"></i></a>
+                                            </td>
+                                            <td class="shoping__cart__item__close" >
+                                                <form action="/removeCart/<%= game._id %>" method="post">
+                                                    <button type="submit" id="removeBtn">Remove</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="3" style="font-size: 20px; color:#ffffff">No items in the cart</td>
+                                    </tr>
+                                <% } %>
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>
@@ -74,7 +79,7 @@
                     <div class="shoping__checkout">
                         <h5>Cart Total</h5>
                         <ul>                            
-                            <li>Total <span><%= totalSum %></span></li>
+                            <li>Total <span>₹<%= totalSum %></span></li>
                         </ul>
                         <a href="/cart/Checkout" class="primary-btn">PROCEED TO CHECKOUT</a>
                     </div>

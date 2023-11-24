@@ -6,9 +6,9 @@
                 <div class="col-lg-8">
                     <h1 class="page-header">Order Management</h1>
                 </div>
-                <li class="search-bar sidebar-search  col-lg-4" style="margin-top: 20px;">
+                <!-- <li class="search-bar sidebar-search  col-lg-4" style="margin-top: 20px;">
                     <div class="input-group custom-search-form">
-                        <form action="/searchGame" method="get" style="display: flex;">
+                        <form action="/searchOrder" method="get" style="display: flex;">
 
                             <input type="text" class="form-control" name="gameName" placeholder="Search by Game name">
                             <span class="input-group-btn">
@@ -19,7 +19,7 @@
                         </span>
                     </div>
 
-                </li>
+                </li> -->
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
@@ -64,10 +64,10 @@
                                             <tr class="odd gradeX">
                                               <td><%= item.gameTitle %></td>
                                               <td><%= user.fullName %></td>
-                                              <td><%= order.orderDate %></td>
+                                              <td><%= item.orderDate %></td>
                                               <td> ₹<%= item.price %></td>
                                             
-                                              <td><%= order.orderStatus %></td>
+                                              <td><%= item.orderStatus %></td>
                                             </tr>
                                           <% }); %>
                                       

@@ -2,7 +2,7 @@ const Users = require("../Models/user");
 const Games = require("../Models/game");
 const Genres = require("../Models/genre");
 const multer = require("multer");
-
+const path =require('path')
 const adminController = {};
 
 // Set up Multer for file uploads

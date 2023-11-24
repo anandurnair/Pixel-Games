@@ -343,6 +343,25 @@ ol {
 	content: "";
 }
 
+.playBtn{
+	background-color: #05121B;
+	border: 2px solid #fff;
+	border-radius: 5px;
+	color: #fff;
+	width: 250px;
+	margin-top: 8px;
+	height: 50px;
+	font-size: 18px;
+}
+.playBtn:hover{
+	background-color: white;
+	color: #05121B;
+}
+.playGame{
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
 .header__top__right__social a {
 	font-size: 14px;
 	display: inline-block;
@@ -488,7 +507,7 @@ ol {
 }
 
 .header__menu ul li .header__menu__dropdown li:hover>a {
-	color: #7fad39;
+	color: #aeaeae;
 }
 
 .header__menu ul li .header__menu__dropdown li a {
@@ -509,7 +528,8 @@ ol {
 }
 
 .header__menu ul li:hover>a {
-	color: #7fad39;
+	
+	transform: scale(1.1);
 }
 
 .header__menu ul li:last-child {

@@ -52,11 +52,63 @@ userController.signup = (req, res) => {
 
 //OTP
 let generatedOTP = "";
+let otpResendAttempts = 0;
+
 
 // Generate OTP function
 const generateOTP = () => {
+  otpGeneratedTime = Date.now(); // Store the OTP generation time
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
+
+// const resendOTP = (email) => {
+//   generatedOTP = generateOTP();
+
+//   const mailOptions = {
+//     from: "anandurpallam@gmail.com",
+//     to: email,
+//     subject: "Your Resent OTP Code",
+//     text: `Your resent OTP code is: ${generatedOTP}`,
+//   };
+
+//   transporter.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//       console.error("Error sending resent OTP email:", error);
+//       // Handle the error, e.g., return an error response
+//     }
+//     // Handle success, e.g., log success or return a success response
+//   });
+// };
+
+userController.resendOTP=async(req,res)=>{
+  try {
+    const { fullName, email, password, otpCode } = req.body;
+    const  resendCooldown= 20*1000;
+    let timeStamp=req.session.timeStamp
+    if(Date.now()-timeStamp<resendCooldown){
+      return res.json({success:false,message:'Resend cooldown not met'})
+    }
+    const newOTP = () => {
+      otpGeneratedTime = Date.now(); // Store the OTP generation time
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    };
+    otp=newOTP()
+    req.session.timeStamp=Date.now()
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending OTP email:", error);
+       res.json({success:false,message:'Error during resend'})
+      }else{
+        res.json({success:true,message:'OTP resend successfull'})
+      }
+      
+      });
+    
+
+  } catch (error) {
+    
+  }
+}
 
 // Create a Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -86,6 +138,8 @@ userController.signupData = async (req, res) => {
         subject: "Your OTP Code",
         text: `Your OTP code is: ${generatedOTP}`,
       };
+     
+
       const user = await Users.findOne({ email });
       console.log(user);
 
@@ -95,13 +149,14 @@ userController.signupData = async (req, res) => {
             console.error("Error sending OTP email:", error);
             return res.status(500).json({ error: "Error sending OTP email" });
           }
-
+          req.session.timeStamp=Date.now()
           // Render the OTP page or do whatever you want after sending the OTP
           res.render("otp", {
             fullName,
             email,
             password: hashedPassword,
             error: "",
+
           });
         });
       } else {
@@ -117,6 +172,8 @@ userController.signupData = async (req, res) => {
 userController.otpData = async (req, res) => {
   const { fullName, email, password, otpCode } = req.body;
   try {
+  
+
     // Perform OTP verification
     const isOtpValid = otpCode === generatedOTP;
     console.log(isOtpValid);

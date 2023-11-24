@@ -1,0 +1,76 @@
+<%- include('header') %>
+<section class="breadcrumb-section set-bg" data-setbg="/images/image-4-o1s.png">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <div class="breadcrumb__text">
+            
+            <div class="breadcrumb__option">
+             
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <section class="featured spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <h2>Installed Games</h2>
+                </div>
+                
+            </div>
+        </div>
+        <div class="row featured__filter">
+            <% if (items) { %>
+            <% items.forEach((game, index)=>{ %>
+                
+            <div class="col-lg-3 col-md-4 col-sm-6 mix  " style="border: 2px solid #a2a2a2; border-radius:5px; padding:1px ;margin-left:20px;margin-bottom:20px">
+                <div class="featured__item" style="width: 100%;">
+                    <div class="featured__item__pic set-bg" data-setbg="<%= game.gameImage %>">
+                       
+                    </div>
+                    <div class="playGame">
+                        <h6 ><a href="" style="font-size: 25px;font-weight: 700;color: #ffffff;margin-top:20px"><%= game.gameTitle  %></a></h6>
+
+                        <button type="button" class="playBtn">Play Now</button>
+                        <form action="/uninstallGame" method="post">
+                            <input type="text" name ="gameId" value="<%= game._id %>" hidden>
+                            <button type="submit" class="playBtn">Uninstall</button></a>
+                        </form>
+                        
+                    </div>  
+                    
+                </div>
+            </div>
+
+
+            <% }); %>
+            <% } else { %>
+                
+                    <p  style="font-size: 20px; color:#ffffff">No items Installed</p>
+                
+            <% } %>
+        </div>
+    </div>
+</section>
+<script>
+    function playNow() {
+        // Add logic for playing the game
+    }
+
+    function confirmUninstall() {
+        var confirmUninstall = confirm("Are you sure you want to uninstall this game?");
+        if (confirmUninstall) {
+            document.getElementById("uninstallForm").submit();
+        } else {
+            // User clicked Cancel, do nothing or provide feedback
+        }
+    }
+</script>
+<%- include('footer') %>

@@ -1,0 +1,64 @@
+<%- include('header') %>
+<section class="breadcrumb-section set-bg" data-setbg="/images/image-4-o1s.png">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <div class="breadcrumb__text">
+            
+            <div class="breadcrumb__option">
+             
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="section-title" style="margin-top: 20px;">
+                <h2>Order History</h2>
+            </div>
+            
+        </div>
+    </div>
+    <div>
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Game Image</th>
+                  <th scope="col">Game Name</th>
+                  <th scope="col">Order Date</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (items) { %>
+                  <% items.forEach((game, index) => { %>
+                    <tr>
+                      <th scope="row"><%= index + 1 %></th>
+                      <td><img src="<%= game.gameImage %>" width="200px" alt=""></td> <!-- Adjust the path based on your actual schema -->
+                      <td><%= game.gameTitle %></td>
+                      <td><%= game.orderDate %></td>
+                      <td><%= game.price %></td>
+                      <td><%= game.orderStatus %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">
+                      <p style="font-size: 20px; color:#ffffff; text-align: center;"><%= orderNull %></p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+              
+              
+          </table>
+    </div>
+
+</div>
+
+<%- include('footer') %>

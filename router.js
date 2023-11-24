@@ -22,14 +22,13 @@ const adminOrder = require("./controllers/adminOrder");
 
 
 const isBlocked= require('./middlewares/isBlocked');
-const userBlocked = require("./middlewares/isBlocked");
 const isValidUser = require('./middlewares/isValidUser');
 const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
 
 
 //login
-router.get("/",userBlocked, userController.Login);
-router.post("/loginData",isValidUser,userBlocked, userController.LoginData);
+router.get("/",isBlocked, userController.Login);
+router.post("/loginData",isValidUser,isBlocked, userController.LoginData);
 
 // signup
 
@@ -37,24 +36,24 @@ router.get("/signup", userController.signup);
 
 //OTP
 
-router.post("/signupData", userController.signupData);
+router.post("/signupData",isBlocked, userController.signupData);
 
 //otp
-router.post("/otpData",userBlocked, userController.otpData);
-
+router.post("/otpData",isBlocked, userController.otpData);
+router.post("/resendotp",isBlocked, userController.resendOTP);
 // home
 
-router.get("/home",userBlocked, homeController.homePage);
+router.get("/home",isBlocked, homeController.homePage);
 
-router.get("/gameDetails/:id",userBlocked, homeController.gameDetails);
+router.get("/gameDetails/:id",isBlocked, homeController.gameDetails);
 
-router.get('/userProfile',userBlocked,homeController.userProfile)
+router.get('/userProfile',isBlocked,homeController.userProfile)
 
-router.get('/editUserProfile',userBlocked,homeController.editUserProfile)
-router.post('/editProfileData',userBlocked,homeController.editProfileData)
+router.get('/editUserProfile',isBlocked,homeController.editUserProfile)
+router.post('/editProfileData',isBlocked,homeController.editProfileData)
 
-router.get('/changePassword',userBlocked,homeController.changePassword)
-router.post('/changePasswordData',userBlocked,homeController.changePasswordData)
+router.get('/changePassword',isBlocked,homeController.changePassword)
+router.post('/changePasswordData',isBlocked,homeController.changePasswordData)
 
 
 //cart
@@ -78,10 +77,15 @@ router.post('/cart/placeOrder',isBlocked,homeController.cartPlaceOrder)
 router.post('/placeOrder/:id',isBlocked,homeController.placeOrder)
 
 
+//  installed games
 
+router.get('/installedGames',isBlocked,homeController.installedGames)
 
+router.post('/uninstallGame',isBlocked,homeController.uninstalledGame)
+
+router.get('/orderHistory',isBlocked,homeController.orderHistory)
 //logout
-
+router.post('/downloading',isBlocked,homeController.downloading)
 
 
 router.get("/logout", homeController.userLogout);

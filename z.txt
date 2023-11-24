@@ -11,17 +11,15 @@ Admin
 Next Week
 
 User side : 
-User profile(Show user details, show ddress, show orders, Add address, edit profile, cancel orders, forgot password).
 
-Cart management (Add to cart, list products in cart, remove products from cart). 
-
+set confirmation button for uninstall
+uninstall game
 Order Management-Order cancellation option, Order history and status 
 
-Admin side : 
-Order Management
 
 
-Purchase with COD.
+
+Puwrchase with COD.
 Inventory/Stock management.
 Checkout page(Multiple address,edit and saved address)
 
@@ -38,6 +36,10 @@ completed
 - handle image validation error and display error message
 - product edit shows "user already exists"
 - validate fields on product: -ve values, empty fields, input formats
+
+
+User profile(Show user details, show ddress, show orders, Add address, edit profile, cancel orders, forgot password).
+Cart management (Add to cart, list products in cart, remove products from cart). 
 
 
 
