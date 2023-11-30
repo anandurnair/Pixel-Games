@@ -39,10 +39,10 @@
                   <% items.forEach((game, index) => { %>
                     <tr>
                       <th scope="row"><%= index + 1 %></th>
-                      <td><img src="<%= game.gameImage %>" width="200px" alt=""></td> <!-- Adjust the path based on your actual schema -->
-                      <td><%= game.gameTitle %></td>
+                      <td><img src="<%= game.gameId.gameImage %>" width="200px" alt=""></td> <!-- Adjust the path based on your actual schema -->
+                      <td><%= game.gameId.gameName %></td>
                       <td><%= game.orderDate %></td>
-                      <td><%= game.price %></td>
+                      <td><%= game.gameId.price %></td>
                       <td><%= game.orderStatus %></td>
                     </tr>
                   <% }); %>

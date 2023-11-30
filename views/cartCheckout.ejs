@@ -184,7 +184,7 @@
               </div>
               <ul>
                 <% items.forEach(game=>{ %>
-                <li><%= game.gameName %> <span>₹<%= game.price %></span></li>
+                <li><%= game.gameId.gameName %> <span>₹<%= game.gameId.price %></span></li>
                 <% }) %>
               </ul>
               <div class="checkout__order__subtotal">

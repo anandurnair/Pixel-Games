@@ -10,33 +10,8 @@ const cartItemSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'games', // Reference to the Games model
     required: true,
-  },
-  gameName: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-  },
-  genre: {
-    type: String,
-  },
-  price: {
-    type: String,
-  },
-  released: {
-    type: Date,
-  },
-  publisher: {
-    type: String,
-  },
-  gameSize: {
-    type: String,
-  },
-  gameImage: {
-    type: String,
-  },
-  unlist: Boolean,
+  }
+
  
 });
 

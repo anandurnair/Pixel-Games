@@ -88,75 +88,107 @@
             
         }
     </style>
-
-    <div class="container"  style="height: 540px;">
+<body>
+    <div class="container" style="height: 540px;">
         <div class="main-body">
-
-        
-              <h4 style="font-size: 30px; font-weight: 600;">Edit Profile</h4>
+            <h4 style="font-size: 30px; font-weight: 600;">Edit Profile</h4>
         </div>
         <div class="col-md-8">
             <div class="card mb-3">
                 <div class="card-body">
-                  <form action="/editProfileData" method="post">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Full Name</h6>
+                    <form name="profileForm" action="/editProfileData" method="post" onsubmit="return validateForm2()">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Full Name</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                <input class="profileInput" type="text" value="<%= user.fullName %>" name="fullName" required>
+                                <div id="fullNameError" class="error-message"></div>
+                            </div>
                         </div>
-                        <div class="col-sm-9 text-secondary">
-                            <input class="profileInput" type="text" value="<%= user.fullName %>" name="fullName">
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Email</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                <input class="profileInput" type="text" value="<%= user.email %>" name="email" required>
+                                <div id="emailError" class="error-message"></div>
+                            </div>
                         </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Email</h6>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Phone</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                <input class="profileInput" type="text" value="<%= user.phone %>" name="phone">
+                                <div id="phoneError" class="error-message"></div>
+                            </div>
                         </div>
-                        <div class="col-sm-9 text-secondary">
-                            <input class="profileInput" type="text" value="<%= user.email %>" name="email">
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Country</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                <input class="profileInput" type="text" value="<%= user.country %>" name="country">
+                                <div id="countryError" class="error-message"></div>
+                            </div>
                         </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Phone</h6>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button class="btn btn-info profile-btn" type="submit">Save</button>
+                            </div>
                         </div>
-                        <div class="col-sm-9 text-secondary">
-                            <input class="profileInput" type="text" value="<%= user.phone %>" name="phone">
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Country</h6>
-                        </div>
-                        <div class="col-sm-9 text-secondary">
-                            <input class="profileInput" type="text" value="<%= user.country %>" name="country">
-                        </div>
-                    </div>
-                    <hr>
-                   
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <button  class="btn btn-info profile-btn" type="submit">Save</button>
-                        </div>
-                    </div>
-                 </form>
+                    </form>
+                
                 </div>
             </div>
-
-
-
-
-
         </div>
     </div>
 
-    </div>
-    </div>
+    <script>
+        function validateForm2() {
+            var fullName = document.forms["profileForm"]["fullName"].value;
+            var email = document.forms["profileForm"]["email"].value;
+            var phone = document.forms["profileForm"]["phone"].value;
+            var country = document.forms["profileForm"]["country"].value;
 
+            // Reset error messages
+            document.getElementById("fullNameError").innerHTML = "";
+            document.getElementById("emailError").innerHTML = "";
+            document.getElementById("phoneError").innerHTML = "";
+            document.getElementById("countryError").innerHTML = "";
 
+            // Validate Full Name
+            if (fullName == "") {
+                document.getElementById("fullNameError").innerHTML = "Please enter your full name";
+                return false;
+            }
+
+            // Validate Phone
+            if (!/^\d{10}$/.test(phone)) {
+                document.getElementById("phoneError").innerHTML = "Please enter a valid 10-digit phone number";
+                return false;
+            }
+
+            // Validate Country
+            if (!/^[a-zA-Z]+$/.test(country)) {
+                document.getElementById("countryError").innerHTML = "Please enter a valid country name";
+                return false;
+            }
+
+            // Additional validation logic for other fields can be added here
+
+            // If all validations pass, return true to submit the form
+            return true;
+        }
+    </script>
+</body>
+   
+    
 
 
     <%- include('footer') %>

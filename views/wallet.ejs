@@ -1,0 +1,37 @@
+<%- include('header') %>
+    <div class="wallet-container ">
+        <div class="wallet-header">
+            <h2>My Wallet</h2>
+        </div>
+
+        <div class="container p-4" style="max-width: 600px;">
+            <div class="balance text-center">
+                Balance: ₹500.00 <!-- Replace with dynamic balance from backend -->
+            </div>
+
+            <div class="wallet-actions">
+                <button class="action-button btn remove-btn" style="border: 2px solid #ffffff;">Deposit</button>
+                <button class="action-button btn remove-btn" style="border: 2px solid #ffffff;">Withdraw</button>
+                <button class="action-button btn remove-btn" style="border: 2px solid #ffffff;">Transfer</button>
+            </div>
+
+            <h4 class="mt-4" >Transaction History</h4>
+            <ul class="transaction-list">
+                <li class="transaction">
+                    <span class="transaction-type">Deposit</span>
+                    <span class="transaction-amount">+ ₹100.00</span>
+                </li>
+                <li class="transaction">
+                    <span class="transaction-type">Purchase</span>
+                    <span class="transaction-amount">- ₹50.00</span>
+                </li>
+                <li class="transaction">
+                    <span class="transaction-type">Refund</span>
+                    <span class="transaction-amount">+ ₹20.00</span>
+                </li>
+                <!-- Repeat the structure for each transaction -->
+            </ul>
+        </div>
+    </div>
+
+    <%- include('footer') %>

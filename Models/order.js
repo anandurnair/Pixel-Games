@@ -7,8 +7,7 @@ const orderSchema = new mongoose.Schema({
     ref: "users",
     required: true,
   },
-  
- 
+
   gameItems: [
     {
       gameId: {
@@ -16,30 +15,18 @@ const orderSchema = new mongoose.Schema({
         ref: "games", // Assuming you have a Game model
         required: true,
       },
-      gameTitle: {
-        type: String,
-      },
-      gameImage: {
-        type: String,
-      },
-      price: {
-        type: Number,
-      },
-      orderDate: {
-        type: Date,
-       
-      },
+      orderDate: Date,
       orderStatus: {
         type: String,
-        enum: ["pending", "processing", "Downloaded", "canceled"],
-        
+        enum: ["Downloaded", "Pending", "Processing"],
+        default: "Pending",
       },
     },
   ],
-  totalAmount: {
-    type: Number,
-
-  },
+  // totalAmount: {
+  //   type: Number,
+  // },
+ 
 });
 
 const Orders = mongoose.model("order", orderSchema);

@@ -7,27 +7,23 @@ const installedGamesSchema = new mongoose.Schema({
     ref: "users",
     required: true,
   },
-
   gameItems: [
     {
       gameId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "games", // Assuming you have a Game model
+        ref: "games",
         required: true,
       },
-      gameTitle: {
+      orderDate: Date,
+      orderStatus: {
         type: String,
-      },
-      gameImage: {
-        type: String,
-      },
-      price: {
-        type: Number,
+        enum: ["Downloaded", "Pending", "Processing"],
+        default: "Pending",
       },
     },
   ],
-  
 });
+
 
 const installedGames = mongoose.model("installedGames", installedGamesSchema);
 

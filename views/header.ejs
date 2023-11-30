@@ -116,11 +116,11 @@
                     <nav class="header__menu">
                         <ul>
                             <li class=""><a href="/home/?userId=<%= user._id %>">Home</a></li>
-                            <li><a href="">Categories</a></li>
+                            <li><a href="/categories">Categories</a></li>
                            
                                 <li><a href="#">Library</a>
                                     <ul class="header__menu__dropdown">
-                                        <li><a href="">Wishlist</a></li>
+                                        <li><a href="/wishlist">Wishlist</a></li>
                                         <li><a href="/installedGames">Installed Apps</a></li>
                                         <li><a href="/orderHistory">Order History</a></li>
                                     </ul>
@@ -135,7 +135,9 @@
                     <div class="header__cart">
                         
                         <div class="header__cart__price"><a href="/userProfile"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;"><i class="fa-solid fa-user" style="color: #ffffff;"> </i>  &nbsp; <%= user.fullName %> </button></span></div></a>&nbsp;
+                        <div class="header__cart__price"><a href="/wallet"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;">Wallet</button></span></div></a>
                         <div class="header__cart__price"><a href="/logout"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;">LOGOUT</button></span></div></a>
+
                     </div>
                 </div>
             </div>

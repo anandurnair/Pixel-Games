@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const Users = require("../Models/user");
 const bcrypt = require("bcrypt");
+const { render } = require("ejs");
 
 const userController = {};
 
@@ -207,6 +208,125 @@ userController.otpData = async (req, res) => {
     });
   }
 };
+
+
+
+userController.forgotPassword=async(req,res)=>{
+    
+    try{
+      res.render('forgotPassword')
+    }catch(error){
+      console.log(error)
+      res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+userController.forgotPasswordData = async (req, res) => {
+  if (req.session.isLoggedIn) {
+    res.redirect("/home");
+  } else {
+    try {
+      const { email} = req.body;
+     
+     
+
+      // Generate OTP
+      generatedOTP = generateOTP();
+
+      // Compose email
+      const mailOptions = {
+        from: "anandurpallam@gmail.com", // replace with your email
+        to: email,
+        subject: "Your OTP Code",
+        text: `Your OTP code is: ${generatedOTP}`,
+      };
+     
+
+      const user = await Users.findOne({ email });
+      console.log(user);
+
+      
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error("Error sending OTP email:", error);
+            return res.status(500).json({ error: "Error sending OTP email" });
+          }
+          req.session.timeStamp=Date.now()
+          // Render the OTP page or do whatever you want after sending the OTP
+          res.render("passwordOTP", {
+           
+            email,
+       
+            error: "",
+
+          });
+        });
+     
+      // Send email
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+};
+
+
+userController.passwordOTPData=async(req,res)=>{
+  const {  email, otpCode } = req.body;
+  try {
+  
+
+    
+    const isOtpValid = otpCode === generatedOTP;
+    console.log(isOtpValid);
+    if (isOtpValid) {
+      
+     
+     
+      res.render("newPassword",{email});
+    } else {
+      
+      res.render("passwordOTP", {
+        email,
+        error: "Invalid OTP. Please try again.",
+      });
+    }
+  } catch (error) {
+    
+    console.error("Error in OTP verification or user creation:", error);
+
+    
+    res.render("otp", {
+      fullName,
+      email,
+      password,
+      error: "Something went wrong. Please try again later.",
+    });
+  }
+};
+
+userController.newPasswordData=async(req,res)=>{
+  try {
+    const {email,newPassword}=req.body
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await Users.updateOne({ email:email }, { $set: { password: hashedPassword } });
+        res.redirect('/')
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
+userController.forgotPassword=async(req,res)=>{
+    
+    try{
+      res.render('forgotPassword')
+    }catch(error){
+      console.log(error)
+      res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 
 
 module.exports = userController;

@@ -296,7 +296,16 @@ ol {
 	margin-right: 45px;
 	position: relative;
 }
-
+.comment-btn{
+	margin-left: 10px;
+	color: white;
+	background-color: #05121B;
+	border: 2px solid #fff;
+}
+.comment-btn:hover{
+	color: #05121B;
+	background-color: #fff;
+}
 .header__top__left ul li:after {
 	position: absolute;
 	right: -25px;
@@ -877,13 +886,96 @@ ol {
 -----------------------*/
 
 .featured {
-	padding-top: 80px;
+	padding-top: 30px;
 	padding-bottom: 40px;
 }
 
 .featured__controls {
 	text-align: center;
 	margin-bottom: 50px;
+}
+
+.wallet-container {
+	
+	max-width: 600px;
+	margin: 50px auto;
+	background-color: #05121B;
+	border-radius: 15px;
+	border: 2px solid #fff;
+	/* box-shadow: 0 0 20px rgba(0, 0, 0); */
+	overflow: hidden;
+}
+
+.wallet-header {
+	background-color: #05121B;
+	color: #f7eaea;
+	padding: 20px;
+	text-align: center;
+	
+}
+
+.balance {
+	color: #fff;
+	font-size: 36px;
+	margin-bottom: 10px;
+}
+
+.wallet-actions {
+	display: flex;
+	justify-content: space-around;
+	margin-top: 20px;
+}
+
+.action-button {
+	padding: 10px 20px;
+	font-size: 18px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	color: #fff;
+	transition: background-color 0.3s;
+}
+
+.action-button:hover {
+	background-color: #ffffff;
+	color: #05121B;
+}
+
+.transaction-list {
+	list-style: none;
+	padding: 0;
+	
+}
+.search-btn{
+	background-color: #05121B;
+	border: 2px solid #fff;
+	color: #fff;
+}
+.search-btn:hover{
+	background-color: #ffffff;
+	color: #05121B;
+	border: 2px solid #fff;
+
+
+}
+.transaction {
+	display: flex;
+	justify-content: space-between;
+	padding: 15px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.transaction:last-child {
+	border-bottom: none;
+}
+
+.transaction-type {
+	font-weight: bold;
+	color: #ababab;
+}
+
+.transaction-amount {
+	color: #28a745;
 }
 
 .featured__controls ul li {

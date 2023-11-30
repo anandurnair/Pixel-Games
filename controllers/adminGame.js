@@ -171,12 +171,10 @@ adminGame.editGameData = async (req, res) => {
 
     const games = await Games.findOne({ gameName });
     if (games) {
-      // Check if a new image was uploaded
       const gameImage = req.file
         ? `/views/gameImages/${req.file.filename}`
         : undefined;
 
-      // Prepare the update object with the fields that are provided
       const updateObject = {
         gameName,
         description,

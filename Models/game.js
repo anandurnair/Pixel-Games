@@ -28,10 +28,7 @@ const gameSchema = new mongoose.Schema({
     type: String,
   },
   unlist:Boolean,
-  iscart:{
-    type:Boolean,
-    default:false
-  }
+ 
   
 });
 

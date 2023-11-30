@@ -20,15 +20,15 @@ const adminOrder = require("./controllers/adminOrder");
 
 //middlewares
 
-
+const userBlocked=require('./middlewares/userBlocked')
 const isBlocked= require('./middlewares/isBlocked');
 const isValidUser = require('./middlewares/isValidUser');
 const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
 
 
 //login
-router.get("/",isBlocked, userController.Login);
-router.post("/loginData",isValidUser,isBlocked, userController.LoginData);
+router.get("/", userController.Login);
+router.post("/loginData",isValidUser, userController.LoginData);
 
 // signup
 
@@ -36,14 +36,21 @@ router.get("/signup", userController.signup);
 
 //OTP
 
-router.post("/signupData",isBlocked, userController.signupData);
+router.post("/signupData", userController.signupData);
 
 //otp
-router.post("/otpData",isBlocked, userController.otpData);
-router.post("/resendotp",isBlocked, userController.resendOTP);
+router.post("/otpData", userController.otpData);
+router.post("/resendotp", userController.resendOTP);
 // home
+router.get("/forgotPassword",userController.forgotPassword)
+router.post("/forgotPasswordData",userController.forgotPasswordData)
+router.post("/passwordOTPData",userController.passwordOTPData)
+router.post("/newPasswordData",userController.newPasswordData)
+
+
 
 router.get("/home",isBlocked, homeController.homePage);
+router.get("/categories",isBlocked, homeController.categories);
 
 router.get("/gameDetails/:id",isBlocked, homeController.gameDetails);
 
@@ -87,6 +94,19 @@ router.get('/orderHistory',isBlocked,homeController.orderHistory)
 //logout
 router.post('/downloading',isBlocked,homeController.downloading)
 
+router.get('/wishlist',homeController.wishlist)
+
+router.post('/addToWishlist/:id',homeController.addToWishlist)
+
+router.post('/removeWishlist/:id',isBlocked,homeController.removeWishlist)
+router.post('/moveToCart/:id',homeController.moveToCart)
+router.post('/moveToWishlist/:id',homeController.moveToWishlist)
+
+router.get('/wallet',homeController.wallet)
+router.get('/wallet',homeController.wallet)
+
+router.get('/searchGames',homeController.searchGames)
+router.post('/commentData',homeController.comment)
 
 router.get("/logout", homeController.userLogout);
 

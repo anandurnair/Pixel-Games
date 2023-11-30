@@ -1,49 +1,40 @@
-Pendings
-
+Pendings:
+ 
 User
-- OTP resend 
-- OTP expiry
+- Timer on resend otp 
+- Resend otp
+- blocked users are able to login 
 
 Admin
+- handle image validation error and display error message
 - remove description from product listing. Only display key information 
 - logout blocked users
+- add pagination wherever required like orders users 
 
-Next Week
+Practical: 6
+Theory: 6
 
-User side : 
+Next week task:
 
-set confirmation button for uninstall
-uninstall game
-Order Management-Order cancellation option, Order history and status 
-
-
+User side :
+Integrate online payment method(Razorpay or Paypal)
+Coupon Management
 
 
-Puwrchase with COD.
-Inventory/Stock management.
-Checkout page(Multiple address,edit and saved address)
+Wallet add money   to wallet to purchase game
+
+
+Admin side :    
+Coupon Management
+
+
 
 completed
 
-- cleanup code
-- handle and communicate errors
-- validate signup fields
-- set password rules
-- display proper error when blocked user attempts auth
-- remove id from genre list
-- when adding game, genre shouldn’t be a text field but it should be based on genres existing in db
-- indicate unit in size field
-- handle image validation error and display error message
-- product edit shows "user already exists"
-- validate fields on product: -ve values, empty fields, input formats
+Wishlist
+Search, Category filtering game
+Review the game with comment 
 
 
-User profile(Show user details, show ddress, show orders, Add address, edit profile, cancel orders, forgot password).
-Cart management (Add to cart, list products in cart, remove products from cart). 
-
-
-
-components
-
-#05121B -background
+05121B
 ₹

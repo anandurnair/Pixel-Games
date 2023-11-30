@@ -32,11 +32,11 @@
                 
             <div class="col-lg-3 col-md-4 col-sm-6 mix  " style="border: 2px solid #a2a2a2; border-radius:5px; padding:1px ;margin-left:20px;margin-bottom:20px">
                 <div class="featured__item" style="width: 100%;">
-                    <div class="featured__item__pic set-bg" data-setbg="<%= game.gameImage %>">
+                    <div class="featured__item__pic set-bg" data-setbg="<%= game.gameId.gameImage %>">
                        
                     </div>
                     <div class="playGame">
-                        <h6 ><a href="" style="font-size: 25px;font-weight: 700;color: #ffffff;margin-top:20px"><%= game.gameTitle  %></a></h6>
+                        <h6 ><a href="" style="font-size: 25px;font-weight: 700;color: #ffffff;margin-top:20px"><%= game.gameId.gameName  %></a></h6>
 
                         <button type="button" class="playBtn">Play Now</button>
                         <form action="/uninstallGame" method="post">
