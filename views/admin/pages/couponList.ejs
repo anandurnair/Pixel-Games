@@ -1,0 +1,93 @@
+<%- include('./includes/adminHeader.ejs'); -%>
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="page-header">Coupon Management</h1>
+            </div>
+            <!-- <li class="search-bar sidebar-search  col-lg-4" style="margin-top: 20px;">
+                <div class="input-group custom-search-form">
+                    <form action="/searchCouon" method="get" style="display: flex;">
+
+                        <input type="text" class="form-control" name="couponName" placeholder="Search by Game name">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                    </form>
+                    </span>
+                </div>
+              
+            </li>  -->
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a href="/insertCoupon"><button>Insert Coupon</button></a>
+                         
+                     </div>
+                     <div class="panel-heading">
+                         Coupon List
+                     </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                <thead>
+                                    <tr>
+                                    
+                                        
+                                        <th>Coupon Code</th>
+                                        <th>Type</th>
+                                        <th>Discount value (in %)</th>
+                                        <th>minimumPurchaseAmount</th>
+                                        <th>validUntil</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% coupons.forEach(coupon=>{ %>
+                                    <tr class="odd gradeX">                                   
+                                        <td><%= coupon.code %></td>
+                                        <td><%= coupon.discountType %></td>
+                                        <td class="center"><%= coupon.discountValue %></td>
+                                        <td class="center"><%= coupon.minimumPurchaseAmount %></td>
+                                        <td class="center"><%= coupon.validUntil %></td>
+                                        <td class="center"><% if (coupon.isActive==true) { %>
+                                            
+                                            <a href="/deactiveCoupon/<%= coupon._id %>">Deactive</a>
+                                          <% } else { %>
+                                            <a href="/activeCoupon/<%= coupon._id %>">Active</a>                                                                                                                                 
+                                          <% } %></td>
+                                        <td class="center"><a href="/editCoupon/<%= coupon._id %>">Edit</a></td>
+
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                                <span><%= message %></span>
+                            </table>
+                        </div>
+                        <!-- /.table-responsive -->
+                       
+                    </div>
+                    <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+       
+        <!-- /.row -->
+        
+      
+    </div>
+    <!-- /.container-fluid -->
+</div>
+
+
+<%- include('./includes/adminFooter.ejs'); -%>

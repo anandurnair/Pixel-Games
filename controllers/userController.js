@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 const Users = require("../Models/user");
 const bcrypt = require("bcrypt");
 const { render } = require("ejs");
+const Wallet = require("../Models/wallet");
 
 const userController = {};
 
@@ -181,6 +182,7 @@ userController.otpData = async (req, res) => {
     if (isOtpValid) {
       // If OTP is valid, create a new user
       const user = new Users({ fullName, email, password });
+     
       const savedUser = await user.save();
       req.session.isLoggedIn = true;
       req.session.userId = user._id;

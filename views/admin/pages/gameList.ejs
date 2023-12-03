@@ -1,5 +1,7 @@
-<%- include('./includes/adminHeader.ejs'); -%><%- include('./includes/adminHeader.ejs'); -%>
-
+<%- include('./includes/adminHeader.ejs'); -%>
+<style>
+    .more {display: none;}
+    </style>
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -57,13 +59,13 @@
                                     <tr class="odd gradeX">
                                        
                                         <td><%= game.gameName %></td>
-                                        <td><%= game.description %></td>
+                                        <td><p> <span id="more<%= game._id %>" class="more"><%= game.description %></span></p><button onclick="myFunction('<%= game._id %>')" id="myBtn<%= game._id %>">Read</button> </td>
                                         <td class="center"><%= game.genre %></td>
                                         <td class="center"><%= game.price %></td>
                                         <td class="center"><%= game.released %></td>
                                         <td class="center"><%= game.publisher %></td>
                                         <td class="center"><%= game.gameSize %></td>
-                                        <td class="center"><%= game.gameImage %></td>
+                                        <td class="center"><img src=" <%= game.gameImage %>" alt="" width="100px"> </td>
                                         <td class="center"><% if (game.unlist==false) { %>
                                             <a href="/Unlist/<%= game._id %>">Unlist</a>
                                           <% } else { %>
@@ -95,5 +97,19 @@
     <!-- /.container-fluid -->
 </div>
 
+<script>
+    function myFunction(gameId) {
+        var moreText = document.getElementById(`more${gameId}`);
+        var btnText = document.getElementById(`myBtn${gameId}`);
+    
+        if (moreText.style.display === "none" || moreText.style.display === "") {
+          moreText.style.display = "inline";
+          btnText.innerHTML = "Hide";
+        } else {
+          moreText.style.display = "none";
+          btnText.innerHTML = "Read ";
+        }
+      }
+    </script>
 
 <%- include('./includes/adminFooter.ejs'); -%>

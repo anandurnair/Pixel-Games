@@ -1,0 +1,99 @@
+<%- include('./includes/adminHeader.ejs'); -%>
+<div id="page-wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">Insert Games</h1>
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">Enter Games details</div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <span style="color: red"><%= message1 %></span>
+                <form
+                  role="form"
+                  method="post"
+                  action="/insertCouponData"
+                >
+                  
+
+                  <div class="form-group">
+                    <label for="type">Choose a Type:</label>
+
+                    <select name="discountType" id="discountType">
+                      <option value="minimumPurchase">Minimum Purchase</option>
+                      <option value="firstPurchase">First Purchase</option>
+                    </select>
+                    <div id="errorGenre" style="color: red"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Discount Value ( in % )</label>
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="discountValue"
+                      id="price"
+                      required
+                    />
+                    <div id="errorPrice" style="color: red"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Minimum Purchase Amount</label>
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="minimumPurchaseAmount"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>validate at</label>
+                    <input
+                      class="form-control"
+                      type="date"
+                      name="validUntil"
+                      id="publisher"
+                      required
+                    />
+                    <div id="errorPublisher" style="color: red"></div>
+                  </div>
+
+                  <a href=""
+                    ><button type="submit" class="btn btn-default">
+                      Submit Button
+                    </button></a
+                  >
+                  <a href="/insertCoupon">
+                    <button type="reset" class="btn btn-default">
+                      Reset Button
+                    </button></a
+                  >
+                </form>
+              </div>
+              <!-- /.col-lg-6 (nested) -->
+
+              <!-- /.col-lg-6 (nested) -->
+            </div>
+            <!-- /.row (nested) -->
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</div>
+
+<%- include('./includes/adminFooter.ejs'); -%>

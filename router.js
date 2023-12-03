@@ -12,11 +12,12 @@ const nodemailer = require("nodemailer");
 const userController = require("./controllers/userController");
 const homeController = require("./controllers/homeController");
 const adminController = require("./controllers/adminController");
+const couponController=require('./controllers/couponController')
 const adminUser = require("./controllers/adminUser");
 const adminGame = require("./controllers/adminGame");
 const adminGenre = require("./controllers/adminGenre");
 const adminOrder = require("./controllers/adminOrder");
-
+const adminCoupon=require('./controllers/adminCoupon')
 
 //middlewares
 
@@ -71,7 +72,7 @@ router.get('/cart',isBlocked,homeController.cart)
 router.post('/addToCart/:id',isBlocked,homeController.addToCart)
 router.post('/removeCart/:id',isBlocked,homeController.removeCart)
 
-router.get('/cart/checkout',isBlocked,homeController.cartCheckout)
+router.get('/cart/checkout/:value',isBlocked,homeController.cartCheckout)
 
 router.get('/checkout/:id',isBlocked,homeController.checkout)
 
@@ -103,11 +104,22 @@ router.post('/moveToCart/:id',homeController.moveToCart)
 router.post('/moveToWishlist/:id',homeController.moveToWishlist)
 
 router.get('/wallet',homeController.wallet)
-router.get('/wallet',homeController.wallet)
 
 router.get('/searchGames',homeController.searchGames)
 router.post('/commentData',homeController.comment)
 
+
+router.post('/couponCode',homeController.couponCode)
+
+
+//Wallet
+
+router.get('/addMoney',homeController.addMoney)
+router.post('/addMoneyData',homeController.addMoneyData)
+
+
+router.post('/walletPlaceOrderData',homeController.walletPlaceOrderData)
+// router.get('/walletPlaceOrder',homeController.walletPlaceOrder)
 router.get("/logout", homeController.userLogout);
 
 //ADMIN
@@ -212,6 +224,16 @@ router.post("/editGenre/:id", adminGenre.editGenreData);
 
 router.get("/orderlist", adminOrder.orderList);
 
+
+//coupon
+
+router.get('/couponList',adminCoupon.couponList)
+router.get('/insertCoupon',adminCoupon.insertCoupon)
+router.post('/insertCouponData',adminCoupon.insertCouponData)
+router.get('/deactiveCoupon/:id',adminCoupon.deactiveCoupon)
+router.get('/activeCoupon/:id',adminCoupon.activeCoupon)
+router.get('/editCoupon/:id',adminCoupon.editCoupon)
+router.post('/editCouponData/:id',adminCoupon.editCouponData)
 //Admin Logout
 router.get("/adminLogout", adminController.adminLogout);
 

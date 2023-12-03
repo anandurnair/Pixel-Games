@@ -1,0 +1,146 @@
+<%- include('./includes/adminHeader.ejs'); -%>
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Edit Coupon</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Edit Coupon details</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+
+                                <form role="form" action="/editCouponData/<%= coupon._id %>" method="post">
+
+                                    <div class="form-group">
+                                        <label>Coupon Type</label>
+                                        <select name="discountType" id="discountType">
+                                            <option value="minimumPurchase" <%= coupon.discountType === 'minimumPurchase' ? 'selected' : '' %>>Minimum Purchase</option>
+                                            <option value="firstPurchase" <%= coupon.discountType === 'firstPurchase' ? 'selected' : '' %>>First Purchase</option>
+                                        </select>
+                                        <div id="errorGameName" style="color: red;"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Discount Value (in %)</label>
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            name="discountValue"
+                                            value="<%= coupon.discountValue %>"
+                                            required
+                                        />
+                                        <div id="errorPrice" style="color: red;"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Minimum Purchase Amount</label>
+                                        <div style="display: flex;">
+                                            <input
+                                                class="form-control"
+                                                type="text"
+                                                name="minimumPurchaseAmount"
+                                                value="<%= coupon.minimumPurchaseAmount %>"
+                                                required
+                                            />
+                                        </div>
+                                        <div id="errorGameSize" style="color: red;"></div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Valid Until</label>
+                                        <input
+                                            class="form-control"
+                                            type="date"
+                                            name="validUntil"
+                                            value="<%= coupon.validUntil ? coupon.validUntil.toISOString().split('T')[0] : '' %>"
+                                            required
+                                        />
+                                        <div id="errorValidUntil" style="color: red;"></div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-default" id="submitButton">
+                                        Submit Button
+                                    </button>
+                                    <button type="reset" class="btn btn-default" id="resetButton">
+                                        Reset Button
+                                    </button>
+                                </form>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const form = document.querySelector('form');
+
+                                        form.addEventListener('submit', function(event) {
+                                            event.preventDefault(); // Prevent the form from submitting by default
+
+                                            if (validateForm()) {
+                                                form.submit(); // Manually submit the form if validation passes
+                                            }
+                                        });
+
+                                        form.addEventListener('reset', function() {
+                                            clearErrors();
+                                        });
+
+                                        function validateForm() {
+                                            let isValid = true;
+                                            const discountValueInput = document.querySelector('input[name="discountValue"]');
+                                            const minimumPurchaseAmountInput = document.querySelector('input[name="minimumPurchaseAmount"]');
+                                            const validUntilInput = document.querySelector('input[name="validUntil"]');
+                                            const errorPrice = document.getElementById('errorPrice');
+                                            const errorGameSize = document.getElementById('errorGameSize');
+                                            const errorValidUntil = document.getElementById('errorValidUntil');
+
+                                            errorPrice.innerText = '';
+                                            errorGameSize.innerText = '';
+                                            errorValidUntil.innerText = '';
+
+                                            const discountValue = parseFloat(discountValueInput.value);
+                                            if (isNaN(discountValue) || discountValue < 0 || discountValue > 90) {
+                                                errorPrice.innerText = 'Discount value must be a number between 0 and 90';
+                                                isValid = false;
+                                            }
+
+                                            const minimumPurchaseAmount = parseFloat(minimumPurchaseAmountInput.value);
+                                            if (isNaN(minimumPurchaseAmount) || minimumPurchaseAmount <= 0) {
+                                                errorGameSize.innerText = 'Minimum purchase amount must be a positive number';
+                                                isValid = false;
+                                            }
+
+                                            const today = new Date().toISOString().split('T')[0];
+                                            if (validUntilInput.value < today) {
+                                                errorValidUntil.innerText = 'Please select a future date';
+                                                isValid = false;
+                                            }
+
+                                            return isValid;
+                                        }
+
+                                        function clearErrors() {
+                                            const errorPrice = document.getElementById('errorPrice');
+                                            const errorGameSize = document.getElementById('errorGameSize');
+                                            const errorValidUntil = document.getElementById('errorValidUntil');
+
+                                            errorPrice.innerText = '';
+                                            errorGameSize.innerText = '';
+                                            errorValidUntil.innerText = '';
+                                        }
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./includes/adminFooter.ejs'); -%>

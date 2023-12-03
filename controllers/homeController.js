@@ -4,8 +4,13 @@ const Users = require("../Models/user");
 const Cart = require("../Models/cart");
 const Orders = require("../Models/order")
 const Comment =require('../Models/gameComments')
+const Coupons = require("../Models/coupon");
+const Wallet = require('../Models/wallet')
+
 const mongoose = require("../config/db");
 const moment = require('moment');
+const Razorpay = require('razorpay');
+
 
 // Import the mongoose connection from db.js
 
@@ -14,6 +19,11 @@ const bcrypt = require("bcrypt");
 const { ObjectId } = require("mongoose").Types;
 const installedGames = require("../Models/installedGames");
 
+const razorpay = new Razorpay({
+  key_id: 'YOUR_TEST_KEY_ID',
+  key_secret: 'YOUR_TEST_KEY_SECRET',
+});
+let couponError=false
 const homeController = {};
 
 homeController.homePage = async (req, res) => {
@@ -22,7 +32,12 @@ homeController.homePage = async (req, res) => {
     const user = await Users.findById(userId);
     const games = await Games.find();
     const genres = await Genres.find();
-
+    const wallet = await Wallet.findOne({userId})
+    if(!wallet){
+      const newWallet = new Wallet({userId,balance:0})
+      await newWallet.save()
+    }
+    
     res.render("home", { games, genres, user });
   } else {
     res.redirect("/");
@@ -67,11 +82,9 @@ homeController.gameDetails = async (req, res) => {
       }
       // Check if the user has an installed game
       let installedGame = await installedGames.findOne({ userId });
-      console.log("Installed game:", installedGame);
 
       const existingGameItem = installedGame
         ? installedGame.gameItems.find((item) => {
-            console.log("Comparing:", String(item.gameId), String(gameId));
             return item.gameId.equals(gameId);
           })
         : null;
@@ -99,7 +112,6 @@ homeController.gameDetails = async (req, res) => {
 
       released = game.released;
       released = released.toLocaleDateString("en-IN");
-      console.log("gameExists : ", req.session.gameExists);
 
       res.render("gameDetails", {
         game,
@@ -240,31 +252,29 @@ homeController.cart = async (req, res) => {
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
 
       const totalSum = await calculateTotalSum(userId);
-      console.log("Total Sum:", totalSum);
-
+      
       const wishlistItems = await Wishlist.findOne({ userId }).populate(
         "items.gameId"
       );
-
-      console.log("cart items : ", cart);
-
+      
+      couponError=false
       let items = null;
       let cartNull = "";
 
+      
       if (!cart) {
         cartNull = "No Games in cart";
-        console.log("Cart not found for user:", userId);
         res.render("cart", {
           user,
           items,
           totalSum,
           cartNull,
           isExistInWishlist,
+          
         });
       } else {
         if (cart && cart.items.length > 0) {
           items = cart.items;
-          console.log("ITEMS :", items);
         } else {
           cartNull = "No Games in cart";
         }
@@ -275,6 +285,8 @@ homeController.cart = async (req, res) => {
           cartNull,
           wishlistItems,
           isExistInWishlist,
+          couponError
+        
         });
       }
     } else {
@@ -285,6 +297,10 @@ homeController.cart = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+//coupon
+
 
 //add to cart
 homeController.addToCart = async (req, res) => {
@@ -323,7 +339,6 @@ homeController.addToCart = async (req, res) => {
         gameId,
       });
 
-      console.log("Game added to cart");
       await cart.save();
       return res.redirect(`/gameDetails/${game._id}`);
     }
@@ -342,14 +357,12 @@ homeController.removeCart = async (req, res) => {
 
       gameId = new ObjectId(gameId);
 
-      console.log("userId:", userId);
-      console.log("gameId:", gameId);
+    
 
       const oneGame = await Cart.findOne(
         { userId, "items._id": gameId },
         { "items.$": 1 }
       );
-      console.log(oneGame);
       const orginalgameId = oneGame.items[0].gameId;
 
       // game.iscart=false
@@ -357,8 +370,7 @@ homeController.removeCart = async (req, res) => {
         { userId },
         { $pull: { items: { _id: gameId } } }
       );
-      console.log("hi");
-      console.log("result :", result);
+    
       res.redirect("/cart");
     } else {
       res.redirect("/");
@@ -369,20 +381,54 @@ homeController.removeCart = async (req, res) => {
   }
 };
 
+
+
 homeController.cartCheckout = async (req, res) => {
   try {
     if (req.session.isLoggedIn) {
+      
+      let discountValue=0
+      
+      console.log("DISCOUNT : ",discountValue)
+     
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
       const items = cart.items;
-      const totalSum = await calculateTotalSum(userId);
+      let totalSum = await calculateTotalSum(userId);
+      let totalAmount=parseInt(totalSum)
+      const coupons= await Coupons.find()
+      let subTotal=totalSum
+      let discount=0
+      console.log("HIII",req.params.value)
+      if(!isNaN(req.params.value)){
+        let discountPercent = parseFloat(req.params.value);      
 
+          discountValue=parseInt((discountPercent/100)*totalAmount) 
+
+        totalAmount=totalAmount-discountValue
+        
+      }
+       
+      let availableCoupons=[]
+      let isCouponAvailable=false
+      const total=parseInt(subTotal)
+      coupons.forEach(coupon=>{
+        if(coupon.minimumPurchaseAmount <= total ){
+          isCouponAvailable=true
+          availableCoupons.push(coupon)
+        }
+      })
       if (!cart) {
-        console.log("Cart not found for user:", userId);
-        res.render("cart", { user, cart });
+        res.render("cart", { user, cart,isCouponAvailable,
+          availableCoupons,couponError });
       } else {
-        res.render("cartCheckout", { user, items, totalSum });
+        console.log("Discount Value: ",discountValue)
+
+        res.render("cartCheckout", { user, items,discountValue: parseInt(discountValue),  subTotal: parseFloat(subTotal),
+             totalAmount: parseFloat(totalAmount),
+          isCouponAvailable,
+          availableCoupons,couponError});
       }
     } else {
       res.redirect("/");
@@ -392,6 +438,32 @@ homeController.cartCheckout = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+homeController.couponCode=async(req,res)=>{
+  try {
+    const {couponCode}=req.body
+    console.log("couponCode",couponCode)
+    
+    const coupon = await Coupons.find({code:couponCode})
+    const oneCoupon=coupon[0]
+    console.log(oneCoupon)
+    if(coupon[0]==undefined || oneCoupon.isActive==false){
+      couponError=true
+      
+      return res.redirect('/cart/checkout')
+    }else{
+      couponError=false
+     
+      return res.redirect(`/cart/checkout/${oneCoupon.discountValue}`)
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
 homeController.checkout = async (req, res) => {
   try {
     if (req.session.isLoggedIn) {
@@ -410,6 +482,8 @@ homeController.checkout = async (req, res) => {
 };
 
 //place order
+
+
 
 homeController.placeOrder = async (req, res) => {
   try {
@@ -500,15 +574,26 @@ homeController.placeOrder = async (req, res) => {
   }
 };
 
+let balanceErr=false
 homeController.cartPlaceOrder = async (req, res) => {
   try {
     if (req.session.isLoggedIn) {
       const userId = req.session.userId;
-
+      let {paymentOption,totalAmount}=req.body
+      console.log("TOTAL : ",totalAmount)
       const user = await Users.findById(userId);
+      const wallet = await Wallet.findOne({userId})
+      if(paymentOption=='walletPayment'){
+        balanceErr=false
+        if(totalAmount>wallet.balance){
+          balanceErr=true
+        }
+        console.log("HOI : ",balanceErr)
+        return res.render('walletPlaceOrder',{totalAmount,user ,balance:wallet.balance,balanceErr})
+      }
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
       const items = cart.items;
-      const totalSum = await calculateTotalSum(userId);
+      // const totalSum = await calculateTotalSum(userId);
 
       if (!cart) {
         res.render("cartCheckout", { user, cart });
@@ -523,7 +608,7 @@ homeController.cartPlaceOrder = async (req, res) => {
           order = new Orders({
             userId,
             gameItems: [],
-            totalAmount: totalSum,
+            totalSum:totalAmount,
           });
           await order.save();
         }
@@ -574,6 +659,104 @@ homeController.cartPlaceOrder = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// homeController.walletPlaceOrder=async(req,res)=>{
+//   try {
+//     if(req.session.isLoggedIn){
+//       res.render('walletPlaceOrder',{})
+//     }else{
+//       res.redirect("/");
+
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// }
+
+homeController.walletPlaceOrderData=async(req,res)=>{
+  try {
+    if(req.session.isLoggedIn){
+      const userId = req.session.userId;
+      const user = await Users.findById(userId);
+      const cart = await Cart.findOne({ userId }).populate("items.gameId");
+      const wallet = await Wallet.findOne({userId})
+      const {totalAmount} = req.body
+      const items = cart.items;
+      // const totalSum = await calculateTotalSum(userId);
+
+
+      let balance=wallet.balance
+     
+      if (!cart) {
+        res.render("cartCheckout", { user, cart });
+      } else {
+        let order = await Orders.findOne({ userId }).populate(
+          "gameItems.gameId"
+        );
+        let installedGame = await installedGames
+          .findOne({ userId })
+          .populate("gameItems.gameId");
+        if (!order) {
+          order = new Orders({
+            userId,
+            gameItems: [],
+            totalSum:totalAmount,
+          });
+          await order.save();
+        }
+        if (!installedGame) {
+          installedGame = new installedGames({
+            userId,
+            gameItems: [], // Use the calculated total sum from the cart
+          });
+          await installedGame.save();
+        }
+        let downloadGames = [];
+        items.forEach(async (game) => {
+          const existingGameItem = installedGame.gameItems.find(
+            (item) => item.gameId.toString() === game.gameId.toString()
+          );
+          order.gameItems.push({
+            gameId: game.gameId,
+
+            orderDate: new Date(),
+            orderStatus: "Downloaded",
+          });
+
+          downloadGames.push(game.gameId.gameName);
+
+          if (existingGameItem) {
+            console.log(`Game ${game._id} already in the order`);
+          } else {
+            installedGame.gameItems.push({
+              gameId: game.gameId,
+              orderDate: new Date(),
+              orderStatus: "Downloaded",
+            });
+          }
+        });
+
+        let newBalance=wallet.balance -totalAmount
+        await Wallet.updateOne({userId},{$set:{balance:newBalance}})
+
+
+        await Cart.updateOne({ userId }, { $set: { items: [] } });
+
+        await order.save();
+        await installedGame.save();
+        console.log("Orders Placed");
+        res.render("orderSuccessful", { user, downloadGames });
+      }
+    }else {
+      res.redirect("/");
+    }
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 homeController.userLogout = (req, res) => {
   req.session.destroy((err) => {
@@ -799,8 +982,7 @@ homeController.removeWishlist = async (req, res) => {
 
       gameId = new ObjectId(gameId);
 
-      console.log("userId:", userId);
-      console.log("gameId:", gameId);
+ 
 
       const oneGame = await Wishlist.findOne(
         { userId, "items._id": gameId },
@@ -867,7 +1049,6 @@ homeController.moveToCart = async (req, res) => {
       });
 
       
-      console.log("Game added to cart");
       await cart.save();
 
       const updateResult = await Wishlist.findOneAndUpdate(
@@ -892,7 +1073,6 @@ homeController.moveToCart = async (req, res) => {
 
 homeController.moveToWishlist = async (req, res) => {
   try {
-    console.log("move to wishlist working");
     const userId = req.session.userId;
     const gameId1 = req.params.id;
     const cart = await Cart.findOne({ userId }).populate("items.gameId");
@@ -900,8 +1080,7 @@ homeController.moveToWishlist = async (req, res) => {
     const gameId = item.gameId;
 
     const game = await Games.findById(gameId);
-    console.log(game);
-    console.log("hi  ", gameId);
+    
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
@@ -959,11 +1138,48 @@ homeController.wallet = async (req, res) => {
   if (req.session.isLoggedIn) {
     const userId = req.session.userId;
     const user = await Users.findById(userId);
-    res.render("wallet", { user });
+    const wallet = await Wallet.findOne({userId})
+    res.render("wallet", { user,wallet });
   } else {
     res.redirect("/");
   }
 };
+
+homeController.addMoney=async(req,res)=>{
+  try {
+    if(req.session.isLoggedIn){
+
+    }else{
+      res.redirect("/");
+  
+    }
+  } catch (error) {
+    console.error("Error searching for games:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+ 
+}
+homeController.addMoneyData=async(req,res)=>{
+  try {
+    if(req.session.isLoggedIn){
+        const userId = req.session.userId;
+        const user = await Users.findById(userId);
+        const {addAmount}=req.body
+        
+        const wallet=await Wallet.findOne({userId})
+        const newBalance= Number(addAmount) + wallet.balance
+        await Wallet.updateOne({userId},{$set:{balance:newBalance}})
+        res.redirect('/wallet')
+    }else{
+      res.redirect("/");
+  
+    }
+  } catch (error) {
+    console.error("Error searching for games:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+ 
+}
 
 //!   SEARCH Games
 
@@ -1000,7 +1216,6 @@ homeController.searchGames = async (req, res) => {
 
 homeController.comment = async (req, res) => {
   try {
-    console.log("comment working")
     const userId = req.session.userId;
     const {gameId,commentData } = req.body;
     if(commentData==''){

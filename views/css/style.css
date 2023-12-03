@@ -161,7 +161,15 @@ ol {
 }
 
 /* buttons */
+#coupon-btn{
+	background-color: #05121B;
+	 color:#fff;
 
+}
+#coupon-btn:hover{
+	background-color: #fff;
+	color: #05121B;
+}
 .primary-btn {
 	display: inline-block;
 	font-size: 14px;
@@ -205,6 +213,19 @@ ol {
 	left: 0;
 	z-index: 999999;
 	background: #000;
+}
+
+.walletPay{
+	box-shadow: 5px 5px 8px #292929;
+	/* position: absolute; */
+	margin-left: 28%;
+	width: 500px;
+	height: 250px;
+	border-radius: 10px;
+	background-color: #fff;
+	
+	padding: 10px;
+	padding-left: 20px;
 }
 #removeBtn{
 	color: #fff;
@@ -2101,6 +2122,13 @@ ol {
 	width: 100px;
 }
 
+.coupon-box{
+	width: 250px;
+	background-color: #05121B;
+	border: 2px solid #fff;
+	height: 100px;
+	border-radius: 10px;
+}
 .shoping__cart__table table tbody tr td.shoping__cart__total {
 	font-size: 18px;
 	color: #f7f7f7;
@@ -2489,6 +2517,14 @@ ol {
 	color: #1c1c1c;
 	font-weight: 700;
 }
+
+.addmoneybtn{
+	
+}
+#addAmount{
+	width: 200px;
+}
+
 
 .blog__item__text p {
 	margin-bottom: 25px;

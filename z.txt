@@ -7,7 +7,6 @@ User
 
 Admin
 - handle image validation error and display error message
-- remove description from product listing. Only display key information 
 - logout blocked users
 - add pagination wherever required like orders users 
 
@@ -18,10 +17,8 @@ Next week task:
 
 User side :
 Integrate online payment method(Razorpay or Paypal)
-Coupon Management
 
 
-Wallet add money   to wallet to purchase game
 
 
 Admin side :    
@@ -34,7 +31,10 @@ completed
 Wishlist
 Search, Category filtering game
 Review the game with comment 
+Wallet add money   to wallet to purchase game
+- remove description from product listing. Only display key information 
 
+Coupon Management
 
 05121B
 ₹
