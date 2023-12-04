@@ -4,34 +4,26 @@ let userError=require('../controllers/userController')
 
 
 
-
-const isBlocked = async (req, res, next) => {
+const userBlocked = async (req, res, next) => {
     try {
-    const userId = req.session.userId;
-    console.log("userId:", userId);
-   
-    
-    
+        const  userId  = req.session.userId;
+        console.log("UserId:",userId)
         const user = await Users.findById(userId);
-        console.log("user:", user);
+        console.log('User:', user);
 
-        
-
-        if (!user) {
-            console.log("User not found");
-            res.redirect(`/`);
-        } else if (user.isBlocked) {
-            req.session.blockMessage = true;
-            req.session.userError = false;
-            res.redirect(`/`);
+        if (user && user.isBlocked === true) {
+            req.session.isLoggedIn = false;
+            return res.render('accountBlocked')
         } else {
-            next();
+            next(); 
         }
     } catch (error) {
-        console.error(error);
-        res.redirect(`/`);
-        res.status(500).json({ error: 'Internal server error' });
+        // Handle errors: log, send an error response, or execute appropriate error handling
+        console.error('Error in userBlocked middleware:', error);
+        // You might want to send an error response if something goes wrong
+        res.status(500).send('Internal Server Error');
     }
 };
 
-module.exports = isBlocked;
+
+module.exports=userBlocked

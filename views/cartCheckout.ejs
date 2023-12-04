@@ -116,8 +116,14 @@
                       <div class="flip-card">
                         <div class="flip-card-inner">
                           <div class="flip-card-front">
-                            <h5>Get <%= coupon.discountValue %>% Off for the Purchase above ₹ <%=
+                            <h5>
+                              Get <%= coupon.discountValue %>% Off for the
+                              <% if(coupon.discountType =='firstPurchase'){ %>
+                                First Purchase
+                                <% }else{ %>
+                                  Purchase above ₹ <%=
                                   coupon.minimumPurchaseAmount %>
+                                  <% } %>
                             </h5>
                           </div>
                           <div class="flip-card-back">

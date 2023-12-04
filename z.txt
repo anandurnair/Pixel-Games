@@ -1,17 +1,23 @@
-Pendings:
+Razorpay
+blocked Users
+OTP resend and Timer
+Check All the validation
+pagination
+contact
+transaction history 
+
+First purchase Coupon
+Comment Management
+
  
 User
 - Timer on resend otp 
-- Resend otp
-- blocked users are able to login 
 
 Admin
 - handle image validation error and display error message
-- logout blocked users
 - add pagination wherever required like orders users 
 
-Practical: 6
-Theory: 6
+
 
 Next week task:
 
@@ -20,9 +26,6 @@ Integrate online payment method(Razorpay or Paypal)
 
 
 
-
-Admin side :    
-Coupon Management
 
 
 
@@ -33,8 +36,9 @@ Search, Category filtering game
 Review the game with comment 
 Wallet add money   to wallet to purchase game
 - remove description from product listing. Only display key information 
+- blocked users are able to login 
 
 Coupon Management
 
-05121B
+#05121B
 ₹

@@ -123,11 +123,18 @@
 
                   <% }else{ %>
                     <% commentDetails.forEach(comment=>{ %>
-                    <div class="commented-section mt-2" style="margin-bottom: 20px;">
+                    <div class="commented-section mt-2" style="margin-bottom: 20px;position: relative;">
                       <div class="d-flex  commented-user" style="margin-bottom: 10px;margin-top: 10px;">
                         <div style="margin-right:10px;padding-top:4px; background-color: aliceblue; width:25px;height:25px;border-radius:50%;text-align:center"><i style="font-size: 15px;" class="fa-solid fa-user"></i></div>
                         <h5 class="mr-2" style="margin-top: 3px;margin-right:10px"><%= comment.userId.fullName %></h5>
                       <span class="mb-1 ml-2" style="margin-top:4px;color:rgb(90, 90, 90)"><%= comment.createdAt %></span>
+                      <% if(userId == comment.userId._id){ %>
+                      <form action="/deleteComment" method="post" style="position: absolute;right:0%">
+                        <input type="text" name="commentId" value="<%= comment._id %>" hidden>
+                        <input type="text" name="gameId" value="<%= game._id%>" hidden>
+                        <button type="submit"  class="fa-solid fa-trash" style="color: #ffffff;font-size:14px;margin-left:20px;background-color: transparent;border:none"><i ></i></button>
+                      </form>
+                      <% } %>
                       </div>
                       <div class="comment-text-sm" style="color: rgb(198, 198, 198); margin-left:40px">
                         <span><%= comment.text %></span>

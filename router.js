@@ -22,7 +22,6 @@ const adminCoupon=require('./controllers/adminCoupon')
 //middlewares
 
 const userBlocked=require('./middlewares/userBlocked')
-const isBlocked= require('./middlewares/isBlocked');
 const isValidUser = require('./middlewares/isValidUser');
 const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
 
@@ -50,77 +49,77 @@ router.post("/newPasswordData",userController.newPasswordData)
 
 
 
-router.get("/home",isBlocked, homeController.homePage);
-router.get("/categories",isBlocked, homeController.categories);
+router.get("/home",userBlocked, homeController.homePage);
+router.get("/categories",userBlocked, homeController.categories);
 
-router.get("/gameDetails/:id",isBlocked, homeController.gameDetails);
+router.get("/gameDetails/:id",userBlocked, homeController.gameDetails);
 
-router.get('/userProfile',isBlocked,homeController.userProfile)
+router.get('/userProfile',userBlocked,homeController.userProfile)
 
-router.get('/editUserProfile',isBlocked,homeController.editUserProfile)
-router.post('/editProfileData',isBlocked,homeController.editProfileData)
+router.get('/editUserProfile',userBlocked,homeController.editUserProfile)
+router.post('/editProfileData',userBlocked,homeController.editProfileData)
 
-router.get('/changePassword',isBlocked,homeController.changePassword)
-router.post('/changePasswordData',isBlocked,homeController.changePasswordData)
+router.get('/changePassword',userBlocked,homeController.changePassword)
+router.post('/changePasswordData',userBlocked,homeController.changePasswordData)
 
 
 //cart
 
 
-router.get('/cart',isBlocked,homeController.cart)
+router.get('/cart',userBlocked,homeController.cart)
 
-router.post('/addToCart/:id',isBlocked,homeController.addToCart)
-router.post('/removeCart/:id',isBlocked,homeController.removeCart)
+router.post('/addToCart/:id',userBlocked,homeController.addToCart)
+router.post('/removeCart/:id',userBlocked,homeController.removeCart)
 
-router.get('/cart/checkout/:value',isBlocked,homeController.cartCheckout)
+router.get('/cart/checkout/:value',userBlocked,homeController.cartCheckout)
 
-router.get('/checkout/:id',isBlocked,homeController.checkout)
+router.get('/checkout/:id',userBlocked,homeController.checkout)
 
 
 //PLACE ORDER
 
-// router.post('/cart/placeOrder/:id',isBlocked,homeController)
+// router.post('/cart/placeOrder/:id',homeController)
 
-router.post('/cart/placeOrder',isBlocked,homeController.cartPlaceOrder)
-router.post('/placeOrder/:id',isBlocked,homeController.placeOrder)
+router.post('/cart/placeOrder',userBlocked,homeController.cartPlaceOrder)
+router.post('/placeOrder/:id',userBlocked,homeController.placeOrder)
 
 
 //  installed games
 
-router.get('/installedGames',isBlocked,homeController.installedGames)
+router.get('/installedGames',userBlocked,homeController.installedGames)
 
-router.post('/uninstallGame',isBlocked,homeController.uninstalledGame)
+router.post('/uninstallGame',userBlocked,homeController.uninstalledGame)
 
-router.get('/orderHistory',isBlocked,homeController.orderHistory)
+router.get('/orderHistory',userBlocked,homeController.orderHistory)
 //logout
-router.post('/downloading',isBlocked,homeController.downloading)
+router.post('/downloading',userBlocked,homeController.downloading)
 
-router.get('/wishlist',homeController.wishlist)
+router.get('/wishlist',userBlocked,homeController.wishlist)
 
-router.post('/addToWishlist/:id',homeController.addToWishlist)
+router.post('/addToWishlist/:id',userBlocked,homeController.addToWishlist)
 
-router.post('/removeWishlist/:id',isBlocked,homeController.removeWishlist)
-router.post('/moveToCart/:id',homeController.moveToCart)
-router.post('/moveToWishlist/:id',homeController.moveToWishlist)
+router.post('/removeWishlist/:id',userBlocked,homeController.removeWishlist)
+router.post('/moveToCart/:id',userBlocked,homeController.moveToCart)
+router.post('/moveToWishlist/:id',userBlocked,homeController.moveToWishlist)
 
-router.get('/wallet',homeController.wallet)
+router.get('/wallet',userBlocked,homeController.wallet)
 
-router.get('/searchGames',homeController.searchGames)
-router.post('/commentData',homeController.comment)
+router.get('/searchGames',userBlocked,homeController.searchGames)
+router.post('/commentData',userBlocked,homeController.comment)
+router.post('/deleteComment',userBlocked,homeController.deleteComment)
 
-
-router.post('/couponCode',homeController.couponCode)
+router.post('/couponCode',userBlocked,homeController.couponCode)
 
 
 //Wallet
 
-router.get('/addMoney',homeController.addMoney)
-router.post('/addMoneyData',homeController.addMoneyData)
+router.get('/addMoney',userBlocked,homeController.addMoney)
+router.post('/addMoneyData',userBlocked,homeController.addMoneyData)
 
 
-router.post('/walletPlaceOrderData',homeController.walletPlaceOrderData)
+router.post('/walletPlaceOrderData',userBlocked,homeController.walletPlaceOrderData)
 // router.get('/walletPlaceOrder',homeController.walletPlaceOrder)
-router.get("/logout", homeController.userLogout);
+router.get("/logout",userBlocked, homeController.userLogout);
 
 //ADMIN
 

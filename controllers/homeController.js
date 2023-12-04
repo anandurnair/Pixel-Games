@@ -112,9 +112,10 @@ homeController.gameDetails = async (req, res) => {
 
       released = game.released;
       released = released.toLocaleDateString("en-IN");
-
+      console.log(userId,commentDetails)
       res.render("gameDetails", {
         game,
+        userId,
         user,
         released,
         isCart,
@@ -132,6 +133,19 @@ homeController.gameDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+homeController.deleteComment=async(req,res)=>{
+  try {
+    const {commentId,gameId}=req.body
+    await Comment.updateOne(
+      { gameId: gameId },
+      { $pull: { 'details': { _id: commentId } } })
+      res.redirect(`/gameDetails/${gameId}`)
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 var passwordError = false;
 homeController.userProfile = async (req, res) => {
@@ -394,6 +408,10 @@ homeController.cartCheckout = async (req, res) => {
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
+      console.log("CART : ",cart.items)
+      if(cart.items.length===0){
+        return res.redirect('/cart')
+      }
       const items = cart.items;
       let totalSum = await calculateTotalSum(userId);
       let totalAmount=parseInt(totalSum)
@@ -409,7 +427,10 @@ homeController.cartCheckout = async (req, res) => {
         totalAmount=totalAmount-discountValue
         
       }
-       
+      
+      
+      
+
       let availableCoupons=[]
       let isCouponAvailable=false
       const total=parseInt(subTotal)
@@ -419,6 +440,10 @@ homeController.cartCheckout = async (req, res) => {
           availableCoupons.push(coupon)
         }
       })
+      const order= await Orders.findOne({userId})
+      if(!order){
+        
+      }
       if (!cart) {
         res.render("cart", { user, cart,isCouponAvailable,
           availableCoupons,couponError });
