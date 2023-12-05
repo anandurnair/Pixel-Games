@@ -31,7 +31,7 @@ adminOrder.orderList = async (req, res) => {
         .populate('userId')
         .populate('gameItems.gameId')
         
-        const items=orders.gamesId
+       
 
         
       console.log('ORders : ',orders)
