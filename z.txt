@@ -1,13 +1,11 @@
 Razorpay
-blocked Users
+
 OTP resend and Timer
 Check All the validation
 pagination
 contact
-transaction history 
 
-First purchase Coupon
-Comment Management
+
 
  
 User
@@ -39,6 +37,13 @@ Wallet add money   to wallet to purchase game
 - blocked users are able to login 
 
 Coupon Management
+
+First purchase Coupon
+Comment Management
+blocked Users
+
+
+transaction history 
 
 #05121B
 ₹

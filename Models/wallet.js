@@ -12,7 +12,17 @@ const walletSchema = new mongoose.Schema({
         type: Number,
         default: 0 
       },
-  
+      transactionHistory:[
+        {
+          transaction:{
+            type:String,
+            enum:['Money Added','Purchase']
+          },
+          amount:{
+            type:Number,
+          }
+        }
+      ]
 });
 
 const Wallet = mongoose.model('wallet', walletSchema);

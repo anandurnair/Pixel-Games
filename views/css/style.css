@@ -227,6 +227,13 @@ ol {
 	padding: 10px;
 	padding-left: 20px;
 }
+
+.transaction-history{
+	margin-top: 50px;
+}
+.transaction-history h4{
+	text-align: center;
+}
 #removeBtn{
 	color: #fff;
 	background-color: #05121B;

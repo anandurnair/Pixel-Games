@@ -2,15 +2,14 @@ const Games = require("../Models/game");
 const Genres = require("../Models/genre");
 const Users = require("../Models/user");
 const Cart = require("../Models/cart");
-const Orders = require("../Models/order")
-const Comment =require('../Models/gameComments')
+const Orders = require("../Models/order");
+const Comment = require("../Models/gameComments");
 const Coupons = require("../Models/coupon");
-const Wallet = require('../Models/wallet')
+const Wallet = require("../Models/wallet");
 
 const mongoose = require("../config/db");
-const moment = require('moment');
-const Razorpay = require('razorpay');
-
+const moment = require("moment");
+const Razorpay = require("razorpay");
 
 // Import the mongoose connection from db.js
 
@@ -20,10 +19,10 @@ const { ObjectId } = require("mongoose").Types;
 const installedGames = require("../Models/installedGames");
 
 const razorpay = new Razorpay({
-  key_id: 'YOUR_TEST_KEY_ID',
-  key_secret: 'YOUR_TEST_KEY_SECRET',
+  key_id: "YOUR_TEST_KEY_ID",
+  key_secret: "YOUR_TEST_KEY_SECRET",
 });
-let couponError=false
+let couponError = false;
 const homeController = {};
 
 homeController.homePage = async (req, res) => {
@@ -32,12 +31,12 @@ homeController.homePage = async (req, res) => {
     const user = await Users.findById(userId);
     const games = await Games.find();
     const genres = await Genres.find();
-    const wallet = await Wallet.findOne({userId})
-    if(!wallet){
-      const newWallet = new Wallet({userId,balance:0})
-      await newWallet.save()
+    const wallet = await Wallet.findOne({ userId });
+    if (!wallet) {
+      const newWallet = new Wallet({ userId, balance: 0 });
+      await newWallet.save();
     }
-    
+
     res.render("home", { games, genres, user });
   } else {
     res.redirect("/");
@@ -90,14 +89,15 @@ homeController.gameDetails = async (req, res) => {
         : null;
 
       // Comments
-      let comment = await Comment.findOne({ gameId }).populate('details.userId');
+      let comment = await Comment.findOne({ gameId }).populate(
+        "details.userId"
+      );
       let commentDetails = [];
       let isCommentNull = false;
       let commentsCount = 0;
 
       if (comment) {
         commentDetails = comment.details || [];
-       
 
         commentsCount = await Comment.countDocuments({ gameId });
       } else {
@@ -112,7 +112,7 @@ homeController.gameDetails = async (req, res) => {
 
       released = game.released;
       released = released.toLocaleDateString("en-IN");
-      console.log(userId,commentDetails)
+      console.log(userId, commentDetails);
       res.render("gameDetails", {
         game,
         userId,
@@ -134,18 +134,19 @@ homeController.gameDetails = async (req, res) => {
   }
 };
 
-homeController.deleteComment=async(req,res)=>{
+homeController.deleteComment = async (req, res) => {
   try {
-    const {commentId,gameId}=req.body
+    const { commentId, gameId } = req.body;
     await Comment.updateOne(
       { gameId: gameId },
-      { $pull: { 'details': { _id: commentId } } })
-      res.redirect(`/gameDetails/${gameId}`)
+      { $pull: { details: { _id: commentId } } }
+    );
+    res.redirect(`/gameDetails/${gameId}`);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
 var passwordError = false;
 homeController.userProfile = async (req, res) => {
@@ -266,16 +267,15 @@ homeController.cart = async (req, res) => {
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
 
       const totalSum = await calculateTotalSum(userId);
-      
+
       const wishlistItems = await Wishlist.findOne({ userId }).populate(
         "items.gameId"
       );
-      
-      couponError=false
+
+      couponError = false;
       let items = null;
       let cartNull = "";
 
-      
       if (!cart) {
         cartNull = "No Games in cart";
         res.render("cart", {
@@ -284,7 +284,6 @@ homeController.cart = async (req, res) => {
           totalSum,
           cartNull,
           isExistInWishlist,
-          
         });
       } else {
         if (cart && cart.items.length > 0) {
@@ -299,8 +298,7 @@ homeController.cart = async (req, res) => {
           cartNull,
           wishlistItems,
           isExistInWishlist,
-          couponError
-        
+          couponError,
         });
       }
     } else {
@@ -312,9 +310,7 @@ homeController.cart = async (req, res) => {
   }
 };
 
-
 //coupon
-
 
 //add to cart
 homeController.addToCart = async (req, res) => {
@@ -371,8 +367,6 @@ homeController.removeCart = async (req, res) => {
 
       gameId = new ObjectId(gameId);
 
-    
-
       const oneGame = await Cart.findOne(
         { userId, "items._id": gameId },
         { "items.$": 1 }
@@ -384,7 +378,7 @@ homeController.removeCart = async (req, res) => {
         { userId },
         { $pull: { items: { _id: gameId } } }
       );
-    
+
       res.redirect("/cart");
     } else {
       res.redirect("/");
@@ -395,65 +389,73 @@ homeController.removeCart = async (req, res) => {
   }
 };
 
-
-
 homeController.cartCheckout = async (req, res) => {
   try {
     if (req.session.isLoggedIn) {
-      
-      let discountValue=0
-      
-      console.log("DISCOUNT : ",discountValue)
-     
+      let discountValue = 0;
+
+      console.log("DISCOUNT : ", discountValue);
+
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
-      console.log("CART : ",cart.items)
-      if(cart.items.length===0){
-        return res.redirect('/cart')
+      console.log("CART : ", cart.items);
+      if (cart.items.length === 0) {
+        return res.redirect("/cart");
       }
       const items = cart.items;
       let totalSum = await calculateTotalSum(userId);
-      let totalAmount=parseInt(totalSum)
-      const coupons= await Coupons.find()
-      let subTotal=totalSum
-      let discount=0
-      console.log("HIII",req.params.value)
-      if(!isNaN(req.params.value)){
-        let discountPercent = parseFloat(req.params.value);      
+      let totalAmount = parseInt(totalSum);
+      const coupons = await Coupons.find();
+      let subTotal = totalSum;
+      let discount = 0;
+      console.log("HIII", req.params.value);
+      if (!isNaN(req.params.value)) {
+        let discountPercent = parseFloat(req.params.value);
 
-          discountValue=parseInt((discountPercent/100)*totalAmount) 
+        discountValue = parseInt((discountPercent / 100) * totalAmount);
 
-        totalAmount=totalAmount-discountValue
-        
+        totalAmount = totalAmount - discountValue;
       }
-      
-      
-      
 
-      let availableCoupons=[]
-      let isCouponAvailable=false
-      const total=parseInt(subTotal)
-      coupons.forEach(coupon=>{
-        if(coupon.minimumPurchaseAmount <= total ){
-          isCouponAvailable=true
-          availableCoupons.push(coupon)
+      const order = await Orders.findOne({ userId });
+
+      let availableCoupons = [];
+      let isCouponAvailable = false;
+      const total = parseInt(subTotal);
+      coupons.forEach((coupon) => {
+        if (coupon.discountType == "firstPurchase") {
+          if (!order) {
+            isCouponAvailable = true;
+            availableCoupons.push(coupon);
+          }
+        } else if (coupon.minimumPurchaseAmount <= total) {
+          isCouponAvailable = true;
+          availableCoupons.push(coupon);
         }
-      })
-      const order= await Orders.findOne({userId})
-      if(!order){
-        
-      }
-      if (!cart) {
-        res.render("cart", { user, cart,isCouponAvailable,
-          availableCoupons,couponError });
-      } else {
-        console.log("Discount Value: ",discountValue)
+      });
 
-        res.render("cartCheckout", { user, items,discountValue: parseInt(discountValue),  subTotal: parseFloat(subTotal),
-             totalAmount: parseFloat(totalAmount),
+      if (!cart) {
+        res.render("cart", {
+          user,
+          cart,
           isCouponAvailable,
-          availableCoupons,couponError});
+          availableCoupons,
+          couponError,
+        });
+      } else {
+        console.log("Discount Value: ", discountValue);
+
+        res.render("cartCheckout", {
+          user,
+          items,
+          discountValue: parseInt(discountValue),
+          subTotal: parseFloat(subTotal),
+          totalAmount: parseFloat(totalAmount),
+          isCouponAvailable,
+          availableCoupons,
+          couponError,
+        });
       }
     } else {
       res.redirect("/");
@@ -464,30 +466,28 @@ homeController.cartCheckout = async (req, res) => {
   }
 };
 
-
-homeController.couponCode=async(req,res)=>{
+homeController.couponCode = async (req, res) => {
   try {
-    const {couponCode}=req.body
-    console.log("couponCode",couponCode)
-    
-    const coupon = await Coupons.find({code:couponCode})
-    const oneCoupon=coupon[0]
-    console.log(oneCoupon)
-    if(coupon[0]==undefined || oneCoupon.isActive==false){
-      couponError=true
-      
-      return res.redirect('/cart/checkout')
-    }else{
-      couponError=false
-     
-      return res.redirect(`/cart/checkout/${oneCoupon.discountValue}`)
+    const { couponCode } = req.body;
+    console.log("couponCode", couponCode);
+
+    const coupon = await Coupons.find({ code: couponCode });
+    const oneCoupon = coupon[0];
+    console.log(oneCoupon);
+    if (coupon[0] == undefined || oneCoupon.isActive == false) {
+      couponError = true;
+
+      return res.redirect("/cart/checkout");
+    } else {
+      couponError = false;
+
+      return res.redirect(`/cart/checkout/${oneCoupon.discountValue}`);
     }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
-
+};
 
 homeController.checkout = async (req, res) => {
   try {
@@ -507,8 +507,6 @@ homeController.checkout = async (req, res) => {
 };
 
 //place order
-
-
 
 homeController.placeOrder = async (req, res) => {
   try {
@@ -599,22 +597,27 @@ homeController.placeOrder = async (req, res) => {
   }
 };
 
-let balanceErr=false
+let balanceErr = false;
 homeController.cartPlaceOrder = async (req, res) => {
   try {
     if (req.session.isLoggedIn) {
       const userId = req.session.userId;
-      let {paymentOption,totalAmount}=req.body
-      console.log("TOTAL : ",totalAmount)
+      let { paymentOption, totalAmount } = req.body;
+      console.log("TOTAL : ", totalAmount);
       const user = await Users.findById(userId);
-      const wallet = await Wallet.findOne({userId})
-      if(paymentOption=='walletPayment'){
-        balanceErr=false
-        if(totalAmount>wallet.balance){
-          balanceErr=true
+      const wallet = await Wallet.findOne({ userId });
+      if (paymentOption == "walletPayment") {
+        balanceErr = false;
+        if (totalAmount > wallet.balance) {
+          balanceErr = true;
         }
-        console.log("HOI : ",balanceErr)
-        return res.render('walletPlaceOrder',{totalAmount,user ,balance:wallet.balance,balanceErr})
+        console.log("HOI : ", balanceErr);
+        return res.render("walletPlaceOrder", {
+          totalAmount,
+          user,
+          balance: wallet.balance,
+          balanceErr,
+        });
       }
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
       const items = cart.items;
@@ -633,7 +636,7 @@ homeController.cartPlaceOrder = async (req, res) => {
           order = new Orders({
             userId,
             gameItems: [],
-            totalSum:totalAmount,
+            totalSum: totalAmount,
           });
           await order.save();
         }
@@ -699,20 +702,19 @@ homeController.cartPlaceOrder = async (req, res) => {
 //   }
 // }
 
-homeController.walletPlaceOrderData=async(req,res)=>{
+homeController.walletPlaceOrderData = async (req, res) => {
   try {
-    if(req.session.isLoggedIn){
+    if (req.session.isLoggedIn) {
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
-      const wallet = await Wallet.findOne({userId})
-      const {totalAmount} = req.body
+      const wallet = await Wallet.findOne({ userId });
+      const { totalAmount } = req.body;
       const items = cart.items;
       // const totalSum = await calculateTotalSum(userId);
 
+      let balance = wallet.balance;
 
-      let balance=wallet.balance
-     
       if (!cart) {
         res.render("cartCheckout", { user, cart });
       } else {
@@ -726,7 +728,7 @@ homeController.walletPlaceOrderData=async(req,res)=>{
           order = new Orders({
             userId,
             gameItems: [],
-            totalSum:totalAmount,
+            totalSum: totalAmount,
           });
           await order.save();
         }
@@ -762,9 +764,19 @@ homeController.walletPlaceOrderData=async(req,res)=>{
           }
         });
 
-        let newBalance=wallet.balance -totalAmount
-        await Wallet.updateOne({userId},{$set:{balance:newBalance}})
-
+        let newBalance = wallet.balance - totalAmount;
+        await Wallet.updateOne({ userId }, { $set: { balance: newBalance } });
+        await Wallet.updateOne(
+          { userId },
+          {
+            $push: {
+              transactionHistory: {
+                transaction: "Purchase",
+                amount: totalAmount,
+              },
+            },
+          }
+        );
 
         await Cart.updateOne({ userId }, { $set: { items: [] } });
 
@@ -773,15 +785,14 @@ homeController.walletPlaceOrderData=async(req,res)=>{
         console.log("Orders Placed");
         res.render("orderSuccessful", { user, downloadGames });
       }
-    }else {
+    } else {
       res.redirect("/");
     }
-    
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
 homeController.userLogout = (req, res) => {
   req.session.destroy((err) => {
@@ -1007,8 +1018,6 @@ homeController.removeWishlist = async (req, res) => {
 
       gameId = new ObjectId(gameId);
 
- 
-
       const oneGame = await Wishlist.findOne(
         { userId, "items._id": gameId },
         { "items.$": 1 }
@@ -1073,7 +1082,6 @@ homeController.moveToCart = async (req, res) => {
         gameId,
       });
 
-      
       await cart.save();
 
       const updateResult = await Wishlist.findOneAndUpdate(
@@ -1105,7 +1113,7 @@ homeController.moveToWishlist = async (req, res) => {
     const gameId = item.gameId;
 
     const game = await Games.findById(gameId);
-    
+
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
@@ -1163,48 +1171,68 @@ homeController.wallet = async (req, res) => {
   if (req.session.isLoggedIn) {
     const userId = req.session.userId;
     const user = await Users.findById(userId);
-    const wallet = await Wallet.findOne({userId})
-    res.render("wallet", { user,wallet });
+    const wallet = await Wallet.findOne({ userId });
+    const transactionHistory = wallet.transactionHistory;
+    let noTransactions = "";
+    if (transactionHistory.length == 0) {
+      res.render("wallet", {
+        user,
+        wallet,
+        transactionHistory: [],
+        noTransactions: "No transactions",
+      });
+    } else {
+      res.render("wallet", {
+        user,
+        wallet,
+        transactionHistory,
+        noTransactions,
+      });
+    }
   } else {
     res.redirect("/");
   }
 };
 
-homeController.addMoney=async(req,res)=>{
+homeController.addMoney = async (req, res) => {
   try {
-    if(req.session.isLoggedIn){
+    if (req.session.isLoggedIn) {
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    console.error("Error searching for games:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+homeController.addMoneyData = async (req, res) => {
+  try {
+    if (req.session.isLoggedIn) {
+      const userId = req.session.userId;
+      const user = await Users.findById(userId);
+      const { addAmount } = req.body;
 
-    }else{
+      const wallet = await Wallet.findOne({ userId });
+      const newBalance = Number(addAmount) + wallet.balance;
+      await Wallet.updateOne({ userId }, { $set: { balance: newBalance } });
+      await Wallet.updateOne(
+        { userId },
+        {
+          $push: {
+            transactionHistory: { transaction: "Money Added", amount: addAmount },
+          },
+        }
+      );
+
+      res.redirect("/wallet");
+    } else {
       res.redirect("/");
-  
     }
   } catch (error) {
     console.error("Error searching for games:", error);
     res.status(500).json({ error: "Internal server error" });
   }
- 
-}
-homeController.addMoneyData=async(req,res)=>{
-  try {
-    if(req.session.isLoggedIn){
-        const userId = req.session.userId;
-        const user = await Users.findById(userId);
-        const {addAmount}=req.body
-        
-        const wallet=await Wallet.findOne({userId})
-        const newBalance= Number(addAmount) + wallet.balance
-        await Wallet.updateOne({userId},{$set:{balance:newBalance}})
-        res.redirect('/wallet')
-    }else{
-      res.redirect("/");
-  
-    }
-  } catch (error) {
-    console.error("Error searching for games:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
- 
-}
+};
 
 //!   SEARCH Games
 
@@ -1242,26 +1270,26 @@ homeController.searchGames = async (req, res) => {
 homeController.comment = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const {gameId,commentData } = req.body;
-    if(commentData==''){
-     return res.redirect(`/gameDetails/${gameId}`)
+    const { gameId, commentData } = req.body;
+    if (commentData == "") {
+      return res.redirect(`/gameDetails/${gameId}`);
     }
     let existingComment = await Comment.findOne({ gameId });
-    
+
     if (!existingComment) {
       existingComment = new Comment({ gameId, details: [] });
-    } 
+    }
 
     const currentDate = new Date();
 
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    const formattedDate = currentDate.toLocaleDateString('en-GB', options);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    const formattedDate = currentDate.toLocaleDateString("en-GB", options);
     existingComment.details.push({
       userId: userId,
       text: commentData,
-      createdAt: formattedDate
+      createdAt: formattedDate,
     });
-    
+
     await existingComment.save();
     res.redirect(`/gameDetails/${gameId}`);
   } catch (error) {

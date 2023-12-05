@@ -19,13 +19,18 @@
             <!-- Pagination links -->
             <div class="pagination">
               <% if (currentPage > 1) { %>
-              <a href="?page=<%= currentPage - 1 %>">Previous</a>
-              <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
-              <a href="?page=<%= i %>"><%= i %></a>
-              <% } %> <% if (currentPage < totalPages) { %>
-              <a href="?page=<%= currentPage + 1 %>">Next</a>
+                <a href="/orderList/?page=<%= currentPage - 1 %>">Previous</a>
+              <% } %>
+            
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="/orderList/?page=<%= i %>" <%= i === currentPage ? 'class="active"' : '' %>><%= i %></a>
+              <% } %>
+            
+              <% if (currentPage < totalPages) { %>
+                <a href="/orderList/?page=<%= currentPage + 1 %>">Next</a>
               <% } %>
             </div>
+            
             <div class="table-responsive">
               <table
                 class="table table-striped table-bordered table-hover"
@@ -42,26 +47,28 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% orders.forEach(order => { %> <% const items =
-                  order.gameItems; %> <% const user = order.userId; %>
-
-                  <% if (user && user.fullName) { %>
-
-                  <% } else { %>
-                  <td colspan="6">User information not available</td>
-                  <% } %>
-
-                  <% items.forEach(item => { %>
-                  <tr class="odd gradeX">
-                    <td><%= item.gameId.gameName %></td>
-                    <td><%= user.fullName %></td>
-                    <td><%= item.orderDate %></td>
-                    <td>₹<%= item.gameId.price %></td>
-
-                    <td><%= item.orderStatus %></td>
-                  </tr>
-                  <% }); %> <% }); %>
+                  <% orders.forEach(order => { %>
+                    <% const items = order.gameItems; %>
+                    <% const user = order.userId; %>
+                
+                    <% if (user && user.fullName) { %>
+                      <% items.forEach(item => { %>
+                        <tr class="odd gradeX">
+                          <td><%= item.gameId.gameName %></td>
+                          <td><%= user.fullName %></td>
+                          <td><%= item.orderDate %></td>
+                          <td>₹<%= item.gameId.price %></td>
+                          <td><%= item.orderStatus %></td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr class="odd gradeX">
+                        <td colspan="6">User information not available</td>
+                      </tr>
+                    <% } %>
+                  <% }); %>
                 </tbody>
+                
               </table>
             </div>
             
