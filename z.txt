@@ -2,7 +2,7 @@ Razorpay
 
 OTP resend and Timer
 Check All the validation
-pagination
+
 contact
 
 
@@ -13,7 +13,6 @@ User
 
 Admin
 - handle image validation error and display error message
-- add pagination wherever required like orders users 
 
 
 
@@ -42,7 +41,7 @@ First purchase Coupon
 Comment Management
 blocked Users
 
-
+pagination
 transaction history 
 
 #05121B

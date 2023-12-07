@@ -14,7 +14,10 @@ app.set("view engine", "ejs");
 // app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "views/admin")));
 
-
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  next();
+});
 // app.use('/views/css', express.static(path.join(__dirname, 'views', 'css')));
 app.use('/views/gameImages', express.static(path.join(__dirname, 'views', 'gameImages')));
 

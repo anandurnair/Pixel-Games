@@ -4,9 +4,7 @@ const Users = require('../Models/user')
 const paginate = require('paginate'); 
 
 let orderList =[];
-function orderToArray(){
-  
-}
+
 
 
 adminOrder.orderList = async (req, res) => {
@@ -16,13 +14,13 @@ adminOrder.orderList = async (req, res) => {
       const currentPage = parseInt(req.query.page) || 1; 
       const perPage = 10;
       console.log('Page :',currentPage)
-      let skipValue = 0; 
+     let skipValue = 0; 
       if (currentPage < 1) {
         currentPage = 1; // Reset to 1 if currentPage is less than 1
       }
       if (currentPage > 1) {
         skipValue = (currentPage - 1) * perPage; 
-      }
+      } 
       console.log("skip : ",skipValue)
       const totalOrders = await Orders.countDocuments(); 
       const totalPages = Math.ceil(totalOrders / perPage); // Calculate total pages
@@ -32,9 +30,15 @@ adminOrder.orderList = async (req, res) => {
         .populate('gameItems.gameId')
         
        
-
+      orders.forEach(order=>{
+        let items = order.gameItems;
+       items.forEach(item=>{
+        orderList.push(item)
+       })
         
-      console.log('ORders : ',orders)
+      })
+        console.log("Orderlist : ",orderList)
+      
       res.render('admin/pages/orderList', { orders, currentPage, totalPages });
       
     } else {

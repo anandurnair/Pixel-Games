@@ -6,9 +6,22 @@ const Coupons = require("../Models/coupon");
 adminCoupon.couponList=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
-            const coupons = await Coupons.find();
+
+            let currentPage = parseInt(req.query.page) || 1;
+            const perPage = 8;
+            if (currentPage < 1) {
+              currentPage = 1; // Reset to 1 if currentPage is less than 1
+            }
+        
+            const skipValue = (currentPage - 1) * perPage;
+            const totalCoupon = await Coupon.countDocuments();
+            const totalPages = Math.ceil(totalCoupon / perPage);
             
-            res.render("admin/pages/couponList", { coupons, message: "" });
+            const coupons = await Coupons.find()
+            .skip(skipValue)
+            .limit(perPage);
+
+            res.render("admin/pages/couponList", { coupons,currentPage, totalPages, message: "" });
           } else {
             res.redirect("/adminLogin");
           }

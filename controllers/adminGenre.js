@@ -4,8 +4,23 @@ const adminGenre = {};
 
 adminGenre.genreList = async (req, res) => {
   if (req.session.adminLogIn) {
-    const genres = await Genres.find();
-    res.render("admin/pages/genreList", { genres, message: "" });
+    let currentPage = parseInt(req.query.page) || 1;
+    const perPage = 8;
+    if (currentPage < 1) {
+      currentPage = 1; // Reset to 1 if currentPage is less than 1
+    }
+
+    const skipValue = (currentPage - 1) * perPage;
+
+    const totalGenres = await Genres.countDocuments();
+    const totalPages = Math.ceil(totalGenres / perPage);
+
+
+    const genres = await Genres.find()
+    .skip(skipValue)
+    .limit(perPage);
+    
+    res.render("admin/pages/genreList", { genres,currentPage, totalPages, message: "" });
   } else {
     res.redirect("/adminLogin");
   }

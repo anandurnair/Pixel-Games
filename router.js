@@ -81,8 +81,8 @@ router.get('/checkout/:id',userBlocked,homeController.checkout)
 // router.post('/cart/placeOrder/:id',homeController)
 
 router.post('/cart/placeOrder',userBlocked,homeController.cartPlaceOrder)
-router.post('/placeOrder/:id',userBlocked,homeController.placeOrder)
-
+// router.post('/placeOrder/:id',userBlocked,homeController.placeOrder)
+router.post('/createOrder',userBlocked,homeController.createOrder)
 
 //  installed games
 
@@ -118,8 +118,12 @@ router.post('/addMoneyData',userBlocked,homeController.addMoneyData)
 
 
 router.post('/walletPlaceOrderData',userBlocked,homeController.walletPlaceOrderData)
-// router.get('/walletPlaceOrder',homeController.walletPlaceOrder)
+router.get('/walletPlaceOrder',homeController.walletPlaceOrder)
 router.get("/logout",userBlocked, homeController.userLogout);
+router.get('/orderSuccessfull',userBlocked,homeController.orderSuccessful)
+router.post('/verifyPayment',userBlocked,homeController.verifyPayment)
+router.post('/paymentFailed',userBlocked,homeController.paymentFailed)
+
 
 //ADMIN
 

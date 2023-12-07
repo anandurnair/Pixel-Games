@@ -1,5 +1,7 @@
+
 <%- include('header') %>
-  <style>
+
+<style>
     .flip-card {
       width: 250px;
       background-color: #05121B;
@@ -118,12 +120,11 @@
                           <div class="flip-card-front">
                             <h5>
                               Get <%= coupon.discountValue %>% Off for the
-                              <% if(coupon.discountType =='firstPurchase'){ %>
-                                First Purchase
-                                <% }else{ %>
-                                  Purchase above ₹ <%=
-                                  coupon.minimumPurchaseAmount %>
-                                  <% } %>
+                                <% if(coupon.discountType=='firstPurchase' ){ %>
+                                  First Purchase
+                                  <% }else{ %>
+                                    every purchase above ₹ <%= coupon.minimumPurchaseAmount %>
+                                      <% } %>
                             </h5>
                           </div>
                           <div class="flip-card-back">
@@ -143,7 +144,7 @@
 
                 </div>
 
-                <form id="checkoutForm" action="/cart/placeOrder" method="post">
+                <form id="checkoutForm" >
 
                   <div class="shoping__discount">
                     <h5>Choose Payment Method</h5>
@@ -186,24 +187,171 @@
               <div class="checkout__order__total">
                 Total <span>₹<%= totalAmount %></span>
               </div>
-              <input type="text" name="totalAmount" value="<%= totalAmount %>" hidden>
+              <input type="text" name="totalAmount" id="total" value="<%= totalAmount %>" hidden>
 
 
 
-              <button type="submit" class="site-btn">PLACE ORDER</button>
+              <button id="rzp-button" onclick="btnClick()" type="button" class="site-btn">PLACE ORDER</button>
 
             </div>
           </div>
-          </form>
+          </form> 
         </div>
 
-        
       </div>
     </div>
+
+
   </section>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <script>
+
+    
+  
+  async function btnClick() {
+      try {
+        const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
+        const totalAmount = document.getElementById('total').value;
+
+        const response = await fetch('/createOrder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            paymentOption: paymentOption, 
+            totalAmount: totalAmount,
+            currency: 'INR',
+          }),
+        });
+        const data = await response.json();
+        console.log('DATA : ', data);
+    
+        if (data.method=='wallet') {
+          const balanceErr=data.balanceErr
+          const totalAmount=data.totalAmount
+          const queryParams = `?balanceErr=${balanceErr}&totalAmount=${totalAmount}`;
+
+         window.location.href=`/walletPlaceOrder/${queryParams}`
+        } else {
+          // If it's for online payment, proceed with Razorpay
+          const options = {
+            key: 'rzp_test_rWizGdKAm2zOqw',
+            amount: data.amount,
+            currency: data.currency,
+            name: 'Pixel Games',
+            description: 'Test Transaction',
+            order_id: data.id,
+            handler:  function (response) {
+              console.log(response);
+              verifyPayment(response, data)
+            },
+            "modal": {
+              "ondismiss": function () {
+                console.log('Payment window closed');
+                paymentFailed(data);
+              }
+            },
+            prefill: {
+              name: 'John Doe',
+              email: 'john@example.com',
+              contact: '9000090000',
+            },
+            theme: {
+              color: '#05121B',
+            },
+          };
+          
+          const rzp = new Razorpay(options);
+          rzp.open();
+        }
+      } catch (error) {
+        console.error('Error initiating payment:', error);
+        alert('Error during payment. Please try again.');
+      }
+    }
+    
+    const btn = document.getElementById('rzp-button');
+    btn.addEventListener('click', function (event) {
+      event.preventDefault();
+      btnClick();
+    });
+    
+  // ... Your existing code
+
+async function verifyPayment(payment, order) {
+  try {
+    const response = await fetch('/verifyPayment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        payment,
+        order
+      })
+    });
+    const responseData = await response.json();
+    console.log(responseData)
+    if (responseData.status) {
+      let downloadGames = responseData.downloadGames;
+    
+      const queryParams = `?downloadGames=${downloadGames}`;
+      window.location.href = `/orderSuccessfull/${queryParams}`;
+    } else {
+      alert('Payment Failed. Try again later.');
+    }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    alert('Error verifying payment. Please try again.');
+  }
+}
+
+// Adjusted paymentFailed function
+function paymentFailed(order) {
+  fetch('/paymentFailed', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ order }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status) {
+        window.location.href = '/cart/Checkout/:value';
+        /* Additional handling for success */
+      } else {
+        /* Handle other scenarios */
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error processing payment failure.');
+    });
+}
+
+   /* function verifyPayment(response, data) {
+      fetch('/cart/placeOrder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+         totalAmount:data.totalAmount
+        })
+      })
+      .then(response => {
+       const datas= response.json()
+       const downloadGames=datas.downloadGames
+         console.log("RESPonse: ",datas)
+          const queryParams = `?downloadGames=${downloadGames}`;
+          window.location.href=`/orderSuccessfull/${queryParams}`
+
+      })
+    }  */
     
   </script>
 

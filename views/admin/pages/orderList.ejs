@@ -16,20 +16,27 @@
           <div class="panel-heading">Order List</div>
           <!-- /.panel-heading -->
           <div class="panel-body">
-            <!-- Pagination links -->
-            <div class="pagination">
-              <% if (currentPage > 1) { %>
-                <a href="/orderList/?page=<%= currentPage - 1 %>">Previous</a>
-              <% } %>
-            
-              <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="/orderList/?page=<%= i %>" <%= i === currentPage ? 'class="active"' : '' %>><%= i %></a>
-              <% } %>
-            
-              <% if (currentPage < totalPages) { %>
-                <a href="/orderList/?page=<%= currentPage + 1 %>">Next</a>
-              <% } %>
-            </div>
+             <!-- Pagination links -->
+<nav aria-label="Page navigation example">
+  <div class="pagination">
+      <ul class="pagination">
+          <li class="page-item">
+      <% if (currentPage > 1) { %>
+        <a  href="/orderList?page=<%= currentPage - 1 %>">&laquo;</a>
+      <% } %>
+  </li>
+
+  <li class="page-item"><% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/orderList?page=<%= i %>" <%= i === currentPage ? 'class="active"' : '' %>><%= i %></a>
+      <% } %>
+  </li>
+  <li class="page-item"><% if (currentPage < totalPages) { %>
+        <a href="/orderList?page=<%= currentPage + 1 %>">&raquo;</a>
+      <% } %>
+  </li>
+</ul>
+    </div>
+</nav>
             
             <div class="table-responsive">
               <table

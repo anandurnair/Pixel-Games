@@ -4,8 +4,21 @@ const adminUser = {};
 
 adminUser.userList = async (req, res) => {
   if (req.session.adminLogIn) {
-    const users = await Users.find();
-    res.render("admin/pages/userList", { users, message: "" });
+    
+    let currentPage = parseInt(req.query.page) || 1;
+    const perPage = 8;
+    if (currentPage < 1) {
+      currentPage = 1; // Reset to 1 if currentPage is less than 1
+    }
+
+    const skipValue = (currentPage - 1) * perPage;
+    const totalUsers = await Users.countDocuments();
+    const totalPages = Math.ceil(totalUsers / perPage);
+
+    const users = await Users.find()
+    .skip(skipValue)
+    .limit(perPage);
+    res.render("admin/pages/userList", { users, message: "",currentPage, totalPages, });
   } else {
     res.redirect("/adminLogin");
   }

@@ -158,6 +158,7 @@ userController.signupData = async (req, res) => {
             fullName,
             email,
             password: hashedPassword,
+            time:new Date().getTime(),
             error: "",
 
           });
@@ -173,14 +174,27 @@ userController.signupData = async (req, res) => {
 };
 
 userController.otpData = async (req, res) => {
-  const { fullName, email, password, otpCode } = req.body;
-  try {
-  
+  const { fullName, email,time, password, otpCode } = req.body;
 
-    // Perform OTP verification
+  try {
+    
+    let oldTime = time
+let newTime = new Date().getTime()
+let timeDifference = (newTime-oldTime ) / 1000;
+
+let isExpired = timeDifference > 60;
     const isOtpValid = otpCode === generatedOTP;
     console.log(isOtpValid);
-    if (isOtpValid) {
+
+    if(isExpired){
+      res.render("otp", {
+        fullName,
+        email,
+        time:new Date().getTime(),
+        password,
+        error: "OTP Expired",
+      });
+    } else if (isOtpValid) {
       // If OTP is valid, create a new user
       const user = new Users({ fullName, email, password });
      
@@ -189,11 +203,13 @@ userController.otpData = async (req, res) => {
       req.session.userId = user._id;
       // Redirect to the next page or perform any other action
       res.redirect("/home");
-    } else {
+    }
+    else{
       // If OTP is invalid, render the OTP page again with an error message
       res.render("otp", {
         fullName,
         email,
+        time:new Date().getTime(),
         password,
         error: "Invalid OTP. Please try again.",
       });
@@ -206,6 +222,7 @@ userController.otpData = async (req, res) => {
     res.render("otp", {
       fullName,
       email,
+      time:new Date().getTime(),
       password,
       error: "Something went wrong. Please try again later.",
     });

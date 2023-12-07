@@ -6,12 +6,28 @@ const adminGame = {};
 adminGame.gameList = async (req, res) => {
   try {
     if (req.session.adminLogIn) {
-      const games = await Games.find();
-      res.render("admin/pages/gameList", { games, message: "" });
+
+      let currentPage = parseInt(req.query.page) || 1;
+      const perPage = 8;
+      if (currentPage < 1) {
+        currentPage = 1; // Reset to 1 if currentPage is less than 1
+      }
+  
+      const skipValue = (currentPage - 1) * perPage;
+  
+      const totalGames = await Games.countDocuments();
+      const totalPages = Math.ceil(totalGames / perPage);
+  
+      const games = await Games.find()
+        .skip(skipValue)
+        .limit(perPage);
+  
+      res.render('admin/pages/gameList', { games, currentPage, totalPages,message: "" });
     } else {
       res.redirect("/adminLogin");
     }
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Internal server error" });
   }
 };
