@@ -1,4 +1,14 @@
 <%- include('header') %>
+<style>
+  td{
+    text-align: center;
+   
+  }
+  th{
+    text-align: center;
+  }
+ 
+</style>
 <section class="breadcrumb-section set-bg" data-setbg="/images/image-4-o1s.png">
     <div class="container">
       <div class="row">
@@ -27,23 +37,28 @@
             <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Game Image</th>
                   <th scope="col">Game Name</th>
+                  
                   <th scope="col">Order Date</th>
+                  <th scope="col">Payment Method</th>
                   <th scope="col">Price</th>
                   <th scope="col">Status</th>
                 </tr>
               </thead>
               <tbody>
-                <% if (items) { %>
-                  <% items.forEach((game, index) => { %>
+                <% if (orders.length > 0) { %>
+                  <% orders.forEach((order, index) => { %>
                     <tr>
                       <th scope="row"><%= index + 1 %></th>
-                      <td><img src="<%= game.gameId.gameImage %>" width="200px" alt=""></td> <!-- Adjust the path based on your actual schema -->
-                      <td><%= game.gameId.gameName %></td>
-                      <td><%= game.orderDate %></td>
-                      <td><%= game.gameId.price %></td>
-                      <td><%= game.orderStatus %></td>
+                      <td ><% order.gameItems.forEach((gameItem) => { %>
+                   <img src=" <%= gameItem.gameId.gameImage %>" alt="" width="100px" >    <br>
+                  <p style="margin-top:5px ;color:#ffffff;" > <%= gameItem.gameId.gameName %></p><br>
+                       <% }); %></td>
+                      
+                      <td><%= order.orderDate %></td>
+                      <td><%= order.paymentMethod %></td>
+                      <td>₹<%= order.totalAmount %></td>
+                      <td><%= order.orderStatus %></td>
                     </tr>
                   <% }); %>
                 <% } else { %>

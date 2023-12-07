@@ -576,14 +576,7 @@ homeController.cartPlaceOrder = async (req, res) => {
         let installedGame = await installedGames
           .findOne({ userId })
           .populate("gameItems.gameId");
-        if (!order) {
-          order = new Orders({
-            userId,
-            gameItems: [],
-            totalSum: totalAmount,
-          });
-          await order.save();
-        }
+       
         if (!installedGame) {
           installedGame = new installedGames({
             userId,
@@ -639,7 +632,7 @@ homeController.verifyPayment=async(req,res)=>{
   try {
 
     console.log("Verifying")
-    const { payment, order } = req.body;
+    const { payment, order ,paymentOption} = req.body;
 
     const crypto = require("crypto");
     const hmac = crypto
@@ -669,14 +662,7 @@ homeController.verifyPayment=async(req,res)=>{
           let installedGame = await installedGames
             .findOne({ userId })
             .populate("gameItems.gameId");
-          if (!order) {
-            order = new Orders({
-              userId,
-              gameItems: [],
-              totalSum: totalAmount,
-            });
-            await order.save();
-          }
+          
           if (!installedGame) {
             installedGame = new installedGames({
               userId,
@@ -684,17 +670,14 @@ homeController.verifyPayment=async(req,res)=>{
             });
             await installedGame.save();
           }
+          let gameItemsArray=[{}]
           let downloadGames = [];
           items.forEach(async (game) => {
             const existingGameItem = installedGame.gameItems.find(
               (item) => item.gameId.toString() === game.gameId.toString()
             );
-            order.gameItems.push({
-              gameId: game.gameId,
-              orderDate: new Date(),
-              orderStatus: "Downloaded",
-            });
-  
+           
+            gameItemsArray.push(game.gameId)
             downloadGames.push(game.gameId.gameName);
   
             if (existingGameItem) {
@@ -707,10 +690,20 @@ homeController.verifyPayment=async(req,res)=>{
               });
             }
           });
+          const newOrder=new Orders({
+            userId:userId,
+            gameItems:items.map(item=>({
+              gameId:item.gameId
+            })),
+            orderDate:new Date(),
+            orderStatus:'Downloaded',
+            paymentMethod:'Online payment',
+            totalAmount:(totalAmount*0.01)
+          })
   
           await Cart.updateOne({ userId }, { $set: { items: [] } });
   
-          await order.save();
+          await newOrder.save();
           await installedGame.save();
           console.log("Orders Placed");
           console.log("nooop : ",downloadGames)
@@ -766,12 +759,17 @@ homeController.orderSuccessful=async(req,res)=>{
 homeController.walletPlaceOrder=async(req,res)=>{
   try {
     if(req.session.isLoggedIn){
-      const balanceErr= req.query.balanceErr
+      // const balanceErr= req.query.balanceErr
       const totalAmount=req.query.totalAmount
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const wallet = await Wallet.findOne({ userId });
       const balance = wallet.balance
+      console.log("hel",typeof totalAmount,typeof balance )
+     let balanceErr = false;
+      if (totalAmount > wallet.balance) {
+        balanceErr = true;
+      }
       res.render('walletPlaceOrder',{user,balance,wallet,balanceErr,totalAmount})
 
     }else{
@@ -791,7 +789,7 @@ homeController.walletPlaceOrderData = async (req, res) => {
       const user = await Users.findById(userId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
       const wallet = await Wallet.findOne({ userId });
-      const { totalAmount } = req.body;
+     let totalAmount = req.body.totalAmount;
       const items = cart.items;
       // const totalSum = await calculateTotalSum(userId);
 
@@ -806,14 +804,7 @@ homeController.walletPlaceOrderData = async (req, res) => {
         let installedGame = await installedGames
           .findOne({ userId })
           .populate("gameItems.gameId");
-        if (!order) {
-          order = new Orders({
-            userId,
-            gameItems: [],
-            totalSum: totalAmount,
-          });
-          await order.save();
-        }
+       
         if (!installedGame) {
           installedGame = new installedGames({
             userId,
@@ -845,6 +836,9 @@ homeController.walletPlaceOrderData = async (req, res) => {
             });
           }
         });
+        console.log("HEEE:",totalAmount)
+        totalAmount = parseInt(totalAmount)
+        console.log("hel", totalAmount,typeof wallet.balance )
 
         let newBalance = wallet.balance - totalAmount;
         await Wallet.updateOne({ userId }, { $set: { balance: newBalance } });
@@ -859,10 +853,20 @@ homeController.walletPlaceOrderData = async (req, res) => {
             },
           }
         );
+        const newOrder=new Orders({
+          userId:userId,
+          gameItems:items.map(item=>({
+            gameId:item.gameId
+          })),
+          orderDate:new Date(),
+          orderStatus:'Downloaded',
+          paymentMethod:'Wallet',
+          totalAmount:totalAmount
+        })
 
         await Cart.updateOne({ userId }, { $set: { items: [] } });
 
-        await order.save();
+        await newOrder.save();
         await installedGame.save();
         console.log("Orders Placed");
         res.render("orderSuccessful", { user, downloadGames });
@@ -954,7 +958,7 @@ homeController.orderHistory = async (req, res) => {
     if (req.session.isLoggedIn) {
       let userId = req.session.userId;
       const user = await Users.findById(userId);
-      const orders = await Orders.findOne({ userId }).populate(
+      const orders = await Orders.find({ userId }).populate(
         "gameItems.gameId"
       );
       let items = null;
@@ -966,12 +970,13 @@ homeController.orderHistory = async (req, res) => {
         res.render("orderHistory", { user, items, orders, orderNull });
       } else {
         // If orders is found, check if it has gameItems before accessing orders.gameItems
-        if (orders.gameItems && orders.gameItems.length > 0) {
+        if (orders) {
           items = orders.gameItems;
         } else {
           orderNull = "No Games Installed";
         }
-        res.render("orderHistory", { user, items, orderNull });
+        console.log("OrderR: ",orders)
+        res.render("orderHistory", { user,orders, items, orderNull });
       }
     } else {
       res.redirect("/");

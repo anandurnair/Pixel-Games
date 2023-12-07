@@ -15,17 +15,21 @@ const orderSchema = new mongoose.Schema({
         ref: "games", // Assuming you have a Game model
         required: true,
       },
-      orderDate: Date,
-      orderStatus: {
-        type: String,
-        enum: ["Downloaded", "Pending", "Processing"],
-        default: "Pending",
-      },
+     
     },
   ],
-  // totalAmount: {
-  //   type: Number,
-  // },
+  orderDate: Date,
+  orderStatus: {
+    type: String,
+    enum: ["Downloaded", "Pending", "Processing"],
+    default: "Pending"
+  },
+  paymentMethod:{
+    type:String
+  },
+  totalAmount: {
+    type: Number,
+  },
  
 });
 

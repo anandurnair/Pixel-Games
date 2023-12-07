@@ -283,6 +283,8 @@
 
 async function verifyPayment(payment, order) {
   try {
+    const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
+
     const response = await fetch('/verifyPayment', {
       method: 'POST',
       headers: {
@@ -290,7 +292,8 @@ async function verifyPayment(payment, order) {
       },
       body: JSON.stringify({
         payment,
-        order
+        order,
+        paymentOption
       })
     });
     const responseData = await response.json();
