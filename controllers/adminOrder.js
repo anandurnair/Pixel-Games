@@ -12,7 +12,7 @@ adminOrder.orderList = async (req, res) => {
     if (req.session.adminLogIn) {
 
       const currentPage = parseInt(req.query.page) || 1; 
-      const perPage = 10;
+      const perPage = 4;
       console.log('Page :',currentPage)
      let skipValue = 0; 
       if (currentPage < 1) {
@@ -28,18 +28,17 @@ adminOrder.orderList = async (req, res) => {
       const orders = await Orders.find()
         .populate('userId')
         .populate('gameItems.gameId')
+        .skip(skipValue)
+        .limit(perPage);
         
-       
-      orders.forEach(order=>{
-        let items = order.gameItems;
-       items.forEach(item=>{
-        orderList.push(item)
-       })
+      let orderNull=''
+      if(!orders){
+        orderNull="No orders"
+      }
+     
         
-      })
-        console.log("Orderlist : ",orderList)
       
-      res.render('admin/pages/orderList', { orders, currentPage, totalPages });
+      res.render('admin/pages/orderList', { orders, currentPage, totalPages,orderNull });
       
     } else {
       res.redirect('/adminLogin');

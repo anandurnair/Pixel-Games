@@ -975,7 +975,6 @@ homeController.orderHistory = async (req, res) => {
         } else {
           orderNull = "No Games Installed";
         }
-        console.log("OrderR: ",orders)
         res.render("orderHistory", { user,orders, items, orderNull });
       }
     } else {

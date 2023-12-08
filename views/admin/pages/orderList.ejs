@@ -16,9 +16,9 @@
           <div class="panel-heading">Order List</div>
           <!-- /.panel-heading -->
           <div class="panel-body">
-             <!-- Pagination links -->
+<!-- Pagination links -->
 <nav aria-label="Page navigation example">
-  <div class="pagination">
+  <div class="pagination-container">
       <ul class="pagination">
           <li class="page-item">
       <% if (currentPage > 1) { %>
@@ -45,35 +45,43 @@
               >
                 <thead>
                   <tr>
+                  
                     <th>Game Name</th>
                     <th>Customer</th>
                     <th>Date</th>
+                    <th>Payment Method</th>
                     <th>Price</th>
-
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <% orders.forEach(order => { %>
-                    <% const items = order.gameItems; %>
-                    <% const user = order.userId; %>
+                  <% if(orders.length>0){ %>
+                  <% orders.forEach((order,index) => { %>
+                    
+                    
                 
-                    <% if (user && user.fullName) { %>
-                      <% items.forEach(item => { %>
+                   
+                     
                         <tr class="odd gradeX">
-                          <td><%= item.gameId.gameName %></td>
-                          <td><%= user.fullName %></td>
-                          <td><%= item.orderDate %></td>
-                          <td>₹<%= item.gameId.price %></td>
-                          <td><%= item.orderStatus %></td>
+                          <td><% order.gameItems.forEach((gameItem)=>{ %>
+                            <%= gameItem.gameId.gameName %> <br>
+                         <%  }) %></td>
+                          <td><%= order.userId.fullName %></td>
+                          <td><%= order.orderDate %></td>
+                          <td><%= order.paymentMethod %></td>
+                          <td>₹<%= order.totalAmount %></td>
+                          <td><%= order.orderStatus %></td>
                         </tr>
-                      <% }); %>
-                    <% } else { %>
-                      <tr class="odd gradeX">
-                        <td colspan="6">User information not available</td>
-                      </tr>
-                    <% } %>
+                    
+                    
+                     
+                    
                   <% }); %>
+                  <% }else{ %>
+                    <tr class="odd gradeX">
+                      <td colspan="6">User information not available</td>
+                    </tr>
+                    <% } %>
                 </tbody>
                 
               </table>
