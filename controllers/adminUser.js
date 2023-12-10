@@ -27,16 +27,27 @@ adminUser.userList = async (req, res) => {
 adminUser.searchUser = async (req, res) => {
   const { fullName } = req.query;
   try {
+    let currentPage = parseInt(req.query.page) || 1;
+    const perPage = 8;
+    if (currentPage < 1) {
+      currentPage = 1; // Reset to 1 if currentPage is less than 1
+    }
+
+    const skipValue = (currentPage - 1) * perPage;
+    const totalUsers = await Users.countDocuments();
+    const totalPages = Math.ceil(totalUsers / perPage);
+
     const users = await Users.find({
       fullName: new RegExp("^" + fullName, "i"),
     });
 
     if (req.session.adminLogIn) {
       if (users.length > 0) {
-        res.render("admin/pages/userList", { users, message: "", err: "" });
+        res.render("admin/pages/userList", { users, message: "",currentPage, totalPages, err: "" });
       } else {
         res.render("admin/pages/userList", {
           users,
+          currentPage, totalPages,
           message: "No users found with that name",
           err: "",
         });

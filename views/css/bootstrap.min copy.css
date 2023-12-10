@@ -4708,7 +4708,7 @@ fieldset[disabled] .navbar-inverse .btn-link:hover {
   line-height: 1.42857143;
   color: #337ab7;
   text-decoration: none;
-  background-color: #fff;
+  background-color: #05121B;
   border: 1px solid #ddd;
 }
 .pagination > li:first-child > a,
@@ -4739,7 +4739,7 @@ fieldset[disabled] .navbar-inverse .btn-link:hover {
   z-index: 2;
   color: #fff;
   cursor: default;
-  background-color: #337ab7;
+  background-color: #05121B;
   border-color: #337ab7;
 }
 .pagination > .disabled > a,

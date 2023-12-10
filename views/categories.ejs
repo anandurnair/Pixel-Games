@@ -82,7 +82,7 @@
                                     <ul class="featured__item__pic__hover">
                                         <!-- <li><a href="#"><i class="fa fa-heart"></i></a></li> -->
                                         <!-- <li><a href="#"><i class="fa fa-retweet"></i></a></li> -->
-                                        <li><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>"><i
+                                        <li style="width: 30px;"><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>"><i
                                                     class="fa fa-shopping-cart"></i></a></li>
                                     </ul>
                                 </div>
@@ -97,9 +97,34 @@
 
 
                         <%} }); %>
+                        <div style="position:relative;text-align: right;">
+                            <div aria-label="Page navigation example" >
+                                <div class="pagination-container">
+                                    <ul class="pagination" >
+                                        <li class="page-item" >
+                                    <% if (currentPage > 1) { %>
+                                      <a  href="/categories?page=<%= currentPage - 1 %>" style="background-color: #05121B;color:#fff">&laquo;</a>
+                                    <% } %>
+                                </li>
+                            
+                                <li class="page-item"><% for (let i = 1; i <= totalPages; i++) { %>
+                                      <a href="/categories?page=<%= i %>" <%= i === currentPage ? 'class="active"' : '' %>    style="background-color: #05121B;color:#fff"><%= i %></a>
+                                    <% } %>
+                                </li>
+                                <li class="page-item"><% if (currentPage < totalPages) { %>
+                                      <a href="/categories?page=<%= currentPage + 1 %>"  >&raquo;</a>
+                                    <% } %>
+                                </li>
+                            </ul>
+                                  </div>
+                                </div>
+                        </div>
+                        
+                        
             </div>
         </div>
     </section>
+  
     <!-- Featured Section End -->
 
     <section>

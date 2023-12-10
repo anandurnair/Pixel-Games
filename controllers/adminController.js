@@ -8,7 +8,7 @@ const adminController = {};
 // Set up Multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "views", "gameImages")); // Adjust the destination folder as needed
+    cb(null, path.join( "views", "gameImages")); // Adjust the destination folder as needed
   },
   filename: function (req, file, cb) {
     cb(

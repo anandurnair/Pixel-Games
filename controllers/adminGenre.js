@@ -51,16 +51,27 @@ adminGenre.listGenre = async (req, res) => {
 adminGenre.searchGenre = async (req, res) => {
   const { genreName } = req.query;
   try {
+    let currentPage = parseInt(req.query.page) || 1;
+    const perPage = 8;
+    if (currentPage < 1) {
+      currentPage = 1; // Reset to 1 if currentPage is less than 1
+    }
+
+    const skipValue = (currentPage - 1) * perPage;
+
+    const totalGenres = await Genres.countDocuments();
+    const totalPages = Math.ceil(totalGenres / perPage);
     const genres = await Genres.find({
       genreName: new RegExp("^" + genreName, "i"),
-    });
+    }).skip(skipValue)
+    .limit(perPage);
 
     if (req.session.adminLogIn) {
       if (genres.length > 0) {
-        res.render("admin/pages/genreList", { genres, message: "", err: "" });
+        res.render("admin/pages/genreList", { genres,currentPage, totalPages, message: "", err: "" });
       } else {
         res.render("admin/pages/genreList", {
-          genres,
+          genres,currentPage, totalPages,   
           message: "No users found with that genre name",
           err: "",
         });

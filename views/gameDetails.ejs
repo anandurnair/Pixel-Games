@@ -122,19 +122,97 @@
                   <span style="font-size: 18px;margin-top:20px; color:rgb(104, 102, 102)">No Comments</span>
 
                   <% }else{ %>
-                    <% commentDetails.forEach(comment=>{ %>
+                    <% comments.forEach(comment=>{ %>
                     <div class="commented-section mt-2" style="margin-bottom: 20px;position: relative;">
                       <div class="d-flex  commented-user" style="margin-bottom: 10px;margin-top: 10px;">
                         <div style="margin-right:10px;padding-top:4px; background-color: aliceblue; width:25px;height:25px;border-radius:50%;text-align:center"><i style="font-size: 15px;" class="fa-solid fa-user"></i></div>
                         <h5 class="mr-2" style="margin-top: 3px;margin-right:10px"><%= comment.userId.fullName %></h5>
                       <span class="mb-1 ml-2" style="margin-top:4px;color:rgb(90, 90, 90)"><%= comment.createdAt %></span>
+
+
+
+
+
+
+                     
+                    
+
+
                       <% if(userId == comment.userId._id){ %>
                       <form action="/deleteComment" method="post" style="position: absolute;right:0%">
                         <input type="text" name="commentId" value="<%= comment._id %>" hidden>
                         <input type="text" name="gameId" value="<%= game._id%>" hidden>
                         <button type="submit"  class="fa-solid fa-trash" style="color: #ffffff;font-size:14px;margin-left:20px;background-color: transparent;border:none"><i ></i></button>
                       </form>
-                      <% } %>
+                      <% }else { %>
+
+                        <button type="button" class="fa-solid fa-flag" data-toggle="modal" data-target="#exampleModal" style="position: absolute;right:0%;color: #ffffff;font-size:14px;margin-left:20px;background-color: transparent;border:none"></button>
+                         
+                        
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal"  aria-labelledby="exampleModalLabel" aria-hidden="true"  data-backdrop="false">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form action="/reportComment" method="post" style="position: absolute;right:0%;background-color: #ffffff;">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel" style="color: black;">Report Comment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  
+                  <div class="modal-body" style="padding-left: 30px;">
+                      <p style="font-size:20px">Why are you reporting this comment?</p>
+                      <div class="form-check" style="margin-bottom:10px;font-size:18px;font-weight: 500;">
+                        <input class="form-check-input" type="radio" name="reason" id="flexRadioDefault1"  value="Spam" checked>
+                        <label class="form-check-label" for="flexRadioDefault1" style="font-size:18px;font-weight: 500;">
+                          Its spam
+                        </label>
+                      </div>
+                      <div class="form-check" style="margin-bottom:10px;font-size:18px;font-weight: 500;">
+                        <input class="form-check-input" type="radio" name="reason" id="flexRadioDefault1"  value="Nudity">
+                        <label class="form-check-label" for="flexRadioDefault1" style="font-size:18px;font-weight: 500;">
+                          Nudity or sexual activity 
+                        </label>
+                      </div>
+                      <div class="form-check" style="margin-bottom:10px;font-size:18px;font-weight: 500;">
+                        <input class="form-check-input" type="radio" name="reason" id="flexRadioDefault1"  value="False-Information">
+                        <label class="form-check-label" for="flexRadioDefault1" style="font-size:18px;font-weight: 500;">
+                          False information
+                        </label>
+                      </div>
+                      <div class="form-check" style="margin-bottom:10px;font-size:18px;font-weight: 500;">
+                        <input class="form-check-input" type="radio" name="reason" id="flexRadioDefault1" value="Bullying">
+                        <label class="form-check-label" for="flexRadioDefault1" style="font-size:18px;font-weight: 500;">
+                          Bullying or harassment
+                        </label>
+                      </div>
+                      <div class="form-check" style="margin-bottom:10px;font-size:18px;font-weight: 500;">
+                        <input class="form-check-input" type="radio" name="reason" id="flexRadioDefault1" value="don't-like">
+                        <label class="form-check-label" for="flexRadioDefault1" style="font-size:18px;font-weight: 500;">
+                          I just don't like it
+                        </label>
+                      </div>
+                     
+                     
+                      <input type="text" name="commentId" value="<%= comment._id %>" hidden>
+                      <input type="text" name="gameId" value="<%= game._id%>" hidden>
+                   
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Report</button>
+                  </div>
+                </form>
+                </div>
+              </div>
+            </div>
+
+
+
+
+                       
+                        <% } %>
                       </div>
                       <div class="comment-text-sm" style="color: rgb(198, 198, 198); margin-left:40px">
                         <span><%= comment.text %></span>
@@ -149,6 +227,16 @@
               </div>
             </div>
           </div>
+
+
+            <!-- MODAL -->
+
+
+
+            
+            
+
+          <% if(userInstalled){ %>
 
           <!-- commentBox -->
           <div class="d-flex col-md-6  " style="margin-top: 27px;">
@@ -178,7 +266,7 @@
           <!-- hi -->
         </div>
       </div>
-
+      <% } %>
 
     </div>
   </div>
@@ -190,6 +278,13 @@
 
 
   <script>
+    var myModal = document.getElementById('myModal')
+var myInput = document.getElementById('myInput')
+
+myModal.addEventListener('shown.bs.modal', function () {
+  myInput.focus()
+})
+
     const dateString = "<%= game.released %>";
 
     // Create a Date object from the given string

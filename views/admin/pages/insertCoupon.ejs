@@ -34,37 +34,20 @@
                   </div>
 
                   <div class="form-group">
-                    <label>Discount Value ( in % )</label>
-                    <input
-                      class="form-control"
-                      type="text"
-                      name="discountValue"
-                      id="price"
-                      required
-                    />
-                    <div id="errorPrice" style="color: red"></div>
+                    <label>Discount Value (in %)</label>
+                    <input class="form-control" type="text" name="discountValue" id="price" required />
+                    <div id="errorPrice" style="color: red"></div> <!-- Display error under this div -->
                   </div>
 
                   <div class="form-group">
                     <label>Minimum Purchase Amount</label>
-                    <input
-                      class="form-control"
-                      type="text"
-                      name="minimumPurchaseAmount"
-                      required
-                    />
+                    <input class="form-control" type="text" name="minimumPurchaseAmount" required />
+                    <div id="errorMinimumPurchase" style="color: red"></div> <!-- Display error under this div -->
                   </div>
-
                   <div class="form-group">
-                    <label>validate at</label>
-                    <input
-                      class="form-control"
-                      type="date"
-                      name="validUntil"
-                      id="publisher"
-                      required
-                    />
-                    <div id="errorPublisher" style="color: red"></div>
+                    <label>Validate Until</label>
+                    <input class="form-control" type="date" name="validUntil" required />
+                    <div id="errorValidUntil" style="color: red"></div> <!-- Display error under this div -->
                   </div>
 
                   <a href=""
@@ -95,5 +78,48 @@
   </div>
   <!-- /.container-fluid -->
 </div>
+
+<script>
+  const form = document.querySelector('form');
+
+  form.addEventListener('submit', function(event) {
+    const discountValue = document.getElementById('price');
+    const minimumPurchaseAmount = document.getElementsByName('minimumPurchaseAmount')[0];
+    const validUntil = document.getElementsByName('validUntil')[0];
+
+    let isValid = true;
+
+    const discountValueNum = parseFloat(discountValue.value);
+    if (isNaN(discountValueNum) || discountValueNum < 0 || discountValueNum > 90) {
+      isValid = false;
+      document.getElementById('errorPrice').textContent = 'Invalid value';
+      event.preventDefault();
+    } else {
+      document.getElementById('errorPrice').textContent = '';
+    }
+
+    const minimumPurchaseAmountNum = parseFloat(minimumPurchaseAmount.value);
+    if (isNaN(minimumPurchaseAmountNum) || minimumPurchaseAmountNum <= 0) {
+      isValid = false;
+      document.getElementById('errorMinimumPurchase').textContent = 'Invalid value';
+      event.preventDefault();
+    } else {
+      document.getElementById('errorMinimumPurchase').textContent = '';
+    }
+
+    const currentDate = new Date().toISOString().split('T')[0];
+    if (validUntil.value <= currentDate) {
+      isValid = false;
+      document.getElementById('errorValidUntil').textContent = 'Invalid date';
+      event.preventDefault();
+    } else {
+      document.getElementById('errorValidUntil').textContent = '';
+    }
+
+    if (isValid) {
+      // Continue with form submission if valid
+    }
+  });
+</script>
 
 <%- include('./includes/adminFooter.ejs'); -%>

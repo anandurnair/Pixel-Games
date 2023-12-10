@@ -142,11 +142,11 @@
                 <div class="order-details">
                     <div class="order-number-label">Click the link to download</div>
                     <% downloadGames.forEach(game => { %>
-                        <div class="order-number">
+                        <div class="">
                             <form action="/downloading" method="post">
                                 <input type="text" name="gameTitle" value="<%= game %>" hidden>
                                <button type="submit" style="background-color: transparent;border:none"><a href="#" class="downloadGameLink" data-game="<%= game %>" download="<%= game %>.zip">
-                                Download <%= game %></button> 
+                                Click here to download <%= game %></button> 
                                 </a>
                             </form>
                            

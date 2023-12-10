@@ -46,28 +46,28 @@
                 </tr>
               </thead>
               <tbody>
-                <% if (orders.length > 0) { %>
+           
                   <% orders.forEach((order, index) => { %>
                     <tr>
                       <th scope="row"><%= index + 1 %></th>
                       <td ><% order.gameItems.forEach((gameItem) => { %>
                    <img src=" <%= gameItem.gameId.gameImage %>" alt="" width="100px" >    <br>
-                  <p style="margin-top:5px ;color:#ffffff;" > <%= gameItem.gameId.gameName %></p><br>
+                  <p style="margin-top:5px ;color:#ffffff;" ><%= gameItem.gameId.gameName %></p><br>
                        <% }); %></td>
                       
-                      <td><%= order.orderDate %></td>
+                      <td><%= order.orderDate.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                       <td><%= order.paymentMethod %></td>
                       <td>₹<%= order.totalAmount %></td>
                       <td><%= order.orderStatus %></td>
                     </tr>
                   <% }); %>
-                <% } else { %>
+               
                   <tr>
                     <td colspan="6">
                       <p style="font-size: 20px; color:#ffffff; text-align: center;"><%= orderNull %></p>
                     </td>
                   </tr>
-                <% } %>
+              
               </tbody>
               
               

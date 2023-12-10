@@ -8,21 +8,20 @@ const commentSchema = new mongoose.Schema({
     ref: 'games',
     required: true,
   },
-  details:[{
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users',
-        required: true,
-      },
-      text: {
-        type: String,
-        required: true,
-      },
-      createdAt: {
-        type: String,
-        
-      },
-  }]
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: true,
+  },
+  text: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: String,
+    
+  },
+ 
  
  
 });

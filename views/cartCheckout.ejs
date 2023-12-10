@@ -117,22 +117,23 @@
                     <% availableCoupons.forEach(coupon=>{ %>
                       <div class="flip-card">
                         <div class="flip-card-inner">
-                          <div class="flip-card-front">
-                            <h5>
+                          <div class="flip-card-front" style="display: flex;flex-direction: column;padding:3px; padding-top:20px">
+                            <p style="margin-bottom: 0px;font-weight: 700;color:#fff;font-size:18px">
                               Get <%= coupon.discountValue %>% Off for the
                                 <% if(coupon.discountType=='firstPurchase' ){ %>
                                   First Purchase
-                                  <% }else{ %>
+                                <% }else{ %>
                                     every purchase above ₹ <%= coupon.minimumPurchaseAmount %>
-                                      <% } %>
-                            </h5>
+                                <% } %>
+                                </p>
+                           <p style="font-size: 14px;">Expires in <%=   coupon.validUntil.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></p> 
                           </div>
                           <div class="flip-card-back">
 
                             <p style="color: #fff;font-size:20px">
                               <%= coupon.code %>
                             </p>
-
+                            
                           </div>
                         </div>
                       </div>

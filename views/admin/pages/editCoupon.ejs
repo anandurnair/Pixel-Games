@@ -52,7 +52,7 @@
                                         </div>
                                         <div id="errorGameSize" style="color: red;"></div>
                                     </div>
-
+                                    <input type="text" name="status" value="<%= coupon.status %>" hidden>
                                     <div class="form-group">
                                         <label>Valid Until</label>
                                         <input
@@ -109,7 +109,7 @@
                                             }
 
                                             const minimumPurchaseAmount = parseFloat(minimumPurchaseAmountInput.value);
-                                            if (isNaN(minimumPurchaseAmount) || minimumPurchaseAmount <= 0) {
+                                            if (isNaN(minimumPurchaseAmount) || minimumPurchaseAmount < 0) {
                                                 errorGameSize.innerText = 'Minimum purchase amount must be a positive number';
                                                 isValid = false;
                                             }

@@ -64,12 +64,13 @@ adminCoupon.insertCouponData=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
             const newCouponCode = generateCouponCode(6);
+          
 
             const{discountType,discountValue,minimumPurchaseAmount,validUntil}=req.body
             const coupons=await Coupons.findOne({newCouponCode})
             if(!coupons){
 
-                const newCoupon = new Coupons  ({code: newCouponCode,discountType,discountValue,minimumPurchaseAmount,validUntil })
+                const newCoupon = new Coupons  ({code: newCouponCode,discountType,discountValue,minimumPurchaseAmount,status:'Active',validUntil: new Date() })
                 await newCoupon.save()
                 res.render("admin/pages/insertCoupon", { message1: "" });
 
@@ -91,6 +92,7 @@ adminCoupon.activeCoupon=async(req,res)=>{
     try {
         const coupon = await Coupons.findById(req.params.id);
         coupon.isActive=true
+        coupon.status='Active'
         await coupon.save()
         res.redirect('/couponList')
     } catch (error) {
@@ -101,7 +103,8 @@ adminCoupon.activeCoupon=async(req,res)=>{
 adminCoupon.deactiveCoupon=async(req,res)=>{
     try {
         const coupon = await Coupons.findById(req.params.id);
-        coupon.isActive=false
+        coupon.isActive=false;
+        coupon.status='Not Active'
         await coupon.save()
         res.redirect('/couponList')
     } catch (error) {
@@ -133,13 +136,24 @@ adminCoupon.editCouponData=async(req,res)=>{
             discountType,
             discountValue,
             minimumPurchaseAmount,
+            
             validUntil
         }=req.body
+
+        
+
+
+
+       
         const updateObject = {
             discountType,
             discountValue,
             minimumPurchaseAmount,
-            validUntil
+           
+            validUntil,
+            status:'Active',
+            isActive:true,
+            isExpired:false
           };
     
           await Coupons.findByIdAndUpdate(couponId, updateObject);
@@ -150,5 +164,14 @@ adminCoupon.editCouponData=async(req,res)=>{
     }
 }
 
+
+
+function couponExpire(){
+
+    
+  
+    
+  }
+  
 
 module.exports = adminCoupon;

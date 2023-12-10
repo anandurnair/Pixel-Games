@@ -18,6 +18,8 @@ const Wishlist = require("../Models/wishlist");
 const bcrypt = require("bcrypt");
 const { ObjectId } = require("mongoose").Types;
 const installedGames = require("../Models/installedGames");
+const Coupon = require("../Models/coupon");
+const reportedComments = require("../Models/reportedComments");
 
 const razorpay = new Razorpay({
   key_id: "YOUR_TEST_KEY_ID",
@@ -47,10 +49,24 @@ homeController.categories = async (req, res) => {
   if (req.session.isLoggedIn) {
     const userId = req.session.userId;
     const user = await Users.findById(userId);
-    const games = await Games.find();
+   
     const genres = await Genres.find();
 
-    res.render("categories", { games, genres, message: "", user });
+    let currentPage = parseInt(req.query.page) || 1;
+    const perPage = 12;
+    if (currentPage < 1) {
+      currentPage = 1; // Reset to 1 if currentPage is less than 1
+    }
+
+    const skipValue = (currentPage - 1) * perPage;
+
+    const totalGames = await Games.countDocuments();
+    const totalPages = Math.ceil(totalGames / perPage);
+    const games = await Games.find()
+    .skip(skipValue)
+    .limit(perPage);
+
+    res.render("categories", { games, genres,currentPage, totalPages, message: "", user });
   } else {
     res.redirect("/");
   }
@@ -64,6 +80,17 @@ homeController.gameDetails = async (req, res) => {
       const user = await Users.findById(userId);
       const game = await Games.findById(gameId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
+
+      let userInstalled = false
+      const order = await Orders.findOne({
+        userId: userId, 
+        'gameItems.gameId': gameId, 
+      });
+
+      if(order){
+        userInstalled= true
+      }
+
       const checkCart = await Cart.findOne({
         userId,
         "items.gameId": gameId,
@@ -90,19 +117,21 @@ homeController.gameDetails = async (req, res) => {
         : null;
 
       // Comments
-      let comment = await Comment.findOne({ gameId }).populate(
-        "details.userId"
+      let comments = await Comment.find({ gameId }).populate(
+        "userId"
       );
-      let commentDetails = [];
+     console.log("Commet : ",comments.length)
       let isCommentNull = false;
       let commentsCount = 0;
-        console.log("COMMENT : ",comment)
-      if (comment) {
-        commentDetails = comment.details || [];
-
-        commentsCount = await Comment.countDocuments({ gameId });
-      } else {
+       
+      if (comments.length==0) {
+       
         isCommentNull = true;
+
+        
+      } else {
+        commentsCount = await Comment.countDocuments({ gameId });
+      
       }
 
       if (existingGameItem) {
@@ -110,10 +139,9 @@ homeController.gameDetails = async (req, res) => {
       } else {
         req.session.gameExists = false;
       }
-
+      console.log("CommentNull : ",isCommentNull)
       released = game.released;
       released = released.toLocaleDateString("en-IN");
-      console.log(userId, commentDetails);
       res.render("gameDetails", {
         game,
         userId,
@@ -122,27 +150,15 @@ homeController.gameDetails = async (req, res) => {
         isCart,
         isWishlist,
         gameExists: req.session.gameExists,
-        commentDetails,
+       
+        comments,
         isCommentNull,
         commentsCount,
+        userInstalled
       });
     } else {
       res.redirect("/");
     }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-homeController.deleteComment = async (req, res) => {
-  try {
-    const { commentId, gameId } = req.body;
-    await Comment.updateOne(
-      { gameId: gameId },
-      { $pull: { details: { _id: commentId } } }
-    );
-    res.redirect(`/gameDetails/${gameId}`);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
@@ -424,18 +440,31 @@ homeController.cartCheckout = async (req, res) => {
       let availableCoupons = [];
       let isCouponAvailable = false;
       const total = parseInt(subTotal);
-      coupons.forEach((coupon) => {
-        if (coupon.discountType == "firstPurchase") {
+
+
+      for (const coupon of coupons) {
+       
+        
+        console.log("Valid Until:", coupon.validUntil);
+        console.log(coupon.validUntil < new Date())
+        if (coupon.validUntil < new Date()) {
+          
+          await Coupon.updateOne({ code: coupon.code }, { $set: { isExpired: true ,status:'Expired'} });
+         
+        }
+      
+        if (coupon.discountType === "firstPurchase" && coupon.isActive== true && coupon.isExpired== false) {
           if (!order) {
             isCouponAvailable = true;
             availableCoupons.push(coupon);
           }
-        } else if (coupon.minimumPurchaseAmount <= total) {
+        } else if (coupon.minimumPurchaseAmount <= total && coupon.isActive ==true && coupon.isExpired== false) {
           isCouponAvailable = true;
           availableCoupons.push(coupon);
         }
-      });
-
+      }
+      
+       console.log("AvilableCoupons : ",availableCoupons)
       if (!cart) {
         res.render("cart", {
           user,
@@ -475,10 +504,10 @@ homeController.couponCode = async (req, res) => {
     const coupon = await Coupons.find({ code: couponCode });
     const oneCoupon = coupon[0];
     console.log(oneCoupon);
-    if (coupon[0] == undefined || oneCoupon.isActive == false) {
+    if (coupon[0] == undefined || oneCoupon.isActive == false ) {
       couponError = true;
 
-      return res.redirect("/cart/checkout");
+      return res.redirect("/cart/checkout/:value");
     } else {
       couponError = false;
 
@@ -521,7 +550,7 @@ homeController.createOrder = async (req, res) => {
     console.log("BODY : ", totalAmount, paymentOption, currency);
     const user = await Users.findById(userId);
     const wallet = await Wallet.findOne({ userId });
-    
+  
 
 
     if (paymentOption === "walletPayment") {
@@ -759,7 +788,6 @@ homeController.orderSuccessful=async(req,res)=>{
 homeController.walletPlaceOrder=async(req,res)=>{
   try {
     if(req.session.isLoggedIn){
-      // const balanceErr= req.query.balanceErr
       const totalAmount=req.query.totalAmount
       const userId = req.session.userId;
       const user = await Users.findById(userId);
@@ -817,12 +845,17 @@ homeController.walletPlaceOrderData = async (req, res) => {
           const existingGameItem = installedGame.gameItems.find(
             (item) => item.gameId.toString() === game.gameId.toString()
           );
-          order.gameItems.push({
-            gameId: game.gameId,
-
-            orderDate: new Date(),
-            orderStatus: "Downloaded",
-          });
+          const newOrder=new Orders({
+            userId:userId,
+            gameItems:items.map(item=>({
+              gameId:item.gameId
+            })),
+            orderDate:new Date(),
+            orderStatus:'Downloaded',
+            paymentMethod:'Online payment',
+            totalAmount:(totalAmount*0.01)
+          })
+  
 
           downloadGames.push(game.gameId.gameName);
 
@@ -836,9 +869,7 @@ homeController.walletPlaceOrderData = async (req, res) => {
             });
           }
         });
-        console.log("HEEE:",totalAmount)
         totalAmount = parseInt(totalAmount)
-        console.log("hel", totalAmount,typeof wallet.balance )
 
         let newBalance = wallet.balance - totalAmount;
         await Wallet.updateOne({ userId }, { $set: { balance: newBalance } });
@@ -881,13 +912,9 @@ homeController.walletPlaceOrderData = async (req, res) => {
 };
 
 homeController.userLogout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error destroying session:", err);
-    } else {
-      res.redirect("/");
-    }
-  });
+
+  req.session.isLoggedIn= false
+  res.redirect("/");
 };
 
 homeController.installedGames = async (req, res) => {
@@ -963,20 +990,13 @@ homeController.orderHistory = async (req, res) => {
       );
       let items = null;
       let orderNull = "";
-
-      if (!orders) {
-        // If orders is null or undefined
+        console.log("OR : ",orders.length)
+      if (orders.length==0) {
         orderNull = "No orders";
-        res.render("orderHistory", { user, items, orders, orderNull });
-      } else {
-        // If orders is found, check if it has gameItems before accessing orders.gameItems
-        if (orders) {
-          items = orders.gameItems;
-        } else {
-          orderNull = "No Games Installed";
-        }
-        res.render("orderHistory", { user,orders, items, orderNull });
       }
+        res.render("orderHistory", { user, items, orders, orderNull });
+      
+     
     } else {
       res.redirect("/");
     }
@@ -1327,20 +1347,33 @@ homeController.searchGames = async (req, res) => {
   try {
     const userId = req.session.userId;
     const user = await Users.findById(userId);
+
+    let currentPage = parseInt(req.query.page) || 1;
+    const perPage = 8;
+    if (currentPage < 1) {
+      currentPage = 1; // Reset to 1 if currentPage is less than 1
+    }
+
+    const skipValue = (currentPage - 1) * perPage;
+
+    const totalGames = await Games.countDocuments();
+    const totalPages = Math.ceil(totalGames / perPage);
+
     const games = await Games.find({
       gameName: new RegExp("^" + gameName, "i"),
-    });
+    }) .skip(skipValue)
+    .limit(perPage);
     const genres = await Genres.find();
 
     if (req.session.isLoggedIn) {
       if (games.length > 0) {
-        res.render("categories", { user, genres, games, message: "", err: "" });
+        res.render("categories", { user, genres, games,currentPage, totalPages, message: "", err: "" });
       } else {
         res.render("categories", {
           genres,
-          user,
+          user,currentPage, totalPages,
           games,
-          message: "No users found with that game name",
+          message: "No games found",
           err: "",
         });
       }
@@ -1360,26 +1393,61 @@ homeController.comment = async (req, res) => {
     if (commentData == "") {
       return res.redirect(`/gameDetails/${gameId}`);
     }
-    let existingComment = await Comment.findOne({ gameId });
+   
 
-    if (!existingComment) {
-      existingComment = new Comment({ gameId, details: [] });
-    }
-
+   
     const currentDate = new Date();
 
     const options = { day: "2-digit", month: "short", year: "numeric" };
     const formattedDate = currentDate.toLocaleDateString("en-GB", options);
-    existingComment.details.push({
-      userId: userId,
-      text: commentData,
-      createdAt: formattedDate,
-    });
+    const newComment = new Comment({
+      gameId:gameId,
+      userId:userId,
+      text:commentData,
+      createdAt:formattedDate
+    })
 
-    await existingComment.save();
+    await newComment.save();
     res.redirect(`/gameDetails/${gameId}`);
   } catch (error) {
-    console.error("Error searching for games:", error);
+    console.error( error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+homeController.reportComment=async(req,res)=>{
+  try {
+    const {reason,commentId,gameId}=req.body
+
+    console.log("Cpmment id : ",commentId)
+    const reportComment = await reportedComments.find({commentId})
+    const newReport= new reportedComments({
+      commentId:commentId,
+      gameId:gameId,
+      reason:reason,
+      date:new Date()
+    })
+    await newReport.save()
+    res.redirect(`/gameDetails/${gameId}`);
+  } catch (error) {
+    console.error( error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+
+
+homeController.deleteComment = async (req, res) => {
+  try {
+    const { commentId, gameId } = req.body;
+   const deleteOne= await Comment.findByIdAndDelete(
+      
+     commentId
+    );
+    
+    res.redirect(`/gameDetails/${gameId}`);
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

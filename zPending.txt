@@ -2,10 +2,11 @@ Expire coupon
 Edit Game
 Insert Game
 Resend OTP with expiration
-order Management - correct the schema structure
+logout destroy to false
 
 
-doing 
-order History in Admin
-pagination in order History
-wallet payment
+doing : report Comment
+
+resident evil game errr
+
+resend otp in forgot password

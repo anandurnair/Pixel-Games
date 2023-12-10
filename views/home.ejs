@@ -1,11 +1,20 @@
 <%- include('header') %>
-    <!-- Header Section End -->
+  <!-- Header Section End -->
+  <style>
+    .explorebtn{
+      border: 2px solid #fff;
+      width: 130px;
+      height: 50px;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+   
+  </style>
+  <!-- Hero Section Begin -->
+  <section class="hero">
 
-    <!-- Hero Section Begin -->
-    <section class="hero">
-        
-            <div class="row">
-                <!-- <div class="col-lg-3">
+    <div class="row" style="position: relative;">
+      <!-- <div class="col-lg-3">
                     <div class="hero__categories">
                         <div class="hero__categories__all">
                             <i class="fa fa-bars"></i>
@@ -21,55 +30,64 @@
                         </ul>
                     </div>
                 </div> -->
-                <div class="col-lg-12">
-                    
-                    <div class="hero__item set-bg" data-setbg="/images/b3.jpg" style="opacity: 0.8;">
-                        <div class="hero__text" >
-                           
-                            <!-- <h2 style="opacity: 1;">The Ultimate <br> Gaming Destination</h2> -->
-                            
-                            <!-- <a href="#" class="primary-btn">SHOP NOW</a> -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-       
-    </section>
-    <!-- Hero Section End -->
+      <div class="col-lg-12">
 
-    <!-- Categories Section Begin -->
-    <section class="categories">
-        <div class="container">
-            <h2 style="text-align:center; margin-bottom:30px;font-weight:700">Latest Games</h2>
-            <div class="row">
-                <div class="categories__slider owl-carousel">
-                    <% games.slice(-5).forEach(game=>{ %>
-                        <% if(game.unlist==false){ %>
-                    <div class="col-lg-12">
-                        <div class="categories__item set-bg" data-setbg="<%= game.gameImage %>">
-                            <h5><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>">BUY NOW</a></h5>
+        <div class="hero__item set-bg" data-setbg="/images/b3.jpg">
+          <div style="background: linear-gradient(to bottom, transparent, rgb(0, 0, 0)); width:110%;height: 100%;margin-left:-80px;opacity: 0.9;" >
 
-                        </div>
-                    </div>
-                    <% }}); %>
-               
-                </div>
-            </div>
+
+
+          </div> <!-- <a href="#" class="primary-btn">SHOP NOW</a> -->
         </div>
-    </section>
-    <!-- Categories Section End -->
+      </div>
+      <div style="position: absolute;left:13%;bottom: 17%;">
+        <h2 style="font-size: 56px;font-weight:800">The Ultimate <br> Gaming Destination</h2>
+        <p style="color: #fff;font-size:20px;margin-top:20px">Failure doesn't mean the game is over, it means try again with experience. </p>
+       <a href="/categories"> <button class="btn explorebtn btn-outline-light" >Explore  <i style="margin-left:10px" class="fa-solid fa-arrow-right" style="color: #ffffff;"></i></button></a>
+      </div>
+      
+    </div>
+    </div>
 
-    <!-- Featured Section Begin -->
+  </section>
+  <!-- Hero Section End -->
+
+  <!-- Categories Section Begin -->
+  <section class="categories">
     <div class="container">
-        <h2 style="text-align:center; margin-bottom:30px;margin-top:50px;font-weight:700">What's new</h2>
-        <hr class="featurette-divider">
+      <h2 style="text-align:center; margin-bottom:30px;font-weight:700">Latest Games</h2>
+      <div class="row">
+        <div class="categories__slider owl-carousel">
+          <% games.slice(-5).forEach(game=>{ %>
+            <% if(game.unlist==false){ %>
+              <div class="col-lg-12">
+                <div class="categories__item set-bg" data-setbg="<%= game.gameImage %>">
+                  <h5><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>">BUY NOW</a></h5>
+
+                </div>
+              </div>
+              <% }}); %>
+
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Categories Section End -->
+
+  <!-- Featured Section Begin -->
+  <div class="container">
+    <h2 style="text-align:center; margin-bottom:30px;margin-top:50px;font-weight:700">What's new</h2>
+    <hr class="featurette-divider">
     <div class="row featurette ">
       <div class="col-md-7 ">
         <h2 class="featurette-heading ">First featurette heading. </h2>
-        <p style="margin-top: 15px;" class="lead  ">An international digital games and entertainment company. We develop, publish and distribute multiplayer mobile games. We reach over 400 million players each month, and our audience keeps growing.</p>
+        <p style="margin-top: 15px;" class="lead  ">An international digital games and entertainment company. We
+          develop, publish and distribute multiplayer mobile games. We reach over 400 million players each month, and
+          our audience keeps growing.</p>
       </div>
       <div class="col-md-5">
-        <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b2.jpg" alt="" width="500" height="500">
+        <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b2.jpg"
+          alt="" width="500" height="500">
         <!-- <svg class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" width="500" height="500" xmlns="/images/b2.jpg" role="img" aria-label="Placeholder: 500x500" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#eee"/><text x="50%" y="50%" fill="#aaa" dy=".3em">500x500</text></svg> -->
 
       </div>
@@ -80,12 +98,15 @@
     <div class="row featurette">
       <div class="col-md-7 order-md-2">
         <h2 class="featurette-heading">Oh yeah, it’s that good. </h2>
-        <p style="margin-top: 15px;" class="lead">Another featurette? Of course. More placeholder content here to give you an idea of how this layout would work with some actual real-world content in place.</p>
+        <p style="margin-top: 15px;" class="lead">Another featurette? Of course. More placeholder content here to give
+          you an idea of how this layout would work with some actual real-world content in place.</p>
       </div>
       <div class="col-md-5 order-md-1">
-        <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b1.jpg" alt="" width="500" height="500">
+        <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b1.jpg"
+          alt="" width="500" height="500">
 
-    <!-- <svg class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" width="500" height="500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 500x500" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#eee"/><text x="50%" y="50%" fill="#aaa" dy=".3em">500x500</text></svg> --> -->
+        <!-- <svg class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" width="500" height="500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 500x500" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#eee"/><text x="50%" y="50%" fill="#aaa" dy=".3em">500x500</text></svg> -->
+        -->
 
       </div>
     </div>
@@ -95,10 +116,13 @@
     <div class="row featurette">
       <div class="col-md-7">
         <h2 class="featurette-heading">And lastly, this one. </h2>
-        <p style="margin-top: 15px;" class="lead">And yes, this is the last block of representative placeholder content. Again, not really intended to be actually read, simply here to give you a better view of what this would look like with some actual content. Your content.</p>
+        <p style="margin-top: 15px;" class="lead">And yes, this is the last block of representative placeholder content.
+          Again, not really intended to be actually read, simply here to give you a better view of what this would look
+          like with some actual content. Your content.</p>
       </div>
       <div class="col-md-5">
-        <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b4.jpg" alt="" width="500" height="500">
+        <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b4.jpg"
+          alt="" width="500" height="500">
 
         <!-- <svg class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" width="500" height="500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 500x500" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#eee"/><text x="50%" y="50%" fill="#aaa" dy=".3em">500x500</text></svg> -->
 
@@ -106,9 +130,9 @@
     </div>
 
     <hr class="featurette-divider">
-    </div>
-    
-    <!-- Featured Section End -->
+  </div>
 
-    
-    <%- include('footer') %>
+  <!-- Featured Section End -->
+
+
+  <%- include('footer') %>

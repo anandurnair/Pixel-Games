@@ -22,11 +22,19 @@ const couponSchema = new mongoose.Schema({
   },
   validUntil: {
     type: Date,
+  },  
+  status:{
+    type:String,
+    enum:['Active','Expired','Not Active']
   },
   isActive: {
     type: Boolean,
     default: true,
   },
+  isExpired:{
+    type:Boolean,
+    default:false
+  }
 });
 
 const Coupon = mongoose.model('coupon', couponSchema);

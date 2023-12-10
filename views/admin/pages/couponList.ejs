@@ -67,6 +67,7 @@
                                         <th>Discount value (in %)</th>
                                         <th>minimumPurchaseAmount</th>
                                         <th>validUntil</th>
+                                        <th>Status</th>
                                        
                                     </tr>
                                 </thead>
@@ -78,6 +79,7 @@
                                         <td class="center"><%= coupon.discountValue %></td>
                                         <td class="center"><%= coupon.minimumPurchaseAmount %></td>
                                         <td class="center"><%= coupon.validUntil %></td>
+                                        <td class="center"><%= coupon.status %></td>
                                         <td class="center"><% if (coupon.isActive==true) { %>
                                             
                                             <a href="/deactiveCoupon/<%= coupon._id %>">Deactive</a>

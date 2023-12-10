@@ -12,7 +12,7 @@ const nodemailer = require("nodemailer");
 const userController = require("./controllers/userController");
 const homeController = require("./controllers/homeController");
 const adminController = require("./controllers/adminController");
-const couponController=require('./controllers/couponController')
+
 const adminUser = require("./controllers/adminUser");
 const adminGame = require("./controllers/adminGame");
 const adminGenre = require("./controllers/adminGenre");
@@ -24,6 +24,7 @@ const adminCoupon=require('./controllers/adminCoupon')
 const userBlocked=require('./middlewares/userBlocked')
 const isValidUser = require('./middlewares/isValidUser');
 const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
+const adminComment = require("./controllers/adminComment");
 
 
 //login
@@ -124,7 +125,7 @@ router.get('/orderSuccessfull',userBlocked,homeController.orderSuccessful)
 router.post('/verifyPayment',userBlocked,homeController.verifyPayment)
 router.post('/paymentFailed',userBlocked,homeController.paymentFailed)
 
-
+router.post('/reportComment',userBlocked,homeController.reportComment)
 //ADMIN
 
 //adminlogin
@@ -228,6 +229,11 @@ router.post("/editGenre/:id", adminGenre.editGenreData);
 router.get("/orderlist", adminOrder.orderList);
 
 
+//comment
+
+
+router.get('/commentList',adminComment.commentList)
+router.post('/adminDeleteComment',adminComment.adminDeleteComment)
 //coupon
 
 router.get('/couponList',adminCoupon.couponList)
