@@ -17,7 +17,7 @@ adminCoupon.couponList=async(req,res)=>{
             const totalCoupon = await Coupon.countDocuments();
             const totalPages = Math.ceil(totalCoupon / perPage);
             
-            const coupons = await Coupons.find()
+            const coupons = await Coupons.find().sort({_id:-1})
             .skip(skipValue)
             .limit(perPage);
 
@@ -164,14 +164,6 @@ adminCoupon.editCouponData=async(req,res)=>{
     }
 }
 
-
-
-function couponExpire(){
-
-    
-  
-    
-  }
-  
+ 
 
 module.exports = adminCoupon;

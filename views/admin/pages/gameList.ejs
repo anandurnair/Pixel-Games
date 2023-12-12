@@ -85,7 +85,7 @@
                                         <td><p> <span id="more<%= game._id %>" class="more"><%= game.description %></span></p><button onclick="myFunction('<%= game._id %>')" id="myBtn<%= game._id %>">Read</button> </td>
                                         <td class="center"><%= game.genre %></td>
                                         <td class="center"><%= game.price %></td>
-                                        <td class="center"><%= game.released %></td>
+                                        <td class="center"><%= game.released.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                                         <td class="center"><%= game.publisher %></td>
                                         <td class="center"><%= game.gameSize %></td>
                                         <td class="center"><img src=" <%= game.gameImage %>" alt="" width="100px"> </td>

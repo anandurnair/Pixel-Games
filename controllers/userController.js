@@ -9,16 +9,22 @@ const userController = {};
 var isLoggedIn;
 var fullName;
 var userError;
-var blockMessage ;
+var blockMessage;
 
 userController.Login = (req, res) => {
-  const blockMessage =req.session.blockMessage
+  try {
+    const blockMessage =req.session.blockMessage
   const userError = req.session.userError;
   if (req.session.isLoggedIn) {
     res.redirect("/home");
   } else {
     res.render("user-login", { userError, blockMessage });
   }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Internal server error" });
+  }
+  
 };
 
 userController.LoginData = async (req, res) => {
@@ -45,11 +51,17 @@ userController.LoginData = async (req, res) => {
 };
 
 userController.signup = (req, res) => {
-  if (req.session.isLoggedIn) {
-    res.redirect("/home");
-  } else {
-    res.render("user-signup", { message1: "" });
+  try {
+    if (req.session.isLoggedIn) {
+      res.redirect("/home");
+    } else {
+      res.render("user-signup", { message1: "" });
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Internal server error" });
   }
+  
 };
 
 //OTP
@@ -63,28 +75,11 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// const resendOTP = (email) => {
-//   generatedOTP = generateOTP();
 
-//   const mailOptions = {
-//     from: "anandurpallam@gmail.com",
-//     to: email,
-//     subject: "Your Resent OTP Code",
-//     text: `Your resent OTP code is: ${generatedOTP}`,
-//   };
-
-//   transporter.sendMail(mailOptions, (error, info) => {
-//     if (error) {
-//       console.error("Error sending resent OTP email:", error);
-//       // Handle the error, e.g., return an error response
-//     }
-//     // Handle success, e.g., log success or return a success response
-//   });
-// };
 
 userController.resendOTP=async(req,res)=>{
   try {
-    const { fullName, email, password, otpCode } = req.body;
+    const { fullName, email,phone, password, otpCode } = req.body;
     const  resendCooldown= 20*1000;
     let timeStamp=req.session.timeStamp
     if(Date.now()-timeStamp<resendCooldown){
@@ -127,7 +122,7 @@ userController.signupData = async (req, res) => {
     res.redirect("/home");
   } else {
     try {
-      const { fullName, email, password } = req.body;
+      const { fullName, email,phone, password } = req.body;
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -157,6 +152,7 @@ userController.signupData = async (req, res) => {
           res.render("otp", {
             fullName,
             email,
+            phone,
             password: hashedPassword,
             time:new Date().getTime(),
             error: "",
@@ -174,7 +170,7 @@ userController.signupData = async (req, res) => {
 };
 
 userController.otpData = async (req, res) => {
-  const { fullName, email,time, password, otpCode } = req.body;
+  const { fullName, email,phone,time, password, otpCode } = req.body;
 
   try {
     
@@ -190,13 +186,14 @@ let isExpired = timeDifference > 60;
       res.render("otp", {
         fullName,
         email,
+        phone,
         time:new Date().getTime(),
         password,
         error: "OTP Expired",
       });
     } else if (isOtpValid) {
       // If OTP is valid, create a new user
-      const user = new Users({ fullName, email, password });
+      const user = new Users({ fullName, email,phone, password });
      
       const savedUser = await user.save();
       req.session.isLoggedIn = true;
@@ -209,6 +206,7 @@ let isExpired = timeDifference > 60;
       res.render("otp", {
         fullName,
         email,
+        phone,
         time:new Date().getTime(),
         password,
         error: "Invalid OTP. Please try again.",
@@ -222,6 +220,7 @@ let isExpired = timeDifference > 60;
     res.render("otp", {
       fullName,
       email,
+      phone,
       time:new Date().getTime(),
       password,
       error: "Something went wrong. Please try again later.",
@@ -276,7 +275,7 @@ userController.forgotPasswordData = async (req, res) => {
           res.render("passwordOTP", {
            
             email,
-       
+            time:new Date().getTime(),
             error: "",
 
           });
@@ -284,6 +283,7 @@ userController.forgotPasswordData = async (req, res) => {
      
       // Send email
     } catch (error) {
+      console.log(error)
       res.status(500).json({ error: "Internal server error" });
     }
   }
@@ -291,13 +291,25 @@ userController.forgotPasswordData = async (req, res) => {
 
 
 userController.passwordOTPData=async(req,res)=>{
-  const {  email, otpCode } = req.body;
+  const {  email,time, otpCode } = req.body;
   try {
   
+    let oldTime= time
+    let newTime = new Date().getTime()
+    let timeDifference = (newTime-oldTime ) / 1000;
+    let isExpired = timeDifference > 60;
+   
 
-    
     const isOtpValid = otpCode === generatedOTP;
     console.log(isOtpValid);
+
+    if(isExpired){
+      res.render('passwordOTP',{
+        email,
+        time:new Date().getTime(),
+        error: "OTP Expired",
+      })
+    }
     if (isOtpValid) {
       
      
@@ -307,6 +319,7 @@ userController.passwordOTPData=async(req,res)=>{
       
       res.render("passwordOTP", {
         email,
+        time:new Date().getTime(),
         error: "Invalid OTP. Please try again.",
       });
     }
@@ -315,10 +328,10 @@ userController.passwordOTPData=async(req,res)=>{
     console.error("Error in OTP verification or user creation:", error);
 
     
-    res.render("otp", {
-      fullName,
+    res.render("passwordOTP", {
+      
       email,
-      password,
+      time:new Date().getTime(),
       error: "Something went wrong. Please try again later.",
     });
   }

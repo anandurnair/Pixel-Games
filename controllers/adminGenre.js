@@ -3,27 +3,33 @@ const Genres = require("../Models/genre");
 const adminGenre = {};
 
 adminGenre.genreList = async (req, res) => {
-  if (req.session.adminLogIn) {
-    let currentPage = parseInt(req.query.page) || 1;
-    const perPage = 8;
-    if (currentPage < 1) {
-      currentPage = 1; // Reset to 1 if currentPage is less than 1
+  try {
+    if (req.session.adminLogIn) {
+      let currentPage = parseInt(req.query.page) || 1;
+      const perPage = 8;
+      if (currentPage < 1) {
+        currentPage = 1; // Reset to 1 if currentPage is less than 1
+      }
+  
+      const skipValue = (currentPage - 1) * perPage;
+  
+      const totalGenres = await Genres.countDocuments();
+      const totalPages = Math.ceil(totalGenres / perPage);
+  
+  
+      const genres = await Genres.find().sort({_id:-1})
+      .skip(skipValue)
+      .limit(perPage);
+      
+      res.render("admin/pages/genreList", { genres,currentPage, totalPages, message: "" });
+    } else {
+      res.redirect("/adminLogin");
     }
-
-    const skipValue = (currentPage - 1) * perPage;
-
-    const totalGenres = await Genres.countDocuments();
-    const totalPages = Math.ceil(totalGenres / perPage);
-
-
-    const genres = await Genres.find()
-    .skip(skipValue)
-    .limit(perPage);
-    
-    res.render("admin/pages/genreList", { genres,currentPage, totalPages, message: "" });
-  } else {
-    res.redirect("/adminLogin");
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Internal server error" });
   }
+
 };
 
 adminGenre.unlistGenre = async (req, res) => {
@@ -33,6 +39,7 @@ adminGenre.unlistGenre = async (req, res) => {
     await genre.save();
     res.redirect("/genreList"); // Redirect back to the game list page or another suitable page
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -44,6 +51,7 @@ adminGenre.listGenre = async (req, res) => {
     await genre.save();
     res.redirect("/genreList"); // Redirect back to the game list page or another suitable page
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Internal server error" });
   }
 };

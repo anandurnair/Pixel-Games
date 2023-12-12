@@ -59,22 +59,37 @@
               <span style="color: red;"><%= message1 %></span>
               <div class="input-box">
                 <i class="fas fa-user"></i>
-                <input type="text" placeholder="Enter your fullname" name="fullName" required />
+                <input type="text" placeholder="Enter your fullname" name="fullName" id="nameInput" required />
                 <div class="error-message" id="errorFullName"></div>
               </div>
               <div class="input-box">
                 <i class="fas fa-envelope"></i>
-                <input type="email" placeholder="Enter your email" name="email" required />
+                <input type="email" placeholder="Enter your email" name="email" id="emailInput" required />
                 <div class="error-message" id="errorEmail"></div>
               </div>
-            
               <div class="input-box">
-                <input type="password" placeholder="Enter your password" name="password" id="password" required />
+                <i class="fas fa-phone"></i>
+                <input type="tel" placeholder="Enter your phone number" name="phone" id="phoneInput" required />
+                <div class="error-message" id="errorPhone"></div>
+              </div>
+              <div class="input-box">
+                <i class="fas fa-lock"></i>
+
+                <input type="password" placeholder="Enter your password" name="password" id="passwordInput" required />
                 <i class="fas fa-eye show-password" id="togglePassword"></i>
                 <div class="error-message" id="errorPassword"></div>
-            </div>
+               </div>
+
+               <div class="input-box">
+                <i class="fas fa-lock"></i>
+
+                <input type="password" placeholder="Confirm password" name="password2" id="confirmPassword" required />
+                <i class="fas fa-eye show-password" id="togglePassword2"></i>
+                <div class="error-message" id="errorConfirmPassword"></div>
+               </div>
+
               <div class="button input-box">
-                <input type="submit" value="SignUp"/>
+                <input type="submit" value="SignUp" id="signupBtn"/>
               </div>
               <div class="text sign-up-text">
                 Already have an account? <a href="/">Login now</a>
@@ -90,7 +105,7 @@
 
 
     document.addEventListener("DOMContentLoaded", function () {
-      var passwordInput = document.getElementById("password");
+      var passwordInput = document.getElementById("passwordInput");
       var togglePasswordBtn = document.getElementById("togglePassword");
 
       togglePasswordBtn.addEventListener("click", function () {
@@ -99,13 +114,109 @@
           togglePasswordBtn.classList.toggle("fa-eye");
           togglePasswordBtn.classList.toggle("fa-eye-slash");
       });
+
+
+      var passwordInput2 = document.getElementById("confirmPassword");
+      var togglePasswordBtn2 = document.getElementById("togglePassword2");
+
+      togglePasswordBtn2.addEventListener("click", function () {
+          var type = passwordInput2.getAttribute("type") === "password" ? "text" : "password";
+          confirmPassword.setAttribute("type", type);
+          togglePasswordBtn2.classList.toggle("fa-eye");
+          togglePasswordBtn2.classList.toggle("fa-eye-slash");
+      });
+
+      var confirmPasswordInput = document.getElementById("confirmPassword");
+
+    confirmPasswordInput.addEventListener("input", function () {
+      var passwordInput = document.getElementById("passwordInput");
+      var errorConfirmPassword = document.getElementById("errorConfirmPassword");
+
+      if (confirmPasswordInput.value !== passwordInput.value) {
+        errorConfirmPassword.textContent = "Passwords do not match.";
+        document.getElementById('signupBtn').disabled = true;
+      } else {
+        document.getElementById('signupBtn').disabled = false;
+
+        errorConfirmPassword.textContent = "";
+      }
+    });
+
+    //phone
+
+    var phoneInput= document.getElementById('phoneInput')
+    phoneInput.addEventListener('input',function(){
+      var errorPhone = document.getElementById("errorPhone");
+      if(!/^\d{10}$/.test(phoneInput.value)){
+        errorPhone.textContent= "Invalid phone number"
+        document.getElementById('signupBtn').disabled = true;
+
+      }else{
+        document.getElementById('signupBtn').disabled = false;
+        errorPhone.textContent= ""
+
+      }
+    })
+
+
+    //Email
+
+    var emailInput= document.getElementById('emailInput')
+   emailInput.addEventListener('input',function(){
+      var errorEmail = document.getElementById("errorEmail");
+      if(!/^\S+@\S+\.\S+$/.test(emailInput.value)){
+        errorEmail.textContent= "Invalid email"
+        document.getElementById('signupBtn').disabled = true;
+
+      }else{
+        document.getElementById('signupBtn').disabled = false;
+        errorEmail.textContent= ""
+      }
+    })
+
+
+    //full Name 
+
+    var nameInput= document.getElementById('nameInput')
+    nameInput.addEventListener('input',function(){
+       var errorFullName = document.getElementById("errorFullName");
+       if(!/^[A-Za-z\s]*[A-Za-z][A-Za-z\s]*$/.test(nameInput.value)){
+        errorFullName.textContent= "Invalid name!"
+         document.getElementById('signupBtn').disabled = true;
+ 
+       }else{
+         document.getElementById('signupBtn').disabled = false;
+         errorFullName.textContent= ""
+ 
+       }
+     })
+
+
+    //Password
+    var passwordInput= document.getElementById('passwordInput')
+    passwordInput.addEventListener('input',function(){
+       var errorPassword = document.getElementById("errorPassword");
+       if(!/(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}/.test(passwordInput.value)){
+        errorPassword.textContent= "Weak password!"
+         document.getElementById('signupBtn').disabled = true;
+ 
+       }else{
+         document.getElementById('signupBtn').disabled = false;
+         errorPassword.textContent= ""
+ 
+       }
+     })
+
+
+
   });
     function validateForm() {
       // Get form elements
       var fullNameInput = document.forms["signupForm"]["fullName"];
       var emailInput = document.forms["signupForm"]["email"];
       var passwordInput = document.forms["signupForm"]["password"];
-    
+      var phoneInput = document.forms["signupForm"]["phone"];
+      var errorPhone = document.getElementById("errorPhone");
       // Reset error messages
       var errorFullName = document.getElementById("errorFullName");
       var errorEmail = document.getElementById("errorEmail");
@@ -114,6 +225,7 @@
       errorFullName.textContent = "";
       errorEmail.textContent = "";
       errorPassword.textContent = "";
+      errorPhone.textContent = "";
     
       // Validate full name (should contain a minimum of 2 letters other than spaces)
       if (!/^[A-Za-z\s]*[A-Za-z][A-Za-z\s]*$/.test(fullNameInput.value)) {
@@ -126,7 +238,10 @@
         errorEmail.textContent = "Invalid email address.";
         return false;
       }
-    
+      if (!/^\d+$/.test(phoneInput.value)) {
+        errorPhone.textContent = "Invalid phone number";
+        return false;
+      }
       // Validate password
       if (
         !/(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{6,}/.test(passwordInput.value)

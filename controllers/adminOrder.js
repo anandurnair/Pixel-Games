@@ -25,7 +25,7 @@ adminOrder.orderList = async (req, res) => {
       const totalOrders = await Orders.countDocuments(); 
       const totalPages = Math.ceil(totalOrders / perPage); // Calculate total pages
       
-      const orders = await Orders.find()
+      const orders = await Orders.find().sort({_id:-1})
         .populate('userId')
         .populate('gameItems.gameId')
         .skip(skipValue)

@@ -5,7 +5,8 @@ const mongoose = require("./config/db");
 const User = require("./Models/user");
 const nocache = require("nocache");
 const session = require("express-session");
-const router = require("./router");
+const userRouter = require('./routes/userRoutes')
+const adminRouter = require('./routes/adminRoutes')
 const bodyParser = require("body-parser");
 
 app.set("view engine", "ejs");
@@ -42,7 +43,8 @@ app.use(
 
   // app.set('views','./views/admin')
   // app.set('views','./views')
-app.use(router);
+app.use(userRouter);
+app.use(adminRouter)
 
 app.listen(3000, () => console.log("Server is running"));
 

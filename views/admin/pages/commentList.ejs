@@ -4,7 +4,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-8">
-        <h1 class="page-header">Comment Management</h1>
+        <h1 class="page-header">Reported Comments</h1>
         
       </div>
       <!-- <li class="search-bar sidebar-search  col-lg-4" style="margin-top: 20px;">
@@ -82,7 +82,7 @@
                           <td><%= comment.gameId.gameName%></td>
                           <td><%= comment.commentId.text %></td>
                            <td><%= comment.reason %></td>
-                          <td><%= comment.date %></td>
+                          <td><%= comment.date.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' })%></td>
                           <td><form action="/adminDeleteComment" method="post">
                             <input type="text" name="commentId" value="<%= comment.commentId._id %>" hidden>
                             <button type="submit">Delete</button>

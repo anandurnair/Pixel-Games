@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Pixel games">
+    <meta name="keywords" content="Ogani, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' http://localhost:3000;"> -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' http://localhost:3000 https://code.jquery.com 'unsafe-inline'">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' http://localhost:3000 https://code.jquery.com 'unsafe-inline' https://cdnjs.cloudflare.com"> -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' http://localhost:3000 https://code.jquery.com https://cdnjs.cloudflare.com https://checkout.razorpay.com 'unsafe-inline'">
+
+
+    <title>Pixel Games</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet"  type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css" >
+    <link rel="stylesheet" type="text/css" href="/css/elegant-icons.css" >
+    <link rel="stylesheet" type="text/css" href="/css/nice-select.css" >
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.min.css" >
+    <link rel="stylesheet"  type="text/css" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet"  type="text/css" href="/css/slicknav.min.css" >
+    <link rel="stylesheet"  type="text/css" href="/css/style.css">
+    
+    <!-- Add Bootstrap CSS -->
+
+<!-- Add Bootstrap JS and Popper.js -->
+
+
+    
+</head>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Humberger Begin -->
+    <div class="humberger__menu__overlay"></div>
+    <div class="humberger__menu__wrapper">
+        <div class="humberger__menu__logo">
+            <a href="#"><img src="" alt=""></a>
+        </div>
+        
+        <nav class="humberger__menu__nav mobile-menu">
+            <ul>
+                <li class=""><a href="">Home</a></li>
+                <li><a href="">Categories</a></li>
+                <li><a href="">Library</a></li>
+               
+                <li><a href="">Cart</a></li>
+                <li><a href="">Contact</a></li>
+            </ul>
+        </nav>
+        <div id="mobile-menu-wrap"></div>
+        <!-- <div class="header__top__right__social">
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-linkedin"></i></a>
+            <a href="#"><i class="fa fa-pinterest-p"></i></a>
+        </div> -->
+        
+    </div>
+    <!-- Humberger End -->
+
+    <!-- Header Section Begin -->
+    <header class="header">
+       <!--  <div class="header__top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="header__top__left">
+                            <ul>
+                                <li><i class="fa fa-envelope"></i> hello@colorlib.com</li>
+                                <li>Free Shipping for all Order of $99</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="header__top__right">
+                            <div class="header__top__right__social">
+                                <a href="#"><i class="fa fa-facebook"></i></a>
+                                <a href="#"><i class="fa fa-twitter"></i></a>
+                                <a href="#"><i class="fa fa-linkedin"></i></a>
+                                <a href="#"><i class="fa fa-pinterest-p"></i></a>
+                            </div>
+                            <div class="header__top__right__language">
+                                <img src="img/language.png" alt="">
+                                <div>English</div>
+                                <span class="arrow_carrot-down"></span>
+                                <ul>
+                                    <li><a href="#">Spanis</a></li>
+                                    <li><a href="#">English</a></li>
+                                </ul>
+                            </div>
+                            <div class="header__top__right__auth">
+                                <a href="#"><i class="fa fa-user"></i> Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="q" style="margin-top: 20px;">
+                        <a href="/home/?userId=6575d089e348ca57c8e602b7"><img src="/images/logo5.png" alt="" width="30px" style="margin-top: -10px;margin-right: 10px;"></a>
+                       <a href="/home/?userId=6575d089e348ca57c8e602b7 "  id="title" style="text-decoration: none; color:#fff">Pixel Games</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <nav class="header__menu">
+                        <ul>
+                            <li class=""><a href="/home/?userId=6575d089e348ca57c8e602b7">Home</a></li>
+                            <li><a href="/categories">Games</a></li>
+                           
+                                <li><a href="#">Library</a>
+                                    <ul class="header__menu__dropdown">
+                                        <li><a href="/wishlist">Wishlist</a></li>
+                                        <li><a href="/installedGames">Installed Apps</a></li>
+                                        <li><a href="/orderHistory">Order History</a></li>
+                                    </ul>
+                                </li>
+                           
+                            <li><a href="/cart">Cart</a></li>
+                            <li><a href="">Contact</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3">
+                    <div class="header__cart">
+                        
+                        <div class="header__cart__price"><a href="/userProfile"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;max-width:106px;overflow: hidden;"><i class="fa-solid fa-user" style="color: #ffffff;"> </i>  &nbsp; akshay </button></span></div></a>&nbsp;
+                        <div class="header__cart__price"><a href="/wallet"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;">Wallet</button></span></div></a>
+                        <div class="header__cart__price"><a href="/logout"><button type="button" class="btn btn-outline-light" style="border: 2px solid #fff;font-weight: 700;">LOGOUT</button></span></div></a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="humberger__open">
+                <i class="fa fa-bars"></i>
+            </div>  
+        </div>  
+        
+    </header>
+<style>
+    
+
+    
+
+    .printer-top {
+        z-index: 1;
+        border: 6px solid #666666;
+        height: 6px;
+        border-bottom: 0;
+        border-radius: 6px 6px 0 0;
+        background: #333333;
+    }
+
+    .printer-bottom {
+        z-index: 0;
+        border: 6px solid #666666;
+        height: 6px;
+        border-top: 0;
+        border-radius: 0 0 6px 6px;
+        background: #333333;
+    }
+
+    .paper-container {
+        position: relative;
+        overflow: hidden;
+        height: 467px;
+    }
+
+  
+
+    .main-contents {
+        margin: 0 12px;
+        padding: 24px;
+    }
+
+    
+
+    .jagged-edge:after {
+        content: "";
+        display: block;
+        position: absolute;
+        //bottom: 20px;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: linear-gradient(45deg,
+            transparent 33.333%,
+            #ffffff 33.333%,
+            #ffffff 66.667%,
+            transparent 66.667%),
+            linear-gradient(-45deg,
+            transparent 33.333%,
+            #ffffff 33.333%,
+            #ffffff 66.667%,
+            transparent 66.667%);
+        background-size: 16px 40px;
+        background-position: 0 -20px;
+    }
+
+    .success-icon {
+        text-align: center;
+        font-size: 48px;
+        height: 72px;
+        background: #359d00;
+        border-radius: 50%;
+        width: 72px;
+        height: 72px;
+        margin: 16px auto;
+        color: #fff;
+    }
+
+    .success-title {
+        font-size: 22px;
+        font-family: 'Poppins', sans-serif;
+        text-align: center;
+        color: #a5a5a5;
+        font-weight: bold;
+        margin-bottom: 16px;
+    }
+
+    .success-description {
+        font-size: 15px;
+        font-family: 'Poppins', sans-serif;
+        line-height: 21px;
+        color: #c0c0c0;
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .order-details {
+        text-align: center;
+        color: #bfbfbf;
+        font-weight: bold;
+
+    }
+
+    .order-number-label {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .order-number {
+        border-top: 1px solid #f4f4f4;
+        border-bottom: 1px solid #fffefe;
+        line-height: 48px;
+        font-size: 38px;
+        padding: 8px 0;
+        margin-bottom: 24px;
+    }
+    
+    .complement {
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: #32a852;
+    }
+    .downloadGameLink{
+        font-size: 30px;
+        color: #e0e0e0;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+    
+
+</style> 
+
+<div class="container">
+  
+
+    
+
+        <div class="paper">
+            <div class="main-contents">
+                <div class="success-icon">&#10004;</div>
+                <div class="success-title">
+                    Payment Complete
+                </div>
+                <div class="success-description">
+                    Thank you for completing the payment! 
+                </div>
+                <div class="order-details">
+                    <div class="order-number-label">Click the link to download</div>
+                    
+                        <div class="">
+                            <form action="/downloading" method="post">
+                                <input type="text" name="gameTitle" value="Undawn" hidden>
+                               <button type="submit" style="background-color: transparent;border:none"><a href="#" class="downloadGameLink" data-game="Undawn" download="Undawn.zip">
+                                Click here to download Undawn</button> 
+                                </a>
+                            </form>
+                           
+                        </div>
+                    
+                    <div class="complement">Thank You!</div>
+                </div>
+            </div>
+            <div class="" style="height: 150px;"></div>
+            
+        </div>
+    
+</div>
+<script>
+    
+        document.querySelectorAll(".downloadGameLink").forEach(function(link) {
+            link.addEventListener("click", function() {
+                var gameName = this.getAttribute("data-game");
+                var dummyGameContent = "Dummy content for " + gameName + " game.";
+                var blob = new Blob([dummyGameContent], { type: "application/zip" });
+    
+                var downloadLink = document.createElement("a");
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = gameName + ".zip";
+    
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            });
+        });
+  
+</script>
+
+
+
+<footer class="footer spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="footer__about">
+                    <div class="footer__about__logo">
+                        <a href="./index.html"><h4>PIXEL GAMES</h4></a>
+                    </div>
+                    <!-- <ul>
+                        <li>Address: 60-49 Road 11378 New York</li>
+                        <li>Phone: +65 11.188.888</li>
+                        <li>Email: hello@colorlib.com</li>
+                    </ul> -->
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
+                <div class="footer__widget">
+                    
+                    <ul>
+                        <li><a href="#">Terms and Conditions</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                  
+                    
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <div class="footer__widget">
+                    
+                    <div class="footer__widget__social">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-instagram"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+<!-- Footer Section End -->
+
+<!-- Js Plugins -->
+
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/jquery.nice-select.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+<script src="/js/jquery.slicknav.js"></script>
+<script src="/js/mixitup.min.js"></script>
+<script src="/js/owl.carousel.min.js"></script>
+<script src="/js/main.js"></script>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> -->
+
+</body>
+
+</html>

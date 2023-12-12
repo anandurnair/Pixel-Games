@@ -2,19 +2,19 @@
 
 <div id="page-wrapper">
   <div class="container-fluid">
-      <div class="row">
-          <div class="col-lg-12">
-              <h1 class="page-header">Edit Game</h1>
-          </div>
-          <!-- /.col-lg-12 -->
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">Edit Game</h1>
       </div>
-      <!-- /.row -->
-      <div class="row">
-          <div class="col-lg-12">
-              <div class="panel panel-default">
-                  <div class="panel-heading">
-                      Edit game details
-                  </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Edit game details
+          </div>
           <div class="panel-body">
             <div class="row">
               <div class="col-lg-6">
@@ -33,6 +33,7 @@
                       type="text"
                       name="gameName"
                       value="<%= game.gameName %>"
+                      id="gameNameInput"
                       required
                     />
                     <div id="errorGameName" style="color: red;"></div>
@@ -43,7 +44,7 @@
                     <textarea
                       class="form-control"
                       name="description"
-                      id=""
+                      id="descriptionInput"
                       cols="30"
                       rows="10"
                       required
@@ -57,9 +58,11 @@
                     <label>Price</label>
                     <input
                       class="form-control"
-                      type="text"
+                      type="number"
+                    
                       name="price"
                       value="<%= game.price %>"
+                      id="gamePrice"
                       required
                     />
                     <div id="errorPrice" style="color: red;"></div>
@@ -70,9 +73,10 @@
                     <div style="display: flex;">
                       <input
                         class="form-control"
-                        type="text"
+                        type="number"
                         name="gameSize"
                         value="<%= game.gameSize %>"
+                        id="gameSizeInput"
                         required
                       />
                       <select name="measure" id="measurement">
@@ -93,11 +97,11 @@
                   </div>
 
                   <div class="form-group">
-                    <label>New Image</label>
                     <input
                       class="form-control"
                       type="file"
                       name="gameImage"
+                      id="imageInput"
                     />
                     <div id="errorImage" style="color: red;"></div>
                   </div>
@@ -105,7 +109,7 @@
                   <button type="submit" class="btn btn-default">
                     Submit Button
                   </button>
-                  <button type="button" class="btn btn-default">
+                  <button type="reset" class="btn btn-default">
                     Reset Button
                   </button>
                 </form>
@@ -127,57 +131,50 @@
 
 <script>
   function validateForm() {
-    // Reset error messages
+    var gameName = document.getElementById("gameNameInput").value.trim();
+    var description = document.getElementById("descriptionInput").value.trim();
+    var price = parseFloat(document.getElementById("gamePrice").value);
+    var gameSize = document.getElementById("gameSizeInput").value.trim();
+    var imageInput = document.getElementById("imageInput").value.trim();
+    var allowedExtensions = /\.(jpg|jpeg|png|gif)$/i;
+
     document.getElementById("errorGameName").textContent = "";
     document.getElementById("errorDescription").textContent = "";
     document.getElementById("errorPrice").textContent = "";
     document.getElementById("errorGameSize").textContent = "";
     document.getElementById("errorImage").textContent = "";
 
-    var gameName = document.forms[0]["gameName"].value;
-    var description = document.forms[0]["description"].value;
-    var price = document.forms[0]["price"].value;
-    var gameSize = document.forms[0]["gameSize"].value;
-    var imageInput = document.forms[0]["gameImage"].value;
-
-    // Validate game name (should contain minimum one word)
-    if (!/\w+/.test(gameName)) {
+    if (!gameName) {
       document.getElementById("errorGameName").textContent =
-        "Enter a valid game name.";
+        "Game name is required.";
       return false;
     }
 
-    // Validate description (should contain minimum 10 words)
-    var words = description.match(/\S+/g) || [];
-    if (words.length < 10) {
+    if (description.split(/\s+/).length < 5) {
       document.getElementById("errorDescription").textContent =
-        "Description must contain a minimum of 10 words.";
+        "Description must contain a minimum of 5 words.";
       return false;
     }
 
-    // Validate price (should be a number and contain minimum one digit)
-    if (!/^\d+$/.test(price) || parseInt(price) <= 0) {
+    if (isNaN(price) || price <= 0) {
       document.getElementById("errorPrice").textContent =
-        "Price must be a number ";
+        "Price must be a valid number greater than zero.";
       return false;
     }
 
-    // Validate game size (should be a number and does not contain any alphabets)
-    if (!/^\d+$/.test(gameSize) || parseInt(gameSize) <= 0) {
+    // Custom validation for gameSize accepting numeric or decimal values
+    if (!(/^\d+(\.\d+)?$/.test(gameSize))) {
       document.getElementById("errorGameSize").textContent =
-        "Size must be a number ";
+        "Size must be a valid number greater than zero.";
       return false;
     }
 
-    // Validate image (should be an image file)
-    var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-    if (!allowedExtensions.exec(imageInput)) {
+    if (!allowedExtensions.test(imageInput)) {
       document.getElementById("errorImage").textContent =
         "Invalid file type. Please upload a valid image file.";
       return false;
     }
 
-    // If all validations pass, submit the form
     return true;
   }
 </script>

@@ -35,31 +35,6 @@ adminComment.commentList = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 }
-// adminComment.searchComment = async (req, res) => {
-//   const { gameName } = req.query;
-//   try {
-//     const games = await Games.find({
-//       gameName: new RegExp("^" + gameName, "i"),
-//     });
-
-//     if (req.session.adminLogIn) {
-//       if (games.length > 0) {
-//         res.render("admin/pages/gameList", { games, message: "", err: "" });
-//       } else {
-//         res.render("admin/pages/gameList", {
-//           games,
-//           message: "No users found with that game name",
-//           err: "",
-//         });
-//       }
-//     } else {
-//       res.redirect("/adminLogin");
-//     }
-//   } catch (error) {
-//     console.error("Error searching for games:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// }
 
 
 

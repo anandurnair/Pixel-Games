@@ -10,7 +10,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
       #resendLink{
@@ -57,7 +57,11 @@
                 </div>
                 <div class="input-box" style="display: none;">
                   <i class="fas fa-envelope"></i>
-                  <input type="email" name="email"value="<%- email %>" />
+                  <input type="email" name="email" value="<%- email %>" />
+                </div>
+                <div class="input-box" style="display: none;">
+                  <i class="fas fa-envelope"></i>
+                  <input type="tel" name="phone" value="<%- phone %>" />
                 </div>
                 <div class="input-box" style="display: none;">
                   <i class="fas fa-envelope"></i>
@@ -84,16 +88,18 @@
                 <p id="timer" style="color: rgb(255, 0, 0);"></p>
               </div>
               <!-- Anchor tag for resend -->
-              <div class="">
+              <div >
                 <form action="/signupData" method="post">
                   <input type="text" name="fullName" value="<%- fullName %>" hidden />
                   <input type="email" name="email"value="<%- email %>" hidden/>
+                  <input type="tel" name="phone"value="<%- phone %>" hidden/>
+
                   <input
                   type="password"
                   name="password"
                   value="<%- password %>" hidden
                 />
-               <button type="submit" id="resendButton" style="margin-top:10px;border-radius:5px;background-color: transparent;border: 2px solid #fff;padding:10px;color:aliceblue">Resend OTP</button>
+               <button type="submit"  class="btn btn-outline-light" id="resendButton" style="display:none;margin-top:10px;border-radius:5px;background-color: transparent;border: 2px solid #fff;padding:10px;color:aliceblue">Resend OTP</button>
                 </form>
                
               </div>
@@ -103,45 +109,44 @@
     </div>
     <script>
       const timerDuration = 60; // Timer duration in seconds
-  
+    
       function startTimer() {
         let endTime = parseInt(localStorage.getItem('endTime'));
         if (!endTime || isNaN(endTime) || endTime < Date.now()) {
           endTime = Date.now() + timerDuration * 1000;
           localStorage.setItem('endTime', endTime);
         }
-  
+    
         const timerElement = document.getElementById('timer');
-        const resendLink = document.getElementById('resendLink');
-        const resendForm = document.getElementById('resendForm');
-  
+        const resendButton = document.getElementById('resendButton');
+    
         function updateCountdown() {
           const currentTime = Date.now();
           const remainingTime = Math.max(0, Math.floor((endTime - currentTime) / 1000));
           if (remainingTime === 0) {
             localStorage.removeItem('endTime');
             timerElement.textContent = 'Request again';
-            resendLink.textContent = 'Request again';
-            resendLink.removeAttribute('href'); // Remove the href attribute when expired
+            resendButton.style.display = 'block'; // Display the resend button
             return;
           }
           const minutes = Math.floor(remainingTime / 60);
           const seconds = remainingTime % 60;
           timerElement.textContent = `OTP expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
-  
+    
         updateCountdown();
         const timerInterval = setInterval(updateCountdown, 1000);
-  
+    
         // Reset timer when Resend OTP button is clicked
-        const resendButton = document.getElementById('resendButton');
         resendButton.addEventListener('click', function (event) {
           localStorage.removeItem('endTime'); // Clear the stored timer end time
           startTimer(); // Restart the timer
+          resendButton.style.display = 'none'; // Hide the resend button when clicked
         });
       }
-  
+    
       startTimer();
     </script>
+    
   </body>
 </html>

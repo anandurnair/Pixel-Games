@@ -78,7 +78,7 @@
                                         <td><%= coupon.discountType %></td>
                                         <td class="center"><%= coupon.discountValue %></td>
                                         <td class="center"><%= coupon.minimumPurchaseAmount %></td>
-                                        <td class="center"><%= coupon.validUntil %></td>
+                                        <td class="center"><%= coupon.validUntil.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                                         <td class="center"><%= coupon.status %></td>
                                         <td class="center"><% if (coupon.isActive==true) { %>
                                             

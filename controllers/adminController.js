@@ -26,11 +26,17 @@ let adminPassword = 123;
 var adminLogIn;
 
 adminController.login = (req, res) => {
-  if (req.session.adminLogIn) {
-    res.redirect("/adminDashboard");
-  } else {
-    res.render("admin/pages/login.ejs");
+  try {
+    if (req.session.adminLogIn) {
+      res.redirect("/adminDashboard");
+    } else {
+      res.render("admin/pages/login.ejs");
+    }
+  } catch (error) {
+    console.error("Error in admin login:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+  
 };
 
 adminController.loginData = (req, res) => {
@@ -53,16 +59,28 @@ adminController.loginData = (req, res) => {
 };
 
 adminController.dashboard = (req, res) => {
-  if (req.session.adminLogIn) {
-    res.render("admin/pages/index");
-  } else {
-    res.redirect("/adminLogin");
+  try {
+    if (req.session.adminLogIn) {
+      res.render("admin/pages/index");
+    } else {
+      res.redirect("/adminLogin");
+    }
+  } catch (error) {
+    console.error("Error in admin login:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+ 
 };
 
 adminController.adminLogout = (req, res) => {
-  req.session.adminLogIn = false;
-  res.redirect("/adminLogin");
+  try {
+    req.session.adminLogIn = false;
+    res.redirect("/adminLogin");
+  } catch (error) {
+    console.error("Error in admin login:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+ 
 };
 
 module.exports = adminController;

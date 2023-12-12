@@ -1,49 +1,6 @@
 <%- include('header') %>
     <!-- Header Section End -->
-<style>
-    #snackbar {
-       
-        visibility: hidden;
-        min-width: 250px;
-        margin-left: -125px;
-        background-color: #4eb81c;
-        color: #fff;
-        text-align: center;
-        border-radius: 5px;
-        padding: 10px;
-        position: fixed;
-        z-index: 1;
-        left: 50%;
-        bottom: 30px;
-        font-size: 17px;
-      }
-      
-      #snackbar.show {
-        visibility: visible;
-        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        animation: fadein 0.5s, fadeout 0.5s 2.5s;
-      }
-      
-      @-webkit-keyframes fadein {
-        from {bottom: 0; opacity: 0;} 
-        to {bottom: 30px; opacity: 1;}
-      }
-      
-      @keyframes fadein {
-        from {bottom: 0; opacity: 0;}
-        to {bottom: 30px; opacity: 1;}
-      }
-      
-      @-webkit-keyframes fadeout {
-        from {bottom: 30px; opacity: 1;} 
-        to {bottom: 0; opacity: 0;}
-      }
-      
-      @keyframes fadeout {
-        from {bottom: 30px; opacity: 1;}
-        to {bottom: 0; opacity: 0;}
-      }
-</style>
+
     <!-- Hero Section Begin -->
     <section class="hero">
 
@@ -81,10 +38,9 @@
     <!-- Hero Section End -->
 
     <!-- Categories Section Begin -->
-<!-- HTML code for the toast message -->
 
     <!-- Categories Section End -->
-    
+
     <!-- Featured Section Begin -->
     <section class="featured spad">
         <div class="container">
@@ -120,13 +76,14 @@
                 </span>
                 <% games.forEach(game=>{ %>
                     <% if(game.unlist==false){ %>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mix <%= game.genre %> ">
-                           <div class="featured__item">
-                            <div class="featured__item__pic set-bg" data-setbg="<%= game.gameImage %>">
+                        <div class="col-lg-3 col-md-4 col-sm-6 mix <%= game.genre %> ">
+                            <div class="featured__item">
+                                <div class="featured__item__pic set-bg" data-setbg="<%= game.gameImage %>">
                                     <ul class="featured__item__pic__hover">
-                                        <li><button type="button" onclick="wishlistBtn('<%= game._id %>')" style="border-radius:20px;padding:0px;background-color: transparent;border:none;"><a href="#" id="wishlist-icon " ><i class="fa fa-heart"></i></a></button></li>
-                                        <li ><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>"><i class="fa-solid fa-circle-info"></i> </a></button>   </li>
-                                        <li ><button  type="button" onclick="cartBtn('<%= game._id %>')" style="border-radius:20px;padding:0px;background-color: transparent;border:none;"  ><a href="#" id="cart-ion"><i class="fa fa-shopping-cart"></i></a></button></li>
+                                        <!-- <li><a href="#"><i class="fa fa-heart"></i></a></li> -->
+                                        <!-- <li><a href="#"><i class="fa fa-retweet"></i></a></li> -->
+                                        <li style="width: 30px;"><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>"><i
+                                                    class="fa fa-shopping-cart"></i></a></li>
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
@@ -135,11 +92,9 @@
                                         </a></h6>
                                     <h5>₹ <%= game.price %>.00</h5>
                                 </div>
-                          
                             </div>
-                      
                         </div>
-                  
+
 
                         <%} }); %>
                         <div style="position:relative;text-align: right;">
@@ -169,72 +124,11 @@
             </div>
         </div>
     </section>
-    <div id="snackbar"></div>
+  
     <!-- Featured Section End -->
 
     <section>
         
     </section>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-
-       async function wishlistBtn(gameId){
-            try{
-                const response = await fetch('/addToWishlist', {
-                    method: 'POST',
-                    headers: {
-                    'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ gameId: gameId })
-                })
-
-                const data =await response.json()
-                if(data.status){
-                    showToast('Game added to wishlist',"green");
-                }else{
-                    showToast('Game is already in the wishlist',"red");
-                }
-            }catch(error){
-                console.log(error)
-            }
-           
-             
-        }
-
-        async function cartBtn(gameId){
-            try{
-                const response = await fetch('/addToCart', {
-                    method: 'POST',
-                    headers: {
-                    'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ gameId: gameId })
-                })
-
-                const data =await response.json()
-                if(data.status){
-                    showToast('Game added to cart',"green");
-                }else{
-                    showToast('Game is already in the cart',"red");
-                }
-            }catch(error){
-                console.log(error)
-            }
-           
-             
-        }
-
-
-
-        function showToast(message,color) {
-            var x = document.getElementById("snackbar");
-            document.getElementById('snackbar').textContent=message
-            document.getElementById('snackbar').style.backgroundColor=color
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        }
-    </script>
 
     <%- include('footer') %>

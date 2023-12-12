@@ -12,7 +12,7 @@ adminGame.gameList = async (req, res) => {
       let currentPage = parseInt(req.query.page) || 1;
       const perPage = 8;
       if (currentPage < 1) {
-        currentPage = 1; // Reset to 1 if currentPage is less than 1
+        currentPage = 1; 
       }
   
       const skipValue = (currentPage - 1) * perPage;
@@ -20,7 +20,7 @@ adminGame.gameList = async (req, res) => {
       const totalGames = await Games.countDocuments();
       const totalPages = Math.ceil(totalGames / perPage);
   
-      const games = await Games.find()
+      const games = await Games.find().sort({_id:-1})
         .skip(skipValue)
         .limit(perPage);
   
@@ -35,8 +35,9 @@ adminGame.gameList = async (req, res) => {
 };
 
 adminGame.searchGame = async (req, res) => {
-  const { gameName } = req.query;
+  
   try {
+    const { gameName } = req.query;
     let currentPage = parseInt(req.query.page) || 1;
     const perPage = 8;
     if (currentPage < 1) {
@@ -73,14 +74,20 @@ adminGame.searchGame = async (req, res) => {
 };
 
 adminGame.insertGame = async(req, res) => {
-  if (req.session.adminLogIn) {
-    const genres = await Genres.find()
-    console.log('Directory : ',__dirname)
-
-    res.render("admin/pages/insertGame", { message1: "" ,genres});
-  } else {
-    res.redirect("/adminLogin");
+  try {
+    if (req.session.adminLogIn) {
+      const genres = await Genres.find()
+      console.log('Directory : ',__dirname)
+  
+      res.render("admin/pages/insertGame", { message1: "" ,genres});
+    } else {
+      res.redirect("/adminLogin");
+    }
+  } catch (error) {
+    console.error("Error searching for games:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+  
 };
 
 adminGame.insertGameData = async (req, res) => {
@@ -109,7 +116,7 @@ adminGame.insertGameData = async (req, res) => {
     if (!games) {
       const croppedImageData = JSON.parse(req.body.croppedImageData);
       console.log("Cropped image data : ",croppedImageData)
-      // Construct the image URL based on the destination folder and filename
+      
       const gameImage = req.file
         ? `/views/gameImages/${req.file.filename}`
         : "";
@@ -129,22 +136,6 @@ adminGame.insertGameData = async (req, res) => {
       // Save the game to the database
       await newGame.save();
 
-      // if (req.file) {
-      //   const imagePath = path.join(
-      //     "E:/Brototype/Week 09/PIXEL GAMES/",
-      //     "views",
-      //     "gameImages",
-      //     req.file.filename
-      //   );
-        
-      //   if (fs.existsSync(imagePath)) {
-      //     fs.unlinkSync(imagePath);
-      //     console.log('File deleted successfully');
-      //   } else {
-      //     console.log('File not found at the specified path');
-      //   }
-      // }
-      // Render the insertGame page
       res.render("admin/pages/insertGame", { message1: "",genres });
     } else {
       res.render("admin/pages/insertGame", {
@@ -154,7 +145,7 @@ adminGame.insertGameData = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    // Handle the error and render an error page
+   
     res.status(500).json({ error: "Internal server error" });
 }
 }
@@ -162,9 +153,9 @@ adminGame.insertGameData = async (req, res) => {
 adminGame.unlistGame = async (req, res) => {
   try {
     const game = await Games.findById(req.params.id);
-    game.unlist = true; // Assuming you have a 'unlist' property in your Games model
+    game.unlist = true; 
     await game.save();
-    res.redirect("/gameList"); // Redirect back to the game list page or another suitable page
+    res.redirect("/gameList"); 
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -173,9 +164,8 @@ adminGame.unlistGame = async (req, res) => {
 adminGame.listGame = async (req, res) => {
   try {
     const game = await Games.findById(req.params.id);
-    game.unlist = false; // Assuming you have a 'unlist' property in your Games model
-    await game.save();
-    res.redirect("/gameList"); // Redirect back to the game list page or another suitable page
+    game.unlist = false; 
+    res.redirect("/gameList"); 
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -200,7 +190,7 @@ adminGame.editGameData = async (req, res) => {
     const game = await Games.findById(req.params.id);
     const gameId = req.params.id;
 
-    // Get other details from the request body
+  
     let {
       gameName,
       description,

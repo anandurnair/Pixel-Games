@@ -67,7 +67,7 @@
                             <%= gameItem.gameId.gameName %> <br>
                          <%  }) %></td>
                           <td><%= order.userId.fullName %></td>
-                          <td><%= order.orderDate %></td>
+                          <td><%= order.orderDate.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                           <td><%= order.paymentMethod %></td>
                           <td>₹<%= order.totalAmount %></td>
                           <td><%= order.orderStatus %></td>
