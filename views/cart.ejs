@@ -1,6 +1,49 @@
 <%- include('header') %>
 
-
+<style>
+    #snackbar {
+       
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: #4eb81c;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 10px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 17px;
+      }
+      
+      #snackbar.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+      
+      @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;} 
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;} 
+        to {bottom: 0; opacity: 0;}
+      }
+      
+      @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+</style>
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="./images/image-4-o1s.png">
         <div class="container">
@@ -21,10 +64,7 @@
         
         <div class="container">
             <div class="row">
-                <% if(isExistInWishlist){ %>
-                    <div class="alert alert-warning" role="alert">
-                        Already in wishlist..!
-                      </div>                <% } %>
+               
                 <div class="col-lg-12">
                     <div class="shoping__cart__table">
                         <table>
@@ -39,7 +79,7 @@
                             <tbody>
                                 <% if (items !== null && items !== undefined) { %>
                                     <% items.forEach(game => { %>                
-                                        <tr>
+                                        <tr id="<%= game._id %>">
                                             <td class="shoping__cart__item">
                                                 <img src="<%= game.gameId.gameImage %>" width="200px" alt="">
                                                 <h5><%= game.gameId.gameName %></h5>
@@ -49,18 +89,16 @@
                                             </td>
                                             <td class="shoping__cart__item__close">
                                                 
-                                                <form action="/moveToWishlist/<%= game._id %>" method="post">
                                                     
-                                                    <button type="submit" id="removeBtn">Move To Wishlist</button>
-                                                </form>
+                                                    <button type="submit" onclick="moveToWishlist('<%= game._id %>')" id="removeBtn">Move To Wishlist</button>
                                                  
 
                                                     
                                             </td>
                                             <td class="shoping__cart__item__close" >
-                                                <form action="/removeCart/<%= game._id %>" method="post">
-                                                    <button type="submit" id="removeBtn">Remove</button>
-                                                </form>
+                                               
+                                                    <button type="submit" onclick="removeGame('<%= game._id %>')" id="removeBtn">Remove</button>
+                                               
                                             </td>
                                         </tr>
                                     <% }); %>
@@ -98,5 +136,60 @@
             </div>
         </div>
     </section>
+    <div id="snackbar"></div>
 
+    <script>
+        async function removeGame(gameId){
+            try{
+                const response = await fetch('/removeCart', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ gameId: gameId })
+                })
+
+                const data =await response.json()
+                if(data.status){
+                    showToast('Game removed',"green");
+                    document.getElementById(`${gameId}`).style.display="none"
+                }else{
+                    showToast('Something wrong in removing',"red");
+                }
+            }catch(error){
+                console.log(error)
+            }
+        }
+
+        async function moveToWishlist(gameId){
+            try{
+                console.log("Working")
+                const response = await fetch('/moveToWishlist', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ gameId: gameId })
+                })
+                
+                const data =await response.json()
+                if(data.status){
+                    showToast('Moved to wishlist',"green");
+                    document.getElementById(`${gameId}`).style.display="none"
+                }else{
+                    showToast('Already in the wishlist',"red");
+                }
+            }catch(error){
+                console.log(error)
+            }
+        }
+
+        function showToast(message,color) {
+            var x = document.getElementById("snackbar");
+            document.getElementById('snackbar').textContent=message
+            document.getElementById('snackbar').style.backgroundColor=color
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+    </script>
 <%- include('footer') %>

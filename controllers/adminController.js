@@ -15,11 +15,22 @@ const storage = multer.diskStorage({
       null,
       file.fieldname + "-" + Date.now() + path.extname(file.originalname)
     );
-  },
+  }
+  
 });
 
 const upload = multer({ storage: storage });
-adminController.upload = upload.single("gameImage");
+adminController.upload = upload.array("gameImage",3);
+adminController.upload2 = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+  
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  },
+}).array("gameImage", 3); 
 
 let adminEmail = "anandu123@gmail.com";
 let adminPassword = 123;

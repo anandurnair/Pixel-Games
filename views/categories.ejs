@@ -95,12 +95,13 @@
                     </div>
                     <div class="featured__controls">
                         <ul>
-                            <li  class="active" data-filter="*"><a style="color: aliceblue;" href="/categories">All</a></li>
+                            <li  class="" data-filter="*"><a style="color: aliceblue;" href="/categories">All</a></li>
                             <% genres.forEach(genre=>{ %>
                                 <% if(genre.unlistGenre==false){ %>
-                                    <li data-filter=".<%= genre.genreName  %>">
-                                        <%= genre.genreName %>
-                                    </li>
+                                  <li> <a href="/categories?gameGenre=<%= genre.genreName %>" style="color: #fff;">   <%= genre.genreName %> </a>                                    
+                                     
+                                  </li>
+                                   
                                     <%} }); %>
                                         <li>
                                             <form class="form-inline my-2 my-lg-0" action="/searchGames" method="get">
@@ -118,30 +119,53 @@
                 <span style="font-size: 20px; color:#fff;text-align: center;" >
                     <%= message %>
                 </span>
-                <% games.forEach(game=>{ %>
-                    <% if(game.unlist==false){ %>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mix <%= game.genre %> ">
-                           <div class="featured__item">
-                            <div class="featured__item__pic set-bg" data-setbg="<%= game.gameImage %>">
-                                    <ul class="featured__item__pic__hover">
-                                        <li><button type="button" onclick="wishlistBtn('<%= game._id %>')" style="border-radius:20px;padding:0px;background-color: transparent;border:none;"><a href="#" id="wishlist-icon " ><i class="fa fa-heart"></i></a></button></li>
-                                        <li ><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>"><i class="fa-solid fa-circle-info"></i> </a></button>   </li>
-                                        <li ><button  type="button" onclick="cartBtn('<%= game._id %>')" style="border-radius:20px;padding:0px;background-color: transparent;border:none;"  ><a href="#" id="cart-ion"><i class="fa fa-shopping-cart"></i></a></button></li>
-                                    </ul>
-                                </div>
-                                <div class="featured__item__text">
-                                    <h6><a href="/gameDetails/<%= game._id %>/?userId=<%= user._id %>">
-                                            <%= game.gameName %>
-                                        </a></h6>
-                                    <h5>₹ <%= game.price %>.00</h5>
-                                </div>
-                          
-                            </div>
-                      
+                <% games.forEach(game => { %>
+                    <% if (game.unlist === false) { %>
+                      <div class="col-lg-3 col-md-4 col-sm-6 mix <%= game.genre %>">
+                        <div class="featured__item">
+                          <div class="featured__item__pic set-bg" data-setbg="<%= game.gameImages[0] %>">
+                            <ul class="featured__item__pic__hover">
+                              <% let isMatched = false; %>
+                              <% items.forEach(item => { %>
+                                <% if(item.gameId.genre == gameGenre){ %>
+                                <% if (item.gameId.toString() === game._id.toString()) { %>
+                                  <% isMatched = true; %>
+                                  <li>
+                                    <a href="/gameDetails/<%= game._id %>?userId=<%= user._id %>"><i class="fa-solid fa-play"></i></a>
+                                  </li>
+                                <% } }%>
+                              <% }); %>
+                              <% if (!isMatched) { %>
+                                <li>
+                                  <a href="/gameDetails/<%= game._id %>?userId=<%= user._id %>"><i class="fa-solid fa-circle-info"></i></a>
+                                </li>
+                                <li>
+                                  <button type="button" onclick="wishlistBtn('<%= game._id %>')" style="border-radius: 20px; padding: 0px; background-color: transparent; border: none;">
+                                    <a href="#" id="wishlist-icon"><i class="fa fa-heart"></i></a>
+                                  </button>
+                                </li>
+                                <li>
+                                  <button type="button" onclick="cartBtn('<%= game._id %>')" style="border-radius: 20px; padding: 0px; background-color: transparent; border: none;">
+                                    <a href="#" id="cart-ion"><i class="fa fa-shopping-cart"></i></a>
+                                  </button>
+                                </li>
+                              <% } %>
+                            </ul>
+                          </div>
+                          <div class="featured__item__text">
+                            <h6>
+                              <a href="/gameDetails/<%= game._id %>/userId=<%= user._id %>">
+                                <%= game.gameName %>
+                              </a>
+                            </h6>
+                            <h5>₹ <%= game.price %>.00</h5>
+                            <p><%= game.gameRate %> <i class="fa fa-star"></i> Ratings</p>
+                          </div>
                         </div>
+                      </div>
+                    <% } %>
+                  <% }); %>
                   
-
-                        <%} }); %>
                         <div style="position:relative;text-align: right;">
                             <div aria-label="Page navigation example" >
                                 <div class="pagination-container">
@@ -179,6 +203,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
+
+      /*async function gameFilter(gameGenre){
+        try{
+          console.log("Hi")
+          const response = await fetch('/gameFilter', {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ gameGenre: gameGenre })
+          })
+
+          const data =await response.json()
+          console.log(data)
+          
+          
+      }catch(error){
+          console.log(error)
+      }
+      }
+
+*/
 
        async function wishlistBtn(gameId){
             try{

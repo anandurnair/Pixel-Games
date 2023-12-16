@@ -1,12 +1,62 @@
-Expire coupon
-Edit Game
-Insert Game
-Resend OTP with expiration
-logout destroy to false
+TODAY
 
 
-doing : report Comment
 
-resident evil game errr
+WEDNESDAY
+No need to refresh the page after applying, the coupon and deleting a product from the cart
+After successfully adding a product it should redirect to the product listing along with a message
+After successfully adding a coupon it should redirect to the coupon listing along with a message
 
-resend otp in forgot password
+
+
+THURSDAY
+
+
+
+
+FRIDAY
+Multiple Image Upload
+Add coupon for every purchase with an expiry date
+
+
+
+
+COMPLETED
+Add env module
+
+Interconnect the filtering and searching
+Add Money to your wallet through a payment gateway
+Mobile field, confirm password in signup
+Show Resend OTP after the timer expires
+Add a wish button in the cards of the product listing page
+Remove the withdraw and transfer button from the wallet
+Split the routes for admin and users
+Implement try catch error handling
+The latest added item must be on top of the listing
+Sent the soft copy of the game to mail
+Give a rating along with commenting
+Give validation for applying the coupon
+Add Pagination to the wishlist 
+
+
+EXTRA : 
+remove coupon after appayig the coupon
+
+After successfully editing a product it should redirect to the product listing along with a message
+
+
+
+applying coupon without reloading
+
+
+
+
+
+
+
+
+
+CURRENT  : Multiple image upload
+
+
+

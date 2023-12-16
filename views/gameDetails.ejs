@@ -1,5 +1,79 @@
 <%- include('header') %>
-
+  <style>
+    #snackbar {
+       
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #4eb81c;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 10px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      font-size: 17px;
+    }
+    
+    #snackbar.show {
+      visibility: visible;
+      -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    
+    @-webkit-keyframes fadein {
+      from {bottom: 0; opacity: 0;} 
+      to {bottom: 30px; opacity: 1;}
+    }
+    
+    @keyframes fadein {
+      from {bottom: 0; opacity: 0;}
+      to {bottom: 30px; opacity: 1;}
+    }
+    
+    @-webkit-keyframes fadeout {
+      from {bottom: 30px; opacity: 1;} 
+      to {bottom: 0; opacity: 0;}
+    }
+    
+    @keyframes fadeout {
+      from {bottom: 30px; opacity: 1;}
+      to {bottom: 0; opacity: 0;}
+    }
+    .star-rating {
+      white-space: nowrap;
+    }
+    .star-rating [type="radio"] {
+      appearance: none;
+    }
+    .star-rating i {
+      font-size: 1.2em;
+      transition: 0.3s;
+    }
+    
+    .star-rating label:is(:hover, :has(~ :hover)) i {
+      transform: scale(1.35);
+      color: #fffdba;
+      animation: jump 0.5s calc(0.3s + (var(--i) - 1) * 0.15s) alternate infinite;
+    }
+    .star-rating label:has(~ :checked) i {
+      color: #faec1b;
+      text-shadow: 0 0 2px #ffffff, 0 0 10px #ffee58;
+    }
+    
+    @keyframes jump {
+      0%,
+      50% {
+        transform: translatey(0) scale(1.35);
+      }
+      100% {
+        transform: translatey(-15%) scale(1.35);
+      }
+    }
+    
+  </style>
 
   <div class="container">
 
@@ -9,18 +83,18 @@
           <div class="col-lg-6 col-md-6">
             <div class="product__details__pic">
               <div class="product__details__pic__item">
-                <img class="product__details__pic__item--large" src="<%= game.gameImage %>" alt="">
+                <img class="product__details__pic__item--large" src="<%= game.gameImages[0] %>" alt="">
               </div>
-              <!-- <div class="product__details__pic__slider owl-carousel">
-                                <img data-imgbigurl="img/product/details/product-details-2.jpg"
-                                    src="./images/re1.jpeg" alt="">
-                                <img data-imgbigurl="img/product/details/product-details-3.jpg"
-                                    src="./images/re2.jpg" alt="">
-                                <img data-imgbigurl="img/product/details/product-details-5.jpg"
-                                    src="./images/re3.jpeg" alt="">
+              <div  >
+                                <img 
+                                    src="<%= game.gameImages[1] %>" alt="" width="150px">
+                                <img
+                                src="<%= game.gameImages[2] %>" alt="" width="150px">
+                                <!-- <img data-imgbigurl="img/product/details/product-details-5.jpg"
+                                    src="" alt="">
                                 <img data-imgbigurl="img/product/details/product-details-4.jpg"
-                                    src="./images/re4.jpg" alt="">
-                            </div> -->
+                                    src="" alt=""> -->
+                            </div>
             </div>
           </div>
           <div class="col-lg-6 col-md-6">
@@ -36,9 +110,18 @@
                                 <i class="fa fa-star-half-o"></i>
                                 <span>(18 reviews)</span>
                             </div> -->
+
+
+                              <div class="product__details__rating" style="color: #fff;font-size:18px;">
+                               <%= averageRating %>
+                                <i class="fa fa-star"></i>
+                               
+                                <span>(<%= rateCount %>)</span>
+                            </div>
               <p id="genreName">
                 <%= game.genre %> Game
               </p>
+             
               <p>
                 <%= game.description %>
               </p>
@@ -61,23 +144,22 @@
                     <% if (isCart) { %>
                       <a href="/cart"> <button class="primary-btn">VIEW IN CART</button></a>
                       <% } else { %>
-                        <form action="/addToCart/<%= game._id %>" method="post">
-                          <button type="submit" class="primary-btn">ADD TO CART</button>
-                        </form>
+                       
+                          <button type="submit" onclick="cartBtn('<%= game._id %>')" id="addToCart" class="primary-btn">ADD TO CART</button>
+                       
                         <% } %>
                           <% if(isWishlist){ %>
                             <a href="/wishlist"> <button class="primary-btn">Go to wishlist</button></a>
 
                             <% }else{ %>
-                              <form action="/addToWishlist/<%= game._id %>" method="post">
-                                <button type="submit" class="heart-icon">Add To Wishlist</button>
-                              </form>
+                              
+                                <button type="submit" onclick="wishlistBtn('<%= game._id %>')" id="addToWishlist" class="heart-icon">Add To Wishlist</button>
+                            
                               <% } %>
                                 <% } %>
 
                                   <!-- <button type="submit" class="heart-icon"><span class="icon_heart_alt"></span></button> -->
-
-
+                                  
               </div>
 
 
@@ -123,6 +205,7 @@
 
                   <% }else{ %>
                     <% comments.forEach(comment=>{ %>
+                      <% if(comment.text){ %>
                     <div class="commented-section mt-2" style="margin-bottom: 20px;position: relative;">
                       <div class="d-flex  commented-user" style="margin-bottom: 10px;margin-top: 10px;">
                         <div style="margin-right:10px;padding-top:4px; background-color: aliceblue; width:25px;height:25px;border-radius:50%;text-align:center"><i style="font-size: 15px;" class="fa-solid fa-user"></i></div>
@@ -133,7 +216,7 @@
 
 
 
-
+                        
                      
                     
 
@@ -220,7 +303,8 @@
     
                     </div>
 
-                    <% }) } %>
+                    <% }
+                   }) } %>
                 
 
 
@@ -236,7 +320,7 @@
             
             
 
-          <% if(userInstalled){ %>
+          <% if(userInstalled ){ %>
 
           <!-- commentBox -->
           <div class="d-flex col-md-6  " style="margin-top: 27px;">
@@ -251,7 +335,20 @@
 
                 </div>
               </div>
-              <div class="coment-bottom  ">
+              
+              <div class="coment-bottom  " style="padding-top: 20px;">
+                <p>Rating: <span class="star-rating">
+                  <label for="rate-1" style="--i:1"><i class="fa-solid fa-star"></i></label>
+                  <input type="radio" name="rating" id="rate-1" value="1" onclick="rating(1)" >
+                  <label for="rate-2" style="--i:2"><i class="fa-solid fa-star"></i></label>
+                  <input type="radio" name="rating" id="rate-2" value="2" onclick="rating(2)">
+                  <label for="rate-3" style="--i:3"><i class="fa-solid fa-star"></i></label>
+                  <input type="radio" name="rating" id="rate-3" value="3"  onclick="rating(3)">
+                  <label for="rate-4" style="--i:4"><i class="fa-solid fa-star"></i></label>
+                  <input type="radio" name="rating" id="rate-4" value="4"  onclick="rating(4)">
+                  <label for="rate-5" style="--i:5"><i class="fa-solid fa-star"></i></label>
+                  <input type="radio" name="rating" id="rate-5" value="5"  onclick="rating(5)">
+                </span></p>
                 <div class="d-flex flex-row add-comment-section mt-4 mb-4">
                   <form action="/commentData" method="post" style="display: flex;">
                     <input type="text" name="gameId" value="<%= game._id %>" hidden>
@@ -272,12 +369,21 @@
   </div>
   
 
-
+  <div id="snackbar"></div>
  
   <!-- Product Details Section Begin -->
 
 
   <script>
+
+
+   let rating1 = '<%= userRated %>' 
+    console.log(rating1)
+    document.querySelector(`input[name="rating"][value="${rating1}"]`).checked = true;
+
+
+
+
     var myModal = document.getElementById('myModal')
 var myInput = document.getElementById('myInput')
 
@@ -297,6 +403,90 @@ myModal.addEventListener('shown.bs.modal', function () {
       year: 'numeric',
     });
     document.getElementById('released').innerText = formattedDate
+
+
+
+
+    async function wishlistBtn(gameId){
+      try{
+          const response = await fetch('/addToWishlist', {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ gameId: gameId })
+          })
+
+          const data =await response.json()
+          if(data.status){
+            document.getElementById('addToWishlist').innerText="VIEW IN WISHLIST"
+
+              showToast('Game added to wishlist',"green");
+          }else{
+              showToast('Game is already in the wishlist',"red");
+          }
+      }catch(error){
+          console.log(error)
+      }
+     
+       
+  }
+
+  async function cartBtn(gameId){
+      try{
+          const response = await fetch('/addToCart', {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ gameId: gameId })
+          })
+
+          const data =await response.json()
+          if(data.status){
+            document.getElementById('addToCart').innerText="VIEW IN CART"
+              showToast('Game added to cart',"green");
+          }else{
+              showToast('Game is already in the cart',"red");
+          }
+      }catch(error){
+          console.log(error)
+      }
+     
+       
+  }
+
+  async function rating(rate){
+    try{
+      const response = await fetch('/rating', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ rate: rate ,gameId:'<%= game._id %>'})
+    })
+
+    const data =await response.json()
+    if(data.status){
+     
+        showToast('Your rating has been saved ',"green");
+    }else{
+        showToast('Error in rating',"red");
+    }
+    }catch{
+      console.log(error)
+    }
+  }
+
+  function showToast(message,color) {
+      var x = document.getElementById("snackbar");
+      document.getElementById('snackbar').textContent=message
+      document.getElementById('snackbar').style.backgroundColor=color
+      x.className = "show";
+      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  }
+
+
   </script>
 
   <!-- Footer Section Begin -->

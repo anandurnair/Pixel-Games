@@ -1,7 +1,50 @@
 
 <%- include('header') %>
 
-
+<style>
+    #snackbar {
+       
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: #4eb81c;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 10px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 17px;
+      }
+      
+      #snackbar.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+      
+      @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;} 
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;} 
+        to {bottom: 0; opacity: 0;}
+      }
+      
+      @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+</style>
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="./images/b5.jpg">
         <div class="container">
@@ -16,16 +59,13 @@
         </div>
     </section>
     <!-- Breadcrumb Section End -->
-
+    
     <!-- Shoping Cart Section Begin -->
     <section class="shoping-cart spad">
         
         <div class="container">
             <div class="row">
-                <% if(isExistInCart){ %>
-                    <div class="alert alert-warning" role="alert">
-                        Already in Cart..!
-                      </div>                <% } %>
+                
                 <div class="col-lg-12">
                     <div class="shoping__cart__table">
                         <table>
@@ -40,7 +80,7 @@
                             <tbody>
                                 <% if (items !== null && items !== undefined) { %>
                                     <% items.forEach(game => { %>                
-                                        <tr>
+                                        <tr  id="<%= game.gameId._id %>">
                                             <td class="shoping__cart__item">
                                                 <img src="<%= game.gameId.gameImage %>" width="200px" alt="">
                                                 <h5><%= game.gameId.gameName %></h5>
@@ -49,15 +89,15 @@
                                                 ₹<%= game.gameId.price %>
                                             </td>
                                             <td class="shoping__cart__item__close">
-                                                <form action="/moveToCart/<%= game._id %>" method="post">
+                                                
                                                     
-                                                    <button type="submit" id="removeBtn">Move To Cart</button>
-                                                </form>
+                                                    <button type="submit" onclick="moveToCart('<%= game.gameId._id%>')" id="removeBtn">Move To Cart</button>
+                                                
                                             </td>
                                             <td class="shoping__cart__item__close" >
-                                                <form action="/removeWishlist/<%= game._id %>" method="post">
-                                                    <button type="submit" id="removeBtn">Remove</button>
-                                                </form>
+                                               
+                                                    <button type="submit" onclick="removeGame('<%= game.gameId._id %>')" id="removeBtn">Remove</button>
+                                                
                                             </td>   
                                         </tr>
                                     <% }); %>
@@ -72,6 +112,8 @@
                     </div>
                 </div>
             </div>
+           
+            
             <div class="row">
                 <div class="col-lg-12">
                     <div class="shoping__cart__btns">
@@ -81,11 +123,85 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
+                    <div aria-label="Page navigation example" >
+                        <div class="pagination-container">
+                            <ul class="pagination" >
+                                <li class="page-item" >
+                            <% if (currentPage > 1) { %>
+                              <a  href="/wishlist?page=<%= currentPage - 1 %>" style="background-color: #05121B;color:#fff">&laquo;</a>
+                            <% } %>
+                        </li>
                     
+                        <li class="page-item"><% for (let i = 1; i <= totalPages; i++) { %>
+                              <a href="/wishlist?page=<%= i %>" <%= i === currentPage ? 'class="active"' : '' %>    style="background-color: #05121B;color:#fff"><%= i %></a>
+                            <% } %>
+                        </li>
+                        <li class="page-item"><% if (currentPage < totalPages) { %>
+                              <a href="/wishlist?page=<%= currentPage + 1 %>"  >&raquo;</a>
+                            <% } %>
+                        </li>
+                    </ul>
+                          </div>
+                        </div>  
                 </div>
                 
             </div>
         </div>
     </section>
+    <div id="snackbar"></div>
 
+    <script>
+        async function removeGame(gameId){
+            try{
+                const response = await fetch('/removeWishlist', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ gameId: gameId })
+                })
+
+                const data =await response.json()
+                if(data.status){
+                    showToast('Game removed',"green");
+                    document.getElementById(`${gameId}`).style.display="none"
+                }else{
+                    showToast('Something wrong in removing',"red");
+                }
+            }catch(error){
+                console.log(error)
+            }
+        }
+
+        async function moveToCart(gameId){
+            try{
+                console.log("Working")
+                const response = await fetch('/moveToCart', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ gameId: gameId })
+                })
+                
+                const data =await response.json()
+                if(data.status){
+                    showToast('Moved to cart',"green");
+                    document.getElementById(`${gameId}`).style.display="none"
+                }else{
+                    showToast('Already in the cart',"red");
+                }
+            }catch(error){
+                console.log(error)
+            }
+        }
+
+        function showToast(message,color) {
+            var x = document.getElementById("snackbar");
+            document.getElementById('snackbar').textContent=message
+            document.getElementById('snackbar').style.backgroundColor=color
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+    </script>
 <%- include('footer') %>

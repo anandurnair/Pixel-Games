@@ -1,16 +1,91 @@
 <%- include('header') %>
+<style>
+  #snackbar {
+     
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #4eb81c;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+  }
+  
+  #snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  @-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+  }
+  .star-rating {
+    white-space: nowrap;
+  }
+  .star-rating [type="radio"] {
+    appearance: none;
+  }
+  .star-rating i {
+    font-size: 1.2em;
+    transition: 0.3s;
+  }
+  
+  .star-rating label:is(:hover, :has(~ :hover)) i {
+    transform: scale(1.35);
+    color: #fffdba;
+    animation: jump 0.5s calc(0.3s + (var(--i) - 1) * 0.15s) alternate infinite;
+  }
+  .star-rating label:has(~ :checked) i {
+    color: #faec1b;
+    text-shadow: 0 0 2px #ffffff, 0 0 10px #ffee58;
+  }
+  
+  @keyframes jump {
+    0%,
+    50% {
+      transform: translatey(0) scale(1.35);
+    }
+    100% {
+      transform: translatey(-15%) scale(1.35);
+    }
+  }
+  
+</style>
     <div class="wallet-container ">
         <div class="wallet-header">
             <h2>My Wallet</h2>
         </div>
 
         <div class="container p-4" style="max-width: 600px;">
-            <div class="balance text-center">
+            <div class="balance text-center" id="balanceField">
                 Balance: ₹<%= wallet.balance %>.00 <!-- Replace with dynamic balance from backend -->
             </div>
 
             <div class="wallet-actions">
-                <button class="action-button btn remove-btn"  style="border: 2px solid #ffffff;">Add Money +</button>
+                <button class="action-button btn remove-btn" data-toggle="modal" data-target="#exampleModalCenter"  style="border: 2px solid #ffffff;">Add Money +</button>
             </div>
         
         <div class="transaction-history">
@@ -41,7 +116,7 @@
         </div>
     </div>
 
-    <!-- <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="false">
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="false">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -50,7 +125,7 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <form id="addMoneyForm" action="/addMoneyData" method="post" onsubmit="return validateForm()">
+            
                 <div class="modal-body">
                   <p>Enter the Amount (₹)</p>
                   <input type="number" name="addAmount" id="addAmount" required min="0" max="10000" step="100" >
@@ -58,22 +133,165 @@
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-primary">Proceed to add</button>
+                  <button type="button" onclick="addMoney()" class="btn btn-primary">Proceed to add</button>
                 </div>
-              </form>
+             
           </div>
         </div>
-      </div> -->
+      </div>
+      
+  <div id="snackbar"></div>
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
       <script>
-        function validateForm() {
+        
+  function showToast(message,color) {
+    var x = document.getElementById("snackbar");
+    document.getElementById('snackbar').textContent=message
+    document.getElementById('snackbar').style.backgroundColor=color
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
             var addAmount = document.getElementById("addAmount").value;
             
-            // Check if addAmount is a number and meets the criteria
-            if (isNaN(addAmount) || addAmount <= 0 || addAmount > 10000 || addAmount % 100 !== 0) {
-              alert("Please enter a positive number, not exceeding 10,000, and a multiple of 100.");
-              return false; // Prevent form submission
+            async function addMoney(){
+              console.log("salu");
+              try {
+                console.log("Working")
+                let amount = document.querySelector('input[name="addAmount"]').value;
+                amount=parseInt(amount)
+       
+                const response = await fetch('/createOrder2', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                     
+                    amount: amount,
+                    currency: 'INR',
+                  }),
+                });
+                const data = await response.json();
+                console.log('DATA : ', data);
+                const order= data.order
+                const orderId = order.id
+                console.log("Order ",order)
+                if (data.status) {
+                  let amount=parseInt(data.order.amount)
+                  console.log("Amount",amount  )
+                  const options = {
+                    key: 'rzp_test_rWizGdKAm2zOqw',
+                    amount: amount ,
+                    currency: data.currency,
+                    name: 'Pixel Games',
+                    description: 'Test Transaction',
+                    order_id: orderId,
+                    handler:  function (response) {
+                      console.log("Working5")
+                      console.log(response);
+                      verifyPayment2(response, data)
+                    },
+                    "modal": {
+                      "ondismiss": function () {
+                        console.log('Payment window closed');
+                        console.log("Working")
+
+                        paymentFailed2(data);
+                      }
+                    },
+                    prefill: {
+                      name: 'Anandu R Nair',
+                      email: 'Anandu@example.com',
+                      contact: '9000090000',
+                    },
+                    theme: {
+                      color: '#05121B',
+                    },
+                  };
+                  console.log("Working 2")
+                  const rzp = new Razorpay(options);
+                  rzp.open();
+                } else{
+                  alert('Error during payment. Please try again.');
+                }
+
+              } catch (error) {
+                console.error('Error initiating payment:', error);
+                alert('Error during payment. Please try again.');
+              }
             }
-            return true; // Proceed with form submission
-          }
+
+            async function verifyPayment2(payment, order) {
+              try {
+                  console.log("Response : ",order)
+                console.log("Workingn 3")
+                const response = await fetch('/verifyPayment2', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    payment,
+                    order
+                  })
+                });
+                const responseData = await response.json();
+                console.log(responseData)
+                if (responseData.status) {
+                 let newAmount = responseData.newAmount
+                 newAmount=parseInt(newAmount)
+                  document.getElementById('balanceField').innerText=` Balance: ₹${newAmount}.00`
+                  var modal = document.getElementById('exampleModalCenter');
+
+/*if (modal) {
+  modal.classList.remove('show');
+  modal.style.display = 'none';
+
+  var modalBackdrop = document.getElementsByClassName('modal-backdrop')[0];
+  if (modalBackdrop) {
+    document.body.removeChild(modalBackdrop);
+  }
+}*/
+
+
+                  showToast('Money added ',"green");
+                  window.location.href = '/wallet';
+
+                } else {
+                  alert('Payment Failed. Try again later.');
+                }
+              } catch (error) {
+                console.error('Error verifying payment:', error);
+                alert('Error verifying payment. Please try again.');
+              }
+            }
+
+
+            function paymentFailed2(order) {
+              console.log("Working failed")
+              fetch('/paymentFailed2', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order }),
+              })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.status) {
+                    window.location.href = '/wallet';
+                    /* Additional handling for success */
+                  } else {
+                    /* Handle other scenarios */
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error);
+                  alert('Error processing payment failure.');
+                });
+            }
+            
+          
       </script>
     <%- include('footer') %>

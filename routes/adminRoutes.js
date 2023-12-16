@@ -13,8 +13,6 @@ const userController = require("../controllers/userController");
 const homeController = require("../controllers/homeController");
 const adminController = require("../controllers/adminController");
 
-
-
 const adminUser = require("../controllers/adminUser");
 const adminGame = require("../controllers/adminGame");
 const adminGenre = require("../controllers/adminGenre");
@@ -27,8 +25,6 @@ const userBlocked=require('../middlewares/userBlocked')
 const isValidUser = require('../middlewares/isValidUser');
 const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
 const adminComment = require("../controllers/adminComment");
-
-
 
 adminRouter.get("/adminLogin", adminController.login);
 
@@ -98,7 +94,7 @@ adminRouter.get("/editGame/:id", adminGame.editGame);
 
 adminRouter.post(
   "/editGame/:id",
-  adminController.upload,
+  adminController.upload2,
   adminGame.editGameData
 );
 
@@ -128,9 +124,7 @@ adminRouter.post("/editGenre/:id", adminGenre.editGenreData);
 
 adminRouter.get("/orderlist", adminOrder.orderList);
 
-
 //comment
-
 
 adminRouter.get('/commentList',adminComment.commentList)
 adminRouter.post('/adminDeleteComment',adminComment.adminDeleteComment)

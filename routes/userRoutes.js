@@ -70,7 +70,7 @@ userRouter.post('/changePasswordData',userBlocked,homeController.changePasswordD
 userRouter.get('/cart',userBlocked,homeController.cart)
 
 userRouter.post('/addToCart',userBlocked,homeController.addToCart)
-userRouter.post('/removeCart/:id',userBlocked,homeController.removeCart)
+userRouter.post('/removeCart',userBlocked,homeController.removeCart)
 
 userRouter.get('/cart/checkout/:value',userBlocked,homeController.cartCheckout)
 
@@ -99,9 +99,9 @@ userRouter.get('/wishlist',userBlocked,homeController.wishlist)
 
 userRouter.post('/addToWishlist',userBlocked,homeController.addToWishlist)
 
-userRouter.post('/removeWishlist/:id',userBlocked,homeController.removeWishlist)
-userRouter.post('/moveToCart/:id',userBlocked,homeController.moveToCart)
-userRouter.post('/moveToWishlist/:id',userBlocked,homeController.moveToWishlist)
+userRouter.post('/removeWishlist',userBlocked,homeController.removeWishlist)
+userRouter.post('/moveToCart',userBlocked,homeController.moveToCart)
+userRouter.post('/moveToWishlist',userBlocked,homeController.moveToWishlist)
 
 userRouter.get('/wallet',userBlocked,homeController.wallet)
 
@@ -114,8 +114,6 @@ userRouter.post('/couponCode',userBlocked,homeController.couponCode)
 
 //Wallet
 
-userRouter.get('/addMoney',userBlocked,homeController.addMoney)
-userRouter.post('/addMoneyData',userBlocked,homeController.addMoneyData)
 
 
 userRouter.post('/walletPlaceOrderData',userBlocked,homeController.walletPlaceOrderData)
@@ -127,6 +125,13 @@ userRouter.post('/paymentFailed',userBlocked,homeController.paymentFailed)
 
 userRouter.post('/reportComment',userBlocked,homeController.reportComment)
 
+
+userRouter.post('/rating',userBlocked,homeController.rating)
+userRouter.post('/verifyPayment2',userBlocked,homeController.verifyPayment2)
+userRouter.post('/paymentFailed2',userBlocked,homeController.paymentFailed2)
+userRouter.post('/createOrder2',userBlocked,homeController.createOrder2)
+
+userRouter.post('/gameFilter',userBlocked,homeController.gameFilter)
 
 
 module.exports=userRouter

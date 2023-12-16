@@ -61,7 +61,48 @@
       transform: rotateY(180deg);
     }
    
-
+    #snackbar {
+       
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #4eb81c;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 10px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      font-size: 17px;
+    }
+    
+    #snackbar.show {
+      visibility: visible;
+      -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    
+    @-webkit-keyframes fadein {
+      from {bottom: 0; opacity: 0;} 
+      to {bottom: 30px; opacity: 1;}
+    }
+    
+    @keyframes fadein {
+      from {bottom: 0; opacity: 0;}
+      to {bottom: 30px; opacity: 1;}
+    }
+    
+    @-webkit-keyframes fadeout {
+      from {bottom: 30px; opacity: 1;} 
+      to {bottom: 0; opacity: 0;}
+    }
+    
+    @keyframes fadeout {
+      from {bottom: 30px; opacity: 1;}
+      to {bottom: 0; opacity: 0;}
+    }
   </style>
   <!-- Breadcrumb Section Begin -->
   <section class="breadcrumb-section set-bg" data-setbg="/images/banner3.jpg ">
@@ -102,26 +143,27 @@
                   coupon here
                 </h6>
 
-                <form action="/couponCode" method="post">
+              
                   <input type="text" id="couponCode" placeholder="Enter your coupon code" name="couponCode" required />
-                  <button type="submit" id="coupon-btn" class="site-btn">APPLY COUPON</button>
-                </form>
+                  <button type="submit" id="coupon-btn" onclick="applyCoupon()" class="site-btn">APPLY COUPON</button>
+        
               </div>
             </div>
             <% if(couponError){ %>
-              <span style="font-size: 15px;color:rgb(255, 71, 71);">Invalid Coupon.!</span>
+              <span style="font-size: 15px;color:rgb(255, 71, 71);"></span>
               <% } %>
 
                 <!-- coupons -->
                 <div class="shoping__discount">
                   <h5>Available Coupons</h5>
+                  <div id="availableCoupons">
                   <% if(isCouponAvailable){ %>
                     <% availableCoupons.forEach(coupon=>{ %>
-                      <div class="flip-card">
+                      <div class="flip-card" >
                         <div class="flip-card-inner">
                           <div class="flip-card-front" style="display: flex;flex-direction: column;padding:3px; padding-top:20px">
                             <p style="margin-bottom: 0px;font-weight: 700;color:#fff;font-size:18px">
-                              Get <%= coupon.discountValue %>% Off for the
+                              Get <span id="discountPercentValue"><%= coupon.discountValue %></span>% Off for the
                                 <% if(coupon.discountType=='firstPurchase' ){ %>
                                   First Purchase
                                 <% }else{ %>
@@ -140,10 +182,10 @@
                         </div>
                       </div>
                       <% }) }else{ %>
-                        <span>No Coupons Available</span>
+                        <span >No Coupons Available</span>
                         <% } %>
-
-
+                      </div>
+                        <p id="noCoupons"></p>
 
                 </div>
 
@@ -181,14 +223,26 @@
                   </li>
                   <% }) %>
               </ul>
+             
               <div class="checkout__order__subtotal">
                 Subtotal <span>₹<%= subTotal %></span>
               </div>
+              <div class="checkout__order__subtotal2" id="appliedCoupons" style="display: flex;position:relative;height: 110px; display:none">
+                <div style="position: absolute;left:10%">
+                  <p style="margin-bottom: 5px;font-weight: 600;" >Applied Coupon</p> 
+                  <p style="margin-bottom: 5px;font-size: 14px;">Coupon code : <span id="appliedCode"></span> </p>
+                  <p style="margin-bottom: 5px;font-size: 14px;"><span id="discountPercent"></span>% off</p>
+                </div>
+               
+                  <div style="position: absolute;right:20px;" id="closeBtn">
+                  <button onclick="removeCoupon()" style="background-color: transparent;padding: 0%;border:none;"> <i class="fa-solid fa-xmark"></i></button> 
+                  </div>
+              </div>
               <div class="checkout__order__subtotal">
-                Discount <span>₹<%= discountValue %></span>
+                Discount <span id="discountField"></span>
               </div>
               <div class="checkout__order__total">
-                Total <span>₹<%= totalAmount %></span>
+                Total <span id="totalAmount">₹<%= totalAmount %></span>
               </div>
               <input type="text" name="totalAmount" id="total" value="<%= totalAmount %>" hidden>
 
@@ -204,12 +258,80 @@
       </div>
     </div>
 
+    <div id="snackbar"></div>
 
   </section>
   <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <script>
+
+
+   
+    async function applyCoupon(){
+      let subTotal ='<%= subTotal %>' 
+      subTotal=parseInt(subTotal)
+      var couponInput = document.getElementById("couponCode");
+       var couponCode = couponInput.value; 
+      const response = await fetch('/couponCode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+         couponCode
+        }),
+      });
+      const data = await response.json();
+      let discountValue =0
+      if(data.status){
+        var couponInput = document.getElementById("couponCode");
+       var couponCode = couponInput.value;
+       document.getElementById('appliedCode').innerText=couponCode 
+        let discountPercent = parseInt(data.discountValue)
+        discountValue = parseInt((discountPercent / 100) * subTotal);
+        let totalAmount = subTotal - discountValue;
+       const discountPercentValue = document.getElementById('discountPercentValue').innerText
+       console.log("percent : ",discountPercentValue)
+       document.getElementById('discountPercent').textContent=discountPercentValue
+        document.getElementById('totalAmount').innerText='₹'+totalAmount
+        document.getElementById('total').value= totalAmount
+        document.getElementById('discountField').innerText='₹'+discountValue
+        document.getElementById('availableCoupons').style.display="none"
+        document.getElementById("noCoupons").innerText="No Coupons"
+        document.getElementById("appliedCoupons").style.display="block"
+        showToast('Coupon applied',"green");
+      }else{
+        showToast('Invalid coupon',"red");
+      }
+    }
+
+   function removeCoupon(){
+    let subTotal ='<%= subTotal %>' 
+    subTotal=parseInt(subTotal)
+    document.getElementById("appliedCoupons").style.display="none"
+    document.getElementById('availableCoupons').style.display="block"
+    document.getElementById('totalAmount').innerText='₹'+subTotal
+    window.location.href('/cart/Checkout/:value')
+   }
+
+    function showToast(message,color) {
+      var x = document.getElementById("snackbar");
+      document.getElementById('snackbar').textContent=message
+      document.getElementById('snackbar').style.backgroundColor=color
+      x.className = "show";
+      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  }
+
+
+
+
+
+
+
+
+
+
     function myFunction() {
       var copyText = document.getElementById("myInput");
       copyText.select();
@@ -228,8 +350,8 @@
   async function btnClick() {
       try {
         const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
-        const totalAmount = document.getElementById('total').value;
-
+        let totalAmount = document.getElementById('total').value;
+        totalAmount=parseInt(totalAmount)
         const response = await fetch('/createOrder', {
           method: 'POST',
           headers: {

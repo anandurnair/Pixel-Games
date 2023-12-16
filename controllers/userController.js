@@ -112,7 +112,7 @@ userController.resendOTP=async(req,res)=>{
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "anandurpallam@gmail.com", // replace with your email
+    user: "anandurpallam@gmail.com", 
     pass: "gxej hquc oifu hzdo", // replace with your password or an app-specific password
   },
 });

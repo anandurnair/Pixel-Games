@@ -2458,6 +2458,24 @@ ol {
 	padding-top: 15px;
 }
 
+.checkout__order .checkout__order__subtotal2 {
+	font-size: 18px;
+	color: #1c1c1c;
+	font-weight: 700;
+	border: 1px solid #e1e1e1;
+	
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+	padding-top: 15px;
+}
+#closeBtn {
+	display: none;
+  }
+  
+  .checkout__order__subtotal2:hover #closeBtn {
+	display: block;
+  }
+  
 .checkout__order .checkout__order__subtotal span {
 	float: right;
 }

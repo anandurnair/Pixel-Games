@@ -8,6 +8,7 @@ const session = require("express-session");
 const userRouter = require('./routes/userRoutes')
 const adminRouter = require('./routes/adminRoutes')
 const bodyParser = require("body-parser");
+require('dotenv').config();
 
 app.set("view engine", "ejs");
 
@@ -36,7 +37,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: "anandu123",
+    secret: process.env.Session_secret,
     resave: false,
     saveUninitialized: true,
   }))

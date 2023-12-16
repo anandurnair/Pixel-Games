@@ -4,7 +4,7 @@ const Genres = require("../Models/genre");
 const adminGame = {};
 const path = require('path')
 const fs = require('fs')
-
+let gameInsert =false 
 adminGame.gameList = async (req, res) => {
   try {
     if (req.session.adminLogIn) {
@@ -24,7 +24,7 @@ adminGame.gameList = async (req, res) => {
         .skip(skipValue)
         .limit(perPage);
   
-      res.render('admin/pages/gameList', { games, currentPage, totalPages,message: "" });
+      res.render('admin/pages/gameList', { games, currentPage, totalPages,message: "" ,gameInsert:false});
     } else {
       res.redirect("/adminLogin");
     }
@@ -34,8 +34,7 @@ adminGame.gameList = async (req, res) => {
   }
 };
 
-adminGame.searchGame = async (req, res) => {
-  
+adminGame.searchGame = async (req, res) => { 
   try {
     const { gameName } = req.query;
     let currentPage = parseInt(req.query.page) || 1;
@@ -117,9 +116,8 @@ adminGame.insertGameData = async (req, res) => {
       const croppedImageData = JSON.parse(req.body.croppedImageData);
       console.log("Cropped image data : ",croppedImageData)
       
-      const gameImage = req.file
-        ? `/views/gameImages/${req.file.filename}`
-        : "";
+      const gameImages = req.files.map(file => `/views/gameImages/${file.filename}`);
+
 
       // Create a new game instance
       const newGame = new Games({
@@ -130,13 +128,28 @@ adminGame.insertGameData = async (req, res) => {
         released,
         publisher,
         gameSize,
-        gameImage,
+        gameImages,
         // croppedImageData,
       });
       // Save the game to the database
       await newGame.save();
 
-      res.render("admin/pages/insertGame", { message1: "",genres });
+      let currentPage = parseInt(req.query.page) || 1;
+      const perPage = 8;
+      if (currentPage < 1) {
+        currentPage = 1; 
+      }
+  
+      const skipValue = (currentPage - 1) * perPage;
+  
+      const totalGames = await Games.countDocuments();
+      const totalPages = Math.ceil(totalGames / perPage);
+  
+      const games = await Games.find().sort({_id:-1})
+        .skip(skipValue)
+        .limit(perPage);
+  
+      res.render('admin/pages/gameList', { games, currentPage, totalPages,message: "",gameInsert:true });
     } else {
       res.render("admin/pages/insertGame", {
         message1: "Game is already exists",genres
@@ -164,7 +177,9 @@ adminGame.unlistGame = async (req, res) => {
 adminGame.listGame = async (req, res) => {
   try {
     const game = await Games.findById(req.params.id);
+
     game.unlist = false; 
+    await game.save();
     res.redirect("/gameList"); 
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -200,7 +215,10 @@ adminGame.editGameData = async (req, res) => {
       released,
       publisher,
       gameSize,
+     
     } = req.body;
+
+    const gameImages = game.gameImages.slice(); 
 
     if (measure == "mb") {
       gameSize = parseFloat(gameSize / 1024);
@@ -209,9 +227,13 @@ adminGame.editGameData = async (req, res) => {
 
     const games = await Games.findOne({ gameName });
     if (games) {
-      const gameImage = req.file
-        ? `/views/gameImages/${req.file.filename}`
-        : undefined;
+       for (let i = 0; i < req.files.length; i++) {
+      if (req.files[i]) {
+        // Check if a new file is uploaded for each image slot
+        gameImages[i] = `/views/gameImages/${req.files[i].filename}`;
+      }
+    }
+
 
       const updateObject = {
         gameName,
@@ -221,12 +243,13 @@ adminGame.editGameData = async (req, res) => {
         released,
         publisher,
         gameSize,
+        gameImages
       };
 
       // If a new image is provided, add it to the update object
-      if (gameImage !== undefined) {
-        updateObject.gameImage = gameImage;
-      }
+      // if (gameImage !== undefined) {
+      //   updateObject.gameImage = gameImage;
+      // }
 
       // Update the game details in the database
       await Games.findByIdAndUpdate(gameId, updateObject);

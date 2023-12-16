@@ -15,12 +15,16 @@ const commentSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: true,
+    
   },
   createdAt: {
     type: String,
     
   },
+  rating:{
+    type:Number,
+    default:0
+  }
  
  
  

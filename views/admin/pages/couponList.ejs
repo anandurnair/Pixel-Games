@@ -1,5 +1,50 @@
 <%- include('./includes/adminHeader.ejs'); -%>
 
+
+<style>
+    #snackbar {
+       
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: #4eb81c;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 10px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 17px;
+      }
+      
+      #snackbar.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+      
+      @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;} 
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;} 
+        to {bottom: 0; opacity: 0;}
+      }
+      
+      @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+</style>
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -111,6 +156,22 @@
     </div>
     <!-- /.container-fluid -->
 </div>
+<div id="snackbar"></div>
 
+
+<script>
+    if(`<%= insertCoupon %>`=='true'){
+        showToast()
+    }
+
+    function showToast() {
+        var x = document.getElementById("snackbar");
+        document.getElementById('snackbar').textContent="Game inserted "
+        document.getElementById('snackbar').style.backgroundColor='green'
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+
+</script>
 
 <%- include('./includes/adminFooter.ejs'); -%>

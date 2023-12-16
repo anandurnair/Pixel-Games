@@ -24,10 +24,18 @@ const gameSchema = new mongoose.Schema({
   gameSize: {
     type: String,
   },
-  gameImage: {
+  gameImages: [{
     type: String,
+  }],
+  unlist:{
+    type:Boolean,
+    default:false
   },
-  unlist:Boolean,
+  
+  gameRate:{
+    type:Number,
+    default:0
+  }
  
   
 });

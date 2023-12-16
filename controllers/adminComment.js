@@ -25,7 +25,7 @@ adminComment.commentList = async (req, res) => {
       .populate('gameId').populate('commentId')
        
       console.log("report : ",reportComments)
-  
+      
       res.render('admin/pages/commentList', { reportComments, currentPage, totalPages,message: "" });
     } else {
       res.redirect("/adminLogin");

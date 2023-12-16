@@ -2,7 +2,7 @@ const adminCoupon={}
 const Coupon = require("../Models/coupon");
 const Coupons = require("../Models/coupon");
 
-
+let insertCoupon;
 adminCoupon.couponList=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
@@ -21,7 +21,7 @@ adminCoupon.couponList=async(req,res)=>{
             .skip(skipValue)
             .limit(perPage);
 
-            res.render("admin/pages/couponList", { coupons,currentPage, totalPages, message: "" });
+            res.render("admin/pages/couponList", { coupons,currentPage, totalPages, message: "",insertCoupon:false });
           } else {
             res.redirect("/adminLogin");
           }
@@ -72,7 +72,21 @@ adminCoupon.insertCouponData=async(req,res)=>{
 
                 const newCoupon = new Coupons  ({code: newCouponCode,discountType,discountValue,minimumPurchaseAmount,status:'Active',validUntil: new Date() })
                 await newCoupon.save()
-                res.render("admin/pages/insertCoupon", { message1: "" });
+                let currentPage = parseInt(req.query.page) || 1;
+                const perPage = 8;
+                if (currentPage < 1) {
+                  currentPage = 1; // Reset to 1 if currentPage is less than 1
+                }
+            
+                const skipValue = (currentPage - 1) * perPage;
+                const totalCoupon = await Coupon.countDocuments();
+                const totalPages = Math.ceil(totalCoupon / perPage);
+                
+                const coupons = await Coupons.find().sort({_id:-1})
+                .skip(skipValue)
+                .limit(perPage);
+    
+                res.render("admin/pages/couponList", { coupons,currentPage, totalPages, message: "",insertCoupon:true });
 
             }else{
                 res.render("admin/pages/insertCoupon", {
