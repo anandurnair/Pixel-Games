@@ -2,6 +2,22 @@
 <%- include('header') %>
 
 <style>
+  .labl {
+    display : block;
+    width: 400px;
+}
+.labl > input{ /* HIDE RADIO */
+    visibility: hidden; /* Makes input not-clickable */
+    position: absolute; /* Remove input from document flow */
+}
+.labl > input + div{ /* DIV STYLES */
+    cursor:pointer;
+    border:2px solid transparent;
+}
+.labl > input:checked + div{ /* (RADIO CHECKED) DIV STYLES */
+    background-color: #ffd6bb;
+    border: 1px solid #ff6600;
+}
     .flip-card {
       width: 250px;
       background-color: #05121B;
@@ -11,7 +27,7 @@
       perspective: 1000px;
       /* Remove this if you don't want the 3D effect */
     }
-
+    
     /* This container is needed to position the front and back side */
     .flip-card-inner {
       position: relative;
@@ -24,9 +40,7 @@
     }
 
     /* Do an horizontal flip when you move the mouse over the flip box container */
-    .flip-card:hover .flip-card-inner {
-      transform: rotateY(180deg);
-    }
+
 
     /* Position the front and back side */
     .flip-card-front,
@@ -45,6 +59,7 @@
 
 
     }
+    
 
     /* Style the front side (fallback if image is missing) */
     .flip-card-front {
@@ -134,7 +149,7 @@
         <div class="row">
           <div class="col-lg-8 col-md-6">
 
-            <div class="shoping__continue">
+            <!-- <div class="shoping__continue">
               <div class="shoping__discount">
                 <h5>Discount Coupons</h5>
 
@@ -148,7 +163,7 @@
                   <button type="submit" id="coupon-btn" onclick="applyCoupon()" class="site-btn">APPLY COUPON</button>
         
               </div>
-            </div>
+            </div> -->
             <% if(couponError){ %>
               <span style="font-size: 15px;color:rgb(255, 71, 71);"></span>
               <% } %>
@@ -159,28 +174,34 @@
                   <div id="availableCoupons">
                   <% if(isCouponAvailable){ %>
                     <% availableCoupons.forEach(coupon=>{ %>
-                      <div class="flip-card" >
-                        <div class="flip-card-inner">
-                          <div class="flip-card-front" style="display: flex;flex-direction: column;padding:3px; padding-top:20px">
-                            <p style="margin-bottom: 0px;font-weight: 700;color:#fff;font-size:18px">
-                              Get <span id="discountPercentValue"><%= coupon.discountValue %></span>% Off for the
-                                <% if(coupon.discountType=='firstPurchase' ){ %>
-                                  First Purchase
-                                <% }else{ %>
-                                    every purchase above ₹ <%= coupon.minimumPurchaseAmount %>
-                                <% } %>
-                                </p>
-                           <p style="font-size: 14px;">Expires in <%=   coupon.validUntil.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></p> 
-                          </div>
-                          <div class="flip-card-back" style="display: flex;flex-direction: column;">
-
-                            <input type="text" id="myInput" style="color: #fff;font-size:20px;background-color: #05121B;text-align:center;border:none;"  value="<%= coupon.code %>"  disabled="disabled">
-                        
-                              
-                             
+                      <label  class="labl">
+                        <input type="radio" name="radioname" value="coupon" checked="checked"/>
+                        <div class="flip-card" >
+                          <div class="flip-card-inner">
+                            <div class="flip-card-front" style="display: flex;flex-direction: column;padding:3px; padding-top:20px">
+                              <p style="margin-bottom: 0px;font-weight: 700;color:#fff;font-size:18px">
+                                Get <span id="discountPercentValue"><%= coupon.discountValue %></span>% Off for the
+                                  <% if(coupon.discountType=='firstPurchase' ){ %>
+                                    First Purchase
+                                  <% }else if(coupon.discountType=='minimumPurchase'){ %>
+                                      every purchase above ₹ <%= coupon.minimumPurchaseAmount %>
+                                  <% }else if(coupon.discountType=='forAll'){ %>
+                                    every purchase 
+                                    <% } %>
+                                  </p>
+                             <p style="font-size: 14px;">Expires in <%=   coupon.validUntil.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></p> 
+                            </div>
+                            <div class="flip-card-back" style="display: flex;flex-direction: column;">
+  
+                              <input type="text" id="myInput" style="color: #fff;font-size:20px;background-color: #05121B;text-align:center;border:none;"  value="<%= coupon.code %>"  disabled="disabled">
+                          
+                                
+                               
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </label>
+                     
                       <% }) }else{ %>
                         <span >No Coupons Available</span>
                         <% } %>

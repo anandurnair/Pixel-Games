@@ -38,18 +38,16 @@
                                         />
                                         <div id="errorPrice" style="color: red;"></div>
                                     </div>
-
-                                    <div class="form-group">
+                                    <div class="form-group" id="minimumPurchaseAmountField">
                                         <label>Minimum Purchase Amount</label>
-                                        <div style="display: flex;">
-                                            <input
-                                                class="form-control"
-                                                type="text"
-                                                name="minimumPurchaseAmount"
-                                                value="<%= coupon.minimumPurchaseAmount %>"
-                                                required
-                                            />
-                                        </div>
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            name="minimumPurchaseAmount"
+                                            value="<%= coupon.minimumPurchaseAmount %>"
+                                            
+                                            
+                                        />
                                         <div id="errorGameSize" style="color: red;"></div>
                                     </div>
                                     <input type="text" name="status" value="<%= coupon.status %>" hidden>
@@ -74,21 +72,36 @@
                                 </form>
 
                                 <script>
+
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const discountTypeSelect = document.getElementById('discountType');
+                                        const minimumPurchaseAmountField = document.getElementById('minimumPurchaseAmountField');
+                                    
+                                        discountTypeSelect.addEventListener('change', function() {
+                                            if (discountTypeSelect.value === 'forAll') {
+                                                minimumPurchaseAmountField.style.display = 'none';
+                                                document.querySelector('input[name="minimumPurchaseAmount"]').removeAttribute('required');
+                                            } else {
+                                                minimumPurchaseAmountField.style.display = 'block';
+                                                document.querySelector('input[name="minimumPurchaseAmount"]').setAttribute('required', 'required');
+                                            }
+                                        });
+                                    });
                                     document.addEventListener('DOMContentLoaded', function() {
                                         const form = document.querySelector('form');
-
+                                    
                                         form.addEventListener('submit', function(event) {
                                             event.preventDefault(); // Prevent the form from submitting by default
-
+                                    
                                             if (validateForm()) {
                                                 form.submit(); // Manually submit the form if validation passes
                                             }
                                         });
-
+                                    
                                         form.addEventListener('reset', function() {
                                             clearErrors();
                                         });
-
+                                    
                                         function validateForm() {
                                             let isValid = true;
                                             const discountValueInput = document.querySelector('input[name="discountValue"]');
@@ -97,42 +110,43 @@
                                             const errorPrice = document.getElementById('errorPrice');
                                             const errorGameSize = document.getElementById('errorGameSize');
                                             const errorValidUntil = document.getElementById('errorValidUntil');
-
+                                    
                                             errorPrice.innerText = '';
                                             errorGameSize.innerText = '';
                                             errorValidUntil.innerText = '';
-
+                                    
                                             const discountValue = parseFloat(discountValueInput.value);
-                                            if (isNaN(discountValue) || discountValue < 0 || discountValue > 90) {
-                                                errorPrice.innerText = 'Discount value must be a number between 0 and 90';
+                                            if (isNaN(discountValue) || discountValue <= 0 || !/^\d*\.?\d+$/.test(discountValueInput.value)) {
+                                                errorPrice.innerText = 'Discount value must be a positive number without symbols';
                                                 isValid = false;
                                             }
-
+                                    
                                             const minimumPurchaseAmount = parseFloat(minimumPurchaseAmountInput.value);
-                                            if (isNaN(minimumPurchaseAmount) || minimumPurchaseAmount < 0) {
-                                                errorGameSize.innerText = 'Minimum purchase amount must be a positive number';
+                                            if (!isNaN(minimumPurchaseAmount) && (minimumPurchaseAmount < 0 || !/^\d*\.?\d+$/.test(minimumPurchaseAmountInput.value))) {
+                                                errorGameSize.innerText = 'Minimum purchase amount must be a positive number without symbols';
                                                 isValid = false;
                                             }
-
+                                    
                                             const today = new Date().toISOString().split('T')[0];
                                             if (validUntilInput.value < today) {
                                                 errorValidUntil.innerText = 'Please select a future date';
                                                 isValid = false;
                                             }
-
+                                    
                                             return isValid;
                                         }
-
+                                    
                                         function clearErrors() {
                                             const errorPrice = document.getElementById('errorPrice');
                                             const errorGameSize = document.getElementById('errorGameSize');
                                             const errorValidUntil = document.getElementById('errorValidUntil');
-
+                                    
                                             errorPrice.innerText = '';
                                             errorGameSize.innerText = '';
                                             errorValidUntil.innerText = '';
                                         }
                                     });
+                                    
                                 </script>
                             </div>
                         </div>

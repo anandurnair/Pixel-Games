@@ -95,7 +95,7 @@
         <% } %>
     </li>
     <li class="page-item"><% if (currentPage < totalPages) { %>
-          <a href="/gameList?page=<%= currentPage + 1 %>">&raquo;</a>
+          <a href="/couponList?page=<%= currentPage + 1 %>">&raquo;</a>
         <% } %>
     </li>
 </ul>
@@ -166,7 +166,7 @@
 
     function showToast() {
         var x = document.getElementById("snackbar");
-        document.getElementById('snackbar').textContent="Game inserted "
+        document.getElementById('snackbar').textContent="Coupon inserted "
         document.getElementById('snackbar').style.backgroundColor='green'
         x.className = "show";
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);

@@ -96,7 +96,7 @@ userRouter.get('/orderHistory',userBlocked,homeController.orderHistory)
 userRouter.post('/downloading',userBlocked,homeController.downloading)
 
 userRouter.get('/wishlist',userBlocked,homeController.wishlist)
-
+    
 userRouter.post('/addToWishlist',userBlocked,homeController.addToWishlist)
 
 userRouter.post('/removeWishlist',userBlocked,homeController.removeWishlist)
@@ -117,14 +117,14 @@ userRouter.post('/couponCode',userBlocked,homeController.couponCode)
 
 
 userRouter.post('/walletPlaceOrderData',userBlocked,homeController.walletPlaceOrderData)
-userRouter.get('/walletPlaceOrder',homeController.walletPlaceOrder)
+// userRouter.get('/walletPlaceOrder',homeController.walletPlaceOrder)
 userRouter.get("/logout",userBlocked, homeController.userLogout);
 userRouter.get('/orderSuccessfull',userBlocked,homeController.orderSuccessful)
 userRouter.post('/verifyPayment',userBlocked,homeController.verifyPayment)
 userRouter.post('/paymentFailed',userBlocked,homeController.paymentFailed)
 
 userRouter.post('/reportComment',userBlocked,homeController.reportComment)
-
+userRouter.get('/sales-report',userId,homeController.salesReport)
 
 userRouter.post('/rating',userBlocked,homeController.rating)
 userRouter.post('/verifyPayment2',userBlocked,homeController.verifyPayment2)

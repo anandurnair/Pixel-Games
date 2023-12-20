@@ -195,9 +195,18 @@
         }
         var imageInput = document.getElementById("imageInput");
         var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-        if (!allowedExtensions.exec(imageInput.value)) {
-            document.getElementById("errorImage").textContent = "Invalid file type. Please upload a valid image file.";
+        var uploadedImagesCount = imageInput.files.length; // Get the number of uploaded images
+    
+        if (uploadedImagesCount > 3) {
+            document.getElementById("errorImage").textContent = "You can only upload a maximum of 3 images.";
             return false;
+        }
+    
+        for (var i = 0; i < uploadedImagesCount; i++) {
+            if (!allowedExtensions.exec(imageInput.files[i].name)) {
+                document.getElementById("errorImage").textContent = "Invalid file type. Please upload valid image files.";
+                return false;
+            }
         }
         // If all validations pass, submit the form
         return true;

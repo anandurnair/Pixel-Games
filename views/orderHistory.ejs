@@ -49,7 +49,7 @@
                   <% orders.forEach((order, index) => { %>
                     <tr>
                       <td ><% order.gameItems.forEach((gameItem) => { %>
-                   <img src=" <%= gameItem.gameId.gameImage %>" alt="" width="100px" >    <br>
+                   <img src=" <%= gameItem.gameId.gameImages[0] %>" alt="" width="100px" >    <br>
                   <p style="margin-top:5px ;color:#ffffff;" ><%= gameItem.gameId.gameName %></p><br>
                        <% }); %></td>
                       

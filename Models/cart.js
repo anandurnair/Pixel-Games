@@ -8,7 +8,7 @@ const Schema = mongoose.Schema;
 const cartItemSchema = new Schema({
   gameId: {
     type: Schema.Types.ObjectId,
-    ref: 'games', // Reference to the Games model
+    ref: 'games', 
     required: true,
   }
 
@@ -18,7 +18,7 @@ const cartItemSchema = new Schema({
 const cartSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'user', // Reference to the User model (if you have one)
+    ref: 'users', 
     required: true,
   },
   items: [cartItemSchema],

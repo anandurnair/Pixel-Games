@@ -54,13 +54,13 @@ adminGame.searchGame = async (req, res) => {
 
     if (req.session.adminLogIn) {
       if (games.length > 0) {
-        res.render("admin/pages/gameList", { games, message: "", err: "" , currentPage, totalPages,});
+        res.render("admin/pages/gameList", { games, message: "", err: "" , currentPage, totalPages,gameInsert:false});
       } else {
         res.render("admin/pages/gameList", {
           games,
           message: "No users found with that game name",
           err: "",
-          currentPage, totalPages,
+          currentPage, totalPages,gameInsert:false
         });
       }
     } else {
@@ -227,12 +227,13 @@ adminGame.editGameData = async (req, res) => {
 
     const games = await Games.findOne({ gameName });
     if (games) {
-       for (let i = 0; i < req.files.length; i++) {
-      if (req.files[i]) {
-        // Check if a new file is uploaded for each image slot
-        gameImages[i] = `/views/gameImages/${req.files[i].filename}`;
+      for (let i = 1; i <= 3; i++) {
+        const fileKey = `gameImage${i}`;
+        if (req.files[fileKey] && req.files[fileKey].length > 0) {
+          // If a new file is uploaded, update the image path
+          gameImages[i - 1] = `/views/gameImages/${req.files[fileKey][0].filename}`;
+        }
       }
-    }
 
 
       const updateObject = {

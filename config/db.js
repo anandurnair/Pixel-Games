@@ -1,6 +1,9 @@
 // db.js
+require('dotenv').config();
+
 const mongoose = require("mongoose");
-const uri = "mongodb://localhost:27017/pixel-games";
+console.log(process.env.mongoose_uri)
+const uri = process.env.mongoose_uri;
 
 mongoose.connect(uri);
 const db = mongoose.connection;

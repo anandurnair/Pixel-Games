@@ -66,11 +66,11 @@ adminCoupon.insertCouponData=async(req,res)=>{
             const newCouponCode = generateCouponCode(6);
           
 
-            const{discountType,discountValue,minimumPurchaseAmount,validUntil}=req.body
+            let {discountType,discountValue,minimumPurchaseAmount,validUntil}=req.body
             const coupons=await Coupons.findOne({newCouponCode})
             if(!coupons){
-
-                const newCoupon = new Coupons  ({code: newCouponCode,discountType,discountValue,minimumPurchaseAmount,status:'Active',validUntil: new Date() })
+                minimumPurchaseAmount= parseInt(minimumPurchaseAmount)
+                const newCoupon = new Coupons  ({code: newCouponCode,discountType,discountValue, minimumPurchaseAmount,status:'Active',validUntil: new Date() })
                 await newCoupon.save()
                 let currentPage = parseInt(req.query.page) || 1;
                 const perPage = 8;
@@ -85,9 +85,8 @@ adminCoupon.insertCouponData=async(req,res)=>{
                 const coupons = await Coupons.find().sort({_id:-1})
                 .skip(skipValue)
                 .limit(perPage);
-    
-                res.render("admin/pages/couponList", { coupons,currentPage, totalPages, message: "",insertCoupon:true });
-
+                console.log("HElloooo")
+                res.redirect('/couponList')
             }else{
                 res.render("admin/pages/insertCoupon", {
                     message1: "Coupon is already exists",

@@ -94,7 +94,7 @@ adminRouter.get("/editGame/:id", adminGame.editGame);
 
 adminRouter.post(
   "/editGame/:id",
-  adminController.upload2,
+  adminController.upload3,
   adminGame.editGameData
 );
 
@@ -123,13 +123,16 @@ adminRouter.post("/editGenre/:id", adminGenre.editGenreData);
 //orders
 
 adminRouter.get("/orderlist", adminOrder.orderList);
-
+adminRouter.get('/salesReport',userId,adminController.salesReport)
 //comment
 
 adminRouter.get('/commentList',adminComment.commentList)
 adminRouter.post('/adminDeleteComment',adminComment.adminDeleteComment)
 //coupon
 
+adminRouter.get('/gamesOrderedPerYear',adminController.gamesOrderedPerYear)
+adminRouter.get('/gamesDownloadedPerMonthInYear',adminController.gamesDownloadedPerMonthInYear)
+adminRouter.get('/mostInstalledGames',adminController.mostInstalledGames)
 adminRouter.get('/couponList',adminCoupon.couponList)
 adminRouter.get('/insertCoupon',adminCoupon.insertCoupon)
 adminRouter.post('/insertCouponData',adminCoupon.insertCouponData)

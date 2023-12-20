@@ -82,7 +82,7 @@
                                     <% items.forEach(game => { %>                
                                         <tr  id="<%= game.gameId._id %>">
                                             <td class="shoping__cart__item">
-                                                <img src="<%= game.gameId.gameImage %>" width="200px" alt="">
+                                                <img src="<%= game.gameId.gameImages[0] %>" width="200px" alt="">
                                                 <h5><%= game.gameId.gameName %></h5>
                                             </td>
                                             <td class="shoping__cart__price">

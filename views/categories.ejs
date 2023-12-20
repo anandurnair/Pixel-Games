@@ -95,10 +95,10 @@
                     </div>
                     <div class="featured__controls">
                         <ul>
-                            <li  class="" data-filter="*"><a style="color: aliceblue;" href="/categories">All</a></li>
+                            <li  class="" data-filter="*" id="all"><a style="color: aliceblue;" href="/categories">All</a></li>
                             <% genres.forEach(genre=>{ %>
                                 <% if(genre.unlistGenre==false){ %>
-                                  <li> <a href="/categories?gameGenre=<%= genre.genreName %>" style="color: #fff;">   <%= genre.genreName %> </a>                                    
+                                  <li class="" id="<%= genre.genreName %>"> <a href="/categories?gameGenre=<%= genre.genreName %>" style="color: #fff;">   <%= genre.genreName %> </a>                                    
                                      
                                   </li>
                                    
@@ -203,6 +203,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
+      
+      const gameGenreId = '<%= gameGenre %>';
+      if(gameGenreId=='*' || gameGenreId==''){
+        document.getElementById('all').className = 'active';
+
+      }else{
+        document.getElementById(gameGenreId).className = 'active';
+
+      }
 
       /*async function gameFilter(gameGenre){
         try{

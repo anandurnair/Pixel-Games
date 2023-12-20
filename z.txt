@@ -1,4 +1,17 @@
-After successfully adding a coupon it should redirect to the coupon listing along with a message
-Multiple Image Upload
-Add coupon for every purchase with an expiry date
-Edit in  multiple image uploadw
+Confirm dialog before deleting from cart
+List coupons and apply on click in checkout page
+Use whole wallet balance even if the total is greater
+Download times and clicked user authentication
+
+
+
+COMPLETED 
+
+Add all credentials and api keys in .env file
+Improve review and ratings UI
+Highlight which filter is selected in product list
+
+
+
+
+year select and set the year to backend

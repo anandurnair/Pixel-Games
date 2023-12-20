@@ -3,7 +3,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
-        <h1 class="page-header">Insert Games</h1>
+        <h1 class="page-header">Insert Coupon</h1>
       </div>
       <!-- /.col-lg-12 -->
     </div>
@@ -11,62 +11,40 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="panel panel-default">
-          <div class="panel-heading">Enter Games details</div>
+          <div class="panel-heading">Enter coupon details</div>
           <div class="panel-body">
-            <div class="row">
-              <div class="col-lg-6">
-                <span style="color: red"><%= message1 %></span>
-                <form
-                  role="form"
-                  method="post"
-                  action="/insertCouponData"
-                >
-                  
-
-                  <div class="form-group">
-                    <label for="type">Choose a Type:</label>
-
-                    <select name="discountType" id="discountType">
-                      <option value="minimumPurchase">Minimum Purchase</option>
-                      <option value="firstPurchase">First Purchase</option>
-                    </select>
-                    <div id="errorGenre" style="color: red"></div>
-                  </div>
-
-                  <div class="form-group">
-                    <label>Discount Value (in %)</label>
-                    <input class="form-control" type="text" name="discountValue" id="price" required />
-                    <div id="errorPrice" style="color: red"></div> <!-- Display error under this div -->
-                  </div>
-
-                  <div class="form-group">
-                    <label>Minimum Purchase Amount</label>
-                    <input class="form-control" type="text" name="minimumPurchaseAmount" required />
-                    <div id="errorMinimumPurchase" style="color: red"></div> <!-- Display error under this div -->
-                  </div>
-                  <div class="form-group">
-                    <label>Validate Until</label>
-                    <input class="form-control" type="date" name="validUntil" required />
-                    <div id="errorValidUntil" style="color: red"></div> <!-- Display error under this div -->
-                  </div>
-
-                  <a href=""
-                    ><button type="submit" class="btn btn-default">
-                      Submit Button
-                    </button></a
-                  >
-                  <a href="/insertCoupon">
-                    <button type="reset" class="btn btn-default">
-                      Reset Button
-                    </button></a
-                  >
-                </form>
+            <form role="form" method="post" action="/insertCouponData" id="couponForm">
+              <div class="form-group">
+                <label for="type">Choose a Type:</label>
+                <select name="discountType" id="discountType">
+                  <option value="minimumPurchase">Minimum Purchase</option>
+                  <option value="firstPurchase">First Purchase</option>
+                  <option value="forAll">For All</option>
+                </select>
+                <div id="errorGenre" style="color: red"></div>
               </div>
-              <!-- /.col-lg-6 (nested) -->
 
-              <!-- /.col-lg-6 (nested) -->
-            </div>
-            <!-- /.row (nested) -->
+              <div class="form-group">
+                <label>Discount Value (in %)</label>
+                <input class="form-control" type="text" name="discountValue" id="price" required />
+                <div id="errorPrice" style="color: red"></div>
+              </div>
+
+              <div class="form-group" id="minimumPurchaseAmountDiv">
+                <label>Minimum Purchase Amount</label>
+                <input class="form-control" type="text" name="minimumPurchaseAmount" id="minimumPurchaseAmount" value="0" />
+                <div id="errorMinimumPurchase" style="color: red"></div>
+              </div>
+
+              <div class="form-group">
+                <label>Validate Until</label>
+                <input class="form-control" type="date" name="validUntil" required />
+                <div id="errorValidUntil" style="color: red"></div>
+              </div>
+
+              <button type="submit" id="submitBtn" class="btn btn-default">Submit Button</button>
+              <button type="reset" class="btn btn-default">Reset Button</button>
+            </form>
           </div>
           <!-- /.panel-body -->
         </div>
@@ -78,48 +56,72 @@
   </div>
   <!-- /.container-fluid -->
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  const form = document.querySelector('form');
+  document.addEventListener('DOMContentLoaded', function() {
+    const discountTypeSelect = document.getElementById('discountType');
+    const minimumPurchaseAmountDiv = document.getElementById('minimumPurchaseAmountDiv');
+    const minimumPurchaseAmount = document.getElementById('minimumPurchaseAmount');
+    const form = document.querySelector('form');
 
-  form.addEventListener('submit', function(event) {
-    const discountValue = document.getElementById('price');
-    const minimumPurchaseAmount = document.getElementsByName('minimumPurchaseAmount')[0];
-    const validUntil = document.getElementsByName('validUntil')[0];
+    discountTypeSelect.addEventListener('change', function() {
+      if (discountTypeSelect.value === 'forAll') {
+        minimumPurchaseAmountDiv.style.display = 'none';
+        minimumPurchaseAmount.removeAttribute('required');
+      } else {
+        minimumPurchaseAmountDiv.style.display = 'block';
+        minimumPurchaseAmount.setAttribute('required', 'required');
+      }
+    });
 
-    let isValid = true;
+    form.addEventListener('submit', function(event) {
+      const discountValue = document.getElementById('price');
+      const validUntil = document.getElementsByName('validUntil')[0];
+      let isValid = true;
 
-    const discountValueNum = parseFloat(discountValue.value);
-    if (isNaN(discountValueNum) || discountValueNum < 0 || discountValueNum > 90) {
-      isValid = false;
-      document.getElementById('errorPrice').textContent = 'Invalid value';
-      event.preventDefault();
-    } else {
-      document.getElementById('errorPrice').textContent = '';
-    }
+      const discountValueNum = parseFloat(discountValue.value);
+      if (isNaN(discountValueNum) || discountValueNum <= 0 || !/^\d*\.?\d+$/.test(discountValue.value)) {
+        isValid = false;
+        document.getElementById('errorPrice').textContent = 'Discount value must be a positive number';
+        event.preventDefault();
+      } else {
+        document.getElementById('errorPrice').textContent = '';
+      }
 
-    const minimumPurchaseAmountNum = parseFloat(minimumPurchaseAmount.value);
-    if (isNaN(minimumPurchaseAmountNum) || minimumPurchaseAmountNum <= 0) {
-      isValid = false;
-      document.getElementById('errorMinimumPurchase').textContent = 'Invalid value';
-      event.preventDefault();
-    } else {
-      document.getElementById('errorMinimumPurchase').textContent = '';
-    }
+      const currentDate = new Date().toISOString().split('T')[0];
+      if (validUntil.value <= currentDate) {
+        isValid = false;
+        document.getElementById('errorValidUntil').textContent = 'Invalid date';
+        event.preventDefault();
+      } else {
+        document.getElementById('errorValidUntil').textContent = '';
+      }
 
-    const currentDate = new Date().toISOString().split('T')[0];
-    if (validUntil.value <= currentDate) {
-      isValid = false;
-      document.getElementById('errorValidUntil').textContent = 'Invalid date';
-      event.preventDefault();
-    } else {
-      document.getElementById('errorValidUntil').textContent = '';
-    }
+      if (isValid) {
+        // Display SweetAlert confirmation
+        Swal.fire({
+          title: "Coupon Inserted",
+          icon: "success",
+          showCancelButton: false,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "OK"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Redirect to another page after the SweetAlert "OK" confirmation
+            window.location.href = "http://localhost:3000/couponList"; // Replace with the desired URL
+          }
+        }).catch((error) => {
+          console.error('SweetAlert error:', error);
+        });
 
-    if (isValid) {
-      // Continue with form submission if valid
-    }
+        // Prevent form submission after SweetAlert is shown
+        event.preventDefault();
+      }
+    });
   });
 </script>
+
+
 
 <%- include('./includes/adminFooter.ejs'); -%>

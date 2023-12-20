@@ -30,7 +30,7 @@ adminOrder.orderList = async (req, res) => {
         .populate('gameItems.gameId')
         .skip(skipValue)
         .limit(perPage);
-        
+        console.log("Orders : ",orders)
       let orderNull=''
       if(!orders){
         orderNull="No orders"

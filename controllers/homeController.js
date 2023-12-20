@@ -6,7 +6,11 @@ const Orders = require("../Models/order");
 const Comment = require("../Models/gameComments");
 const Coupons = require("../Models/coupon");
 const Wallet = require("../Models/wallet");
+const fs = require('fs'); // Ensure 'fs' module is required
+
 const ejs = require('ejs');
+const Swal = require('sweetalert2')
+var easyinvoice = require('easyinvoice');
 
 const mongoose = require("../config/db");
 const moment = require("moment");
@@ -59,9 +63,15 @@ homeController.categories = async (req, res) => {
       const user = await Users.findById(userId);
       const installedGame = await installedGames.findOne({userId})
       const genres = await Genres.find();
-     const  items = installedGame.gameItems
+      if (installedGame && installedGame.gameItems) {
+        var items = installedGame.gameItems;
+      
+      } else {
+        var items =[]
+        console.error('installedGame or gameItems is null or undefined');
+      }
+    
      
-     console.log("Game items :",items)
       let currentPage = parseInt(req.query.page) || 1;
       const perPage = 12;
       if (currentPage < 1) {
@@ -109,7 +119,7 @@ homeController.gameDetails = async (req, res) => {
       const user = await Users.findById(userId);
       const game = await Games.findById(gameId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
-
+     
       let userInstalled = false
       const order = await Orders.findOne({
         userId: userId, 
@@ -211,7 +221,8 @@ homeController.gameDetails = async (req, res) => {
         commentsCount,
         userInstalled,
         averageRating,
-        rateCount
+        rateCount,
+       
       });
     } else {
       res.redirect("/");
@@ -310,8 +321,7 @@ homeController.changePasswordData = async (req, res) => {
 //cart
 const calculateTotalSum = async (userId) => {
   try {
-    const cart = await Cart.findOne({ userId }).populate("items.gameId");
-
+    const cart = await Cart.findOne({ userId }).populate("userId").populate("items.gameId");
     if (!cart || !cart.items || !Array.isArray(cart.items)) {
       return "₹0.00";
     }
@@ -328,6 +338,7 @@ const calculateTotalSum = async (userId) => {
   }
 };
 
+
 let isExistInWishlist = false;
 
 //~ CART
@@ -341,7 +352,7 @@ homeController.cart = async (req, res) => {
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
 
       const totalSum = await calculateTotalSum(userId);
-
+      console.log("TOTal : ",cart)
       const wishlistItems = await Wishlist.findOne({ userId }).populate(
         "items.gameId"
       );
@@ -373,6 +384,7 @@ homeController.cart = async (req, res) => {
           wishlistItems,
           isExistInWishlist,
           couponError,
+          Swal,
         });
       }
     } else {
@@ -495,6 +507,14 @@ homeController.cartCheckout = async (req, res) => {
 
       const order = await Orders.findOne({ userId });
 
+
+      const wallet = await Wallet.findOne({ userId });
+      const balance = wallet.balance
+      console.log("hel",typeof totalAmount,typeof balance )
+     let balanceErr = false;
+      if (totalAmount > wallet.balance) {
+        balanceErr = true;
+      }
       let availableCoupons = [];
       let isCouponAvailable = false;
       const total = parseInt(subTotal);
@@ -509,8 +529,11 @@ homeController.cartCheckout = async (req, res) => {
           await Coupon.updateOne({ code: coupon.code }, { $set: { isExpired: true ,status:'Expired'} });
          
         }
-        
-        if (coupon.discountType === "firstPurchase" && coupon.isActive== true && coupon.isExpired== false) {
+        if(coupon.discountType === "forAll" && coupon.isActive== true && coupon.isExpired== false){
+          isCouponAvailable = true;
+          availableCoupons.push(coupon);
+        }
+        else if (coupon.discountType === "firstPurchase" && coupon.isActive== true && coupon.isExpired== false) {
           if (!order) {
             isCouponAvailable = true;
             availableCoupons.push(coupon);
@@ -542,6 +565,8 @@ homeController.cartCheckout = async (req, res) => {
           isCouponAvailable,
           availableCoupons,
           couponError,
+          balanceErr,
+          balance
         });
       }
     } else {
@@ -833,83 +858,121 @@ const transporter = nodemailer.createTransport({
 });
 
 
-homeController.orderSuccessful=async(req,res)=>{
+
+homeController.orderSuccessful = async (req, res) => {
   try {
-    if(req.session.isLoggedIn){
-    const userId = req.session.userId;
-      let downloadGames  = req.query.downloadGames;
-      downloadGames = downloadGames.split(',');
-      console.log("Download Games : ",downloadGames)
+    if (req.session.isLoggedIn) {
+      const userId = req.session.userId;
+      let downloadGames = req.query.downloadGames.split(',');
       const user = await Users.findById(userId);
-      console.log("Orders Placed");
 
+      const order = await Orders.findOne({ userId }).sort({ orderDate: -1 }).populate('userId').populate('gameItems.gameId');
+      console.log("Order :", order);
 
-      const emailContent = `
-    Thank you for your purchase, ${user.fullName}!\n\n
-    Your download links:\n
-    ${downloadGames.map(game => {
-        const formattedGame = game.replace(/\s+/g, '-');
-        return `${game}: https://pixelgames.com/download/${formattedGame}`;
-    }).join('\n')}
-    
-    Enjoy your games!\n
-    Regards,\n
-    Your Company
-`;
+      if (!order || !order.orderDate || !order.gameItems || order.gameItems.length === 0) {
+        return res.status(400).json({ error: "Invalid order data" });
+      }
+      let products = []; // Initializing the products array
 
-
-      const mailOptions = {
-        from: "anandurpallam@gmail.com",
-        to: user.email,
-        subject: "Download Links for Purchased Games",
-        text: emailContent
-      };
-
-      transporter.sendMail(mailOptions,(error,info)=>{
-        if (error) {
-          console.error("Error sending OTP email:", error);
-          return res.status(500).json({ error: "Error sending OTP email" });
-        }else{
-          res.render("orderSuccessful", { user, downloadGames });
-
+      order.gameItems.forEach(game => {
+        if (game.gameId && game.gameId.gameName) {
+          products.push(game.gameId.gameName); 
         }
-      })
+      });
+      console.log("Products")
 
+     
+    //Create your invoice! Easy!
+    const data = {
+      currency: 'Rupees', // Change this to your preferred currency
+      taxNotation: 'vat', // Change as needed
+      marginTop: 25,
+      marginRight: 25,
+      marginLeft: 25,
+      marginBottom: 25,
+      logo: './', // Replace with your company's logo URL
+      sender: {
+        company: 'Pixel Games',
+        address: '123 Main Street',
+        city: 'Kochi',
+        zip: '686004',
+        country: 'India',
+        email: 'pixelGames@gmail.com',
+        phone: '+1 (123) 456-7890',
+      },
+      client: {
+        company:user.fullName, 
+        email: user.email ?? 'Unavailable', 
+        phone: user.phone ?? 'Unavailable', 
+      },
+      invoiceNumber: 'INV-001', // Replace with your invoice number
+      invoiceDate: new Date().toLocaleDateString(), // Use the invoice date
+      products: [
+        {
+          
+          description: products,
+          tax: 0, 
+          price:order.totalAmount,
+        },
+      ],
+    };
+    const invoiceDataString = JSON.stringify(data);
 
-    }else{
+      // Generate the invoice
+      easyinvoice.createInvoice(invoiceDataString, async function ( result) {
+        try {
+
+       
+          const emailContent = `
+            Thank you for your purchase, ${user.fullName}!\n\n
+            Your download links:\n
+            ${downloadGames.map(game => {
+              const formattedGame = game.replace(/\s+/g, '-');
+              return `${game}: https://pixelgames.com/download/${formattedGame}`;
+            }).join('\n')}
+            
+            Enjoy your games!\n
+            Regards,\n
+            Your Company
+            
+            Please find the invoice attached.
+          `;
+
+          const mailOptions = {
+            from: "anandurpallam@gmail.com",
+            to: user.email,
+            subject: "Download Links for Purchased Games and Invoice",
+            text: emailContent,
+            attachments: [{
+              filename: `invoice_${userId}.pdf`,
+              content: result.pdf,
+              encoding: 'base64'
+            }]
+          };
+
+          // Send email with the invoice attachment
+          await transporter.sendMail(mailOptions);
+          res.render("orderSuccessful", { user, downloadGames });
+        } catch (error) {
+          console.error("Error sending email with invoice:", error);
+          return res.status(500).json({ error: "Error sending email with invoice" });
+        }
+        }).catch((error)=>{
+          console.log(error)
+        })
+       
+     
+    } else {
       return res.redirect("/");
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error1" });
+    console.error("Error processing order:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
 
-homeController.walletPlaceOrder=async(req,res)=>{
-  try {
-    if(req.session.isLoggedIn){
-      const totalAmount=req.query.totalAmount
-      const userId = req.session.userId;
-      const user = await Users.findById(userId);
-      const wallet = await Wallet.findOne({ userId });
-      const balance = wallet.balance
-      console.log("hel",typeof totalAmount,typeof balance )
-     let balanceErr = false;
-      if (totalAmount > wallet.balance) {
-        balanceErr = true;
-      }
-      res.render('walletPlaceOrder',{user,balance,wallet,balanceErr,totalAmount})
 
-    }else{
-      res.redirect("/");
-
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-}
 
 homeController.walletPlaceOrderData = async (req, res) => {
   try {
@@ -1665,15 +1728,19 @@ homeController.gameFilter=async(req,res)=>{
 homeController.searchGames = async (req, res) => {
   const { gameName } = req.query;
   try {
+    
     const userId = req.session.userId;
     const user = await Users.findById(userId);
     
     const gameGenre = req.session.gameGenre
     const installedGame = await installedGames.find({userId})
-    let  items = installedGame[0].gameItems
-    if(items.length==0 || items== undefined)[
-      items=[]
-    ]
+    if (installedGame && installedGame.gameItems) {
+      var items = installedGame.gameItems;
+    
+    } else {
+      var items =[]
+      console.error('installedGame or gameItems is null or undefined');
+    }
 
     let currentPage = parseInt(req.query.page) || 1;
     const perPage = 8;
@@ -1682,22 +1749,28 @@ homeController.searchGames = async (req, res) => {
     }
 
     const skipValue = (currentPage - 1) * perPage;
-
+    console.log("Gmae nme : ",gameName)
     const totalGames = await Games.countDocuments();
     const totalPages = Math.ceil(totalGames / perPage);
-  let games = await Games.find({
-      gameName: new RegExp("^" + gameName, "i"), 
-    }) .skip(skipValue)
-    .limit(perPage);
-    if(gameGenre != undefined){
-      
+
+    let games=[]
+    if(gameGenre== undefined || gameGenre =='*'){
+
+       games = await Games.find({
+        gameName: new RegExp("^" + gameName, "i"),
+      }).skip(skipValue)
+      .limit(perPage);
+    }else{
       games = await Games.find({
         gameName: new RegExp("^" + gameName, "i"), genre:gameGenre
       }) .skip(skipValue)
       .limit(perPage);
     }
       
-    
+  
+
+      
+    console.log("Games : ",games)
    
     const genres = await Genres.find();
 

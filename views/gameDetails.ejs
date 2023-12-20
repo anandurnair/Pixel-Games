@@ -72,7 +72,45 @@
         transform: translatey(-15%) scale(1.35);
       }
     }
-    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      padding-top: 50px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.9);
+  }
+  
+  .modal-content {
+      margin: auto;
+      display: block;
+      width: 80%;
+      max-width: 700px;
+  }
+  
+  .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+  }
+  
+  .close:hover,
+  .close:focus {
+      color: #bbb;
+      text-decoration: none;
+      cursor: pointer;
+  }
+  
   </style>
 
   <div class="container">
@@ -85,16 +123,17 @@
               <div class="product__details__pic__item">
                 <img class="product__details__pic__item--large" src="<%= game.gameImages[0] %>" alt="">
               </div>
-              <div  >
-                                <img 
-                                    src="<%= game.gameImages[1] %>" alt="" width="150px">
-                                <img
-                                src="<%= game.gameImages[2] %>" alt="" width="150px">
-                                <!-- <img data-imgbigurl="img/product/details/product-details-5.jpg"
-                                    src="" alt="">
-                                <img data-imgbigurl="img/product/details/product-details-4.jpg"
-                                    src="" alt=""> -->
-                            </div>
+              <div class="image-gallery">
+                <img src="<%= game.gameImages[1] %>" alt="" width="150px" class="gallery-image">
+                <img src="<%= game.gameImages[2] %>" alt="" width="150px" class="gallery-image">
+                <!-- Other images -->
+            </div>
+            
+            <div class="modal" id="imageModal">
+                <span class="close">&times;</span>
+                <img class="modal-content" id="modalImg">
+                <div id="caption"></div>
+            </div>
             </div>
           </div>
           <div class="col-lg-6 col-md-6">
@@ -192,7 +231,7 @@
 
                 <div class="d-flex flex-column ml-3">
                   <div class="d-flex flex-row post-title">
-                    <h4>Comments</h4>
+                    <h4>Reviews</h4>
                     <!-- <span class="ml-2" style="color: aliceblue; font-size: 20px;">(<%= commentsCount %>)</span> -->
                   </div>
 
@@ -212,13 +251,6 @@
                         <h5 class="mr-2" style="margin-top: 3px;margin-right:10px"><%= comment.userId.fullName %></h5>
                       <span class="mb-1 ml-2" style="margin-top:4px;color:rgb(90, 90, 90)"><%= comment.createdAt %></span>
 
-
-
-
-
-                        
-                     
-                    
 
 
                       <% if(userId == comment.userId._id){ %>
@@ -323,13 +355,13 @@
           <% if(userInstalled ){ %>
 
           <!-- commentBox -->
-          <div class="d-flex col-md-6  " style="margin-top: 27px;">
+          <div class="d-flex col-md-6  ">
             <div class="d-flex flex-column ">
               <div class="d-flex flex-row  comment-top   border-bottom px-4">
 
                 <div class="d-flex flex-column ml-3">
                   <div class="d-flex flex-row post-title">
-                    <h4></h4>
+                    <h4>Rate and Review this game</h4>
                     <span class="ml-2" style="color: aliceblue; font-size: 20px;"></span>
                   </div>
 
@@ -354,7 +386,7 @@
                     <input type="text" name="gameId" value="<%= game._id %>" hidden>
                     <textarea type="text" rows="2" cols="50" class="form-control mr-3" name="commentData" placeholder="Add comment"
                       style="width: 400px;"></textarea>
-                    <button class="btn btn-primary comment-btn" type="submit">Comment</button>
+                    <button class="btn btn-primary comment-btn" type="submit">Submit</button>
                   </form>
                 </div>
               </div>
@@ -376,7 +408,24 @@
 
   <script>
 
-
+    document.addEventListener('DOMContentLoaded', function() {
+      const images = document.querySelectorAll('.gallery-image');
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImg');
+  
+      images.forEach(img => {
+          img.addEventListener('click', function() {
+              modal.style.display = 'block';
+              modalImg.src = this.src;
+          });
+      });
+  
+      const closeModal = document.querySelector('.close');
+      closeModal.addEventListener('click', function() {
+          modal.style.display = 'none';
+      });
+  });
+  
    let rating1 = '<%= userRated %>' 
     console.log(rating1)
     document.querySelector(`input[name="rating"][value="${rating1}"]`).checked = true;

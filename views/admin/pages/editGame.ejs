@@ -20,12 +20,12 @@
               <div class="col-lg-6">
                 <span style="color: red"><%= message1 %></span>
                 <form
-                  role="form"
-                  action="/editGame/<%= game._id %>"
-                  method="post"
-                  enctype="multipart/form-data"
-                  onsubmit="return validateForm()"
-                >
+  role="form"
+  action="/editGame/<%= game._id %>"
+  method="post"
+  enctype="multipart/form-data"
+  onsubmit="return validateForm()"
+>
                   <div class="form-group">
                     <label>Game name</label>
                     <input
@@ -87,43 +87,39 @@
                     <div id="errorGameSize" style="color: red;"></div>
                   </div>
 
-                  <div class="form-group">
-                    <label>Current Image</label>
+                  <div class="form-group" style="margin-bottom: 60px;">
+                    <label>Main Image</label>
                     <img
                       src="<%= game.gameImages[0] %>"
                       alt="Current Image"
-                      style="max-width: 300px; max-height: 200px"
+                      style="max-width: 300px; max-height: 200px;margin-bottom:20px;"
                     />
+                    <input class="form-control" type="file" name="gameImage1" id="imageInput1" />
+                    <div id="errorImage1" style="color: red;"></div>
                   </div>
-
-                  <input class="form-control" type="file" name="gameImage" id="imageInput1" value="<%= game.gameImages[0] %>" />
-
-                    <div class="form-group">
-                      <label>Current Image</label>
-                      <img
-                        src="<%= game.gameImages[1] %>"
-                        alt="Current Image"
-                        style="max-width: 300px; max-height: 200px"
-                      />
-                    </div>
-                    <div id="errorImage" style="color: red;"></div>
+                
+                  <div class="form-group" style="margin-bottom: 60px;">
+                    <label>Optional Image</label>
+                    <img
+                      src="<%= game.gameImages[1] %>"
+                      alt="Current Image"
+                      style="max-width: 300px; max-height: 200px;margin-bottom:20px;"
+                    />
+                    <input class="form-control" type="file" name="gameImage2" id="imageInput2" />
+                    <div id="errorImage2" style="color: red;"></div>
                   </div>
-                  <input class="form-control" type="file" name="gameImage" id="imageInput2" value="<%= game.gameImages[1] %>" />
-
-                    <div id="errorImage" style="color: red;"></div>
-                  </div>
-                  <div class="form-group">
-                    <label>Current Image</label>
+                
+                  <div class="form-group" style="margin-bottom: 60px;">
+                    <label>Optional Image</label>
                     <img
                       src="<%= game.gameImages[2] %>"
                       alt="Current Image"
-                      style="max-width: 300px; max-height: 200px"
+                      style="max-width: 300px; max-height: 200px;margin-bottom:20px;"
                     />
+                    <input class="form-control" type="file" name="gameImage3" id="imageInput3" />
+                    <div id="errorImage3" style="color: red;"></div>
                   </div>
-                  <input class="form-control" type="file" name="gameImage" id="imageInput3" value="<%= game.gameImages[2] %>" />
-
-                    <div id="errorImage" style="color: red;"></div>
-                  </div>
+                
 
 
                   <button type="submit" class="btn btn-default">
@@ -155,48 +151,64 @@
     var description = document.getElementById("descriptionInput").value.trim();
     var price = parseFloat(document.getElementById("gamePrice").value);
     var gameSize = document.getElementById("gameSizeInput").value.trim();
-    var imageInput = document.getElementById("imageInput").value.trim();
-    var allowedExtensions = /\.(jpg|jpeg|png|gif)$/i;
-
+    var imageInputs = document.querySelectorAll('input[type="file"]'); // Select all file inputs
+  
     document.getElementById("errorGameName").textContent = "";
     document.getElementById("errorDescription").textContent = "";
     document.getElementById("errorPrice").textContent = "";
     document.getElementById("errorGameSize").textContent = "";
     document.getElementById("errorImage").textContent = "";
-
+  
     if (!gameName) {
       document.getElementById("errorGameName").textContent =
         "Game name is required.";
       return false;
     }
-
+  
     if (description.split(/\s+/).length < 5) {
       document.getElementById("errorDescription").textContent =
         "Description must contain a minimum of 5 words.";
       return false;
     }
-
+  
     if (isNaN(price) || price <= 0) {
       document.getElementById("errorPrice").textContent =
         "Price must be a valid number greater than zero.";
       return false;
     }
-
+  
     // Custom validation for gameSize accepting numeric or decimal values
-    if (!(/^\d+(\.\d+)?$/.test(gameSize))) {
+    if (!/^\d+(\.\d+)?$/.test(gameSize)) {
       document.getElementById("errorGameSize").textContent =
         "Size must be a valid number greater than zero.";
       return false;
     }
-
-    if (!allowedExtensions.test(imageInput)) {
+  
+    var allowedExtensions = /\.(jpg|jpeg|png|gif)$/i;
+    var imageUploaded = false; // Flag to track if at least one image is uploaded
+  
+    for (var i = 0; i < imageInputs.length; i++) {
+      var imageInput = imageInputs[i].value.trim();
+      if (imageInput) { // Check if the file input has a value (file selected)
+        if (!allowedExtensions.test(imageInput)) {
+          document.getElementById("errorImage").textContent =
+            "Invalid file type. Please upload a valid image file.";
+          return false;
+        }
+        imageUploaded = true; // Set flag to true if at least one image is uploaded
+      }
+    }
+  
+    if (!imageUploaded) {
       document.getElementById("errorImage").textContent =
-        "Invalid file type. Please upload a valid image file.";
+        "Please upload at least one image file.";
       return false;
     }
-
+  
     return true;
   }
+  
+  
 </script>
 
 <%- include('./includes/adminFooter.ejs'); -%>

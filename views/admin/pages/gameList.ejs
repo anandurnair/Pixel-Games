@@ -130,7 +130,7 @@
                                         <td class="center"><%= game.released.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                                         <td class="center"><%= game.publisher %></td>
                                         <td class="center"><%= game.gameSize %></td>
-                                        <td class="center"><img src=" <%= game.gameImage %>" alt="" width="100px"> </td>
+                                        <td class="center"><img src=" <%= game.gameImages[0] %>" alt="" width="100px"> </td>
                                         <td class="center"><% if (game.unlist==false) { %>
                                             <a href="/Unlist/<%= game._id %>">Unlist</a>
                                           <% } else { %>

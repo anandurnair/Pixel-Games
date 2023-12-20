@@ -66,7 +66,11 @@
                           <td><% order.gameItems.forEach((gameItem)=>{ %>
                             <%= gameItem.gameId.gameName %> <br>
                          <%  }) %></td>
-                          <td><%= order.userId.fullName %></td>
+                          <td> <% if (order.userId) { %>
+                            <%= order.userId.fullName %>
+                          <% } else { %>
+                            N/A <!-- or any placeholder text or logic you prefer -->
+                          <% } %></td>
                           <td><%= order.orderDate.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                           <td><%= order.paymentMethod %></td>
                           <td>₹<%= order.totalAmount %></td>

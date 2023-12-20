@@ -1,9 +1,13 @@
 const Users = require("../Models/user");
 const Games = require("../Models/game");
 const Genres = require("../Models/genre");
+const Orders = require('../Models/order');
+const Coupons = require('../Models/coupon')
 const multer = require("multer");
 const path =require('path')
 const adminController = {};
+const PDFDocument = require('pdfkit');
+const ExcelJS = require('exceljs');
 
 // Set up Multer for file uploads
 const storage = multer.diskStorage({
@@ -21,7 +25,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 adminController.upload = upload.array("gameImage",3);
-adminController.upload2 = multer({
+adminController.upload2 = multer({  
   storage: storage,
   fileFilter: function (req, file, cb) {
   
@@ -31,6 +35,21 @@ adminController.upload2 = multer({
     cb(null, true);
   },
 }).array("gameImage", 3); 
+
+
+adminController.upload3 = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error("Only image files are allowed!"));
+    }
+    cb(null, true);
+  },
+}).fields([
+  { name: 'gameImage1', maxCount: 1 },
+  { name: 'gameImage2', maxCount: 1 },
+  { name: 'gameImage3', maxCount: 1 },
+]);
 
 let adminEmail = "anandu123@gmail.com";
 let adminPassword = 123;
@@ -69,10 +88,20 @@ adminController.loginData = (req, res) => {
   }
 };
 
-adminController.dashboard = (req, res) => {
+adminController.dashboard = async(req, res) => {
   try {
     if (req.session.adminLogIn) {
-      res.render("admin/pages/index");
+      const userCount = await Users.countDocuments() 
+      const gameCount = await Games.countDocuments()
+      const orderCount = await Orders.countDocuments()
+      const couponCount = await Coupons.countDocuments()
+      const counts = {
+        userCount,gameCount,orderCount,couponCount
+      }
+
+
+
+      res.render("admin/pages/index",{counts});
     } else {
       res.redirect("/adminLogin");
     }
@@ -82,6 +111,176 @@ adminController.dashboard = (req, res) => {
   }
  
 };
+
+adminController.gamesOrderedPerYear = async (req, res) => {
+  try {
+    const startYear = 2019; // Set the start year
+    const endYear = 2024; // Set the end year
+
+    const gameCountsPerYear = await Orders.aggregate([
+      {
+        $match: {
+          orderDate: { $gte: new Date(`${startYear}-01-01`), $lte: new Date(`${endYear}-12-31`) },
+        },
+      },
+      {
+        $group: {
+          _id: { $year: '$orderDate' }, // Grouping by year of orderDate
+          count: { $sum: { $size: '$gameItems' } }, // Counting the number of gameItems (games ordered)
+        },
+      },
+    ]);
+
+    const gameCounts = {};
+    for (let year = startYear; year <= endYear; year++) {
+      gameCounts[year.toString()] = 0;
+    }
+
+    gameCountsPerYear.forEach(item => {
+      const year = item._id;
+      gameCounts[year.toString()] = item.count;
+    });
+    console.log('games : ',gameCounts)
+    res.json({ gameCounts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+adminController.gamesDownloadedPerMonthInYear = async (req, res) => {
+  try {
+      const { year } = req.query;
+    console.log("Year  :  ",year)
+      // Fetch monthly game download data for the specified year
+      const startDate = new Date(`${year}-01-01`);
+      const endDate = new Date(`${year}-12-31`);
+
+      const monthlyGameData = await Games.aggregate([
+          {
+              $match: {
+                  released: {
+                      $gte: startDate,
+                      $lte: endDate,
+                  },
+              },
+          },
+          {
+              $group: {
+                  _id: { $month: '$released' },
+                  count: { $sum: 1 },
+              },
+          },
+      ]);
+
+      const monthlyGameCounts = {};
+      monthlyGameData.forEach((monthData) => {
+          const monthNames = [
+              'January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'
+          ];
+          const monthName = monthNames[monthData._id - 1]; 
+          
+          // Populate the monthly game download counts
+          monthlyGameCounts[monthName] = monthData.count;
+      });
+      console.log("new : ",monthlyGameCounts)
+      res.json({ monthlyGameCounts });
+  } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+adminController.mostInstalledGames= async(req,res)=>{
+  try {
+    const topGames = await Games.aggregate([
+      {
+        $lookup: {
+          from: 'orders',
+          localField: '_id',
+          foreignField: 'gameItems.gameId',
+          as: 'gameOrders',
+        },
+      },
+      {
+        $project: {
+          _id:0,
+          gameName: 1,
+          ordersCount: { $size: '$gameOrders' },
+        },
+      },
+      { $sort: { ordersCount: -1 } },
+      { $limit: 5 },
+    ]);
+    console.log("top : ",topGames)
+    res.status(200).json({ topGames });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+
+adminController.salesReport=async(req,res)=>{
+  try {
+    const orders = await Orders.find().populate('gameItems.gameId', 'name price');
+    console.log('Or : ',orders)
+    // Create a PDF document
+    const pdfDoc = new PDFDocument();
+    const pdfFileName = 'sales_report.pdf';
+    pdfDoc.pipe(res);
+    pdfDoc.fontSize(14).text('Sales Report\n\n');
+
+    // Add sales data to PDF
+    orders.forEach((order, index) => {
+      pdfDoc.text(`Order ${index + 1}:`);
+      pdfDoc.text(`Order Date: ${order.orderDate}`);
+      pdfDoc.text(`Payment Method: ${order.paymentMethod}`);
+      pdfDoc.text('Games Purchased:');
+      order.gameItems.forEach((item) => {
+        pdfDoc.text(`- ${item.gameId.gameName}: $${item.gameId.price}`);
+      });
+      pdfDoc.text(`Total Amount: $${order.totalAmount}\n\n`);
+    });
+
+    pdfDoc.end();
+
+    // Create an Excel workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sales');
+
+    // Add headers to the Excel worksheet
+    worksheet.columns = [
+      { header: 'Order Date', key: 'orderDate', width: 20 },
+      { header: 'Payment Method', key: 'paymentMethod', width: 15 },
+      { header: 'Games Purchased', key: 'gamesPurchased', width: 30 },
+      { header: 'Total Amount', key: 'totalAmount', width: 15 },
+    ];
+
+    // Add sales data to Excel worksheet
+    orders.forEach((order) => {
+      const gamesPurchased = order.gameItems.map((item) => `${item.gameId.name}: $${item.gameId.price}`).join(', ');
+      worksheet.addRow({
+        orderDate: order.orderDate,
+        paymentMethod: order.paymentMethod,
+        gamesPurchased,
+        totalAmount: order.totalAmount,
+      });
+    });
+
+    // Set response headers for Excel download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+
+    // Generate Excel file and send as downloadable
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("Error in admin login:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 adminController.adminLogout = (req, res) => {
   try {

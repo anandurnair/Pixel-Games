@@ -9,7 +9,7 @@ const couponSchema = new mongoose.Schema({
   },
   discountType: {
     type: String,
-    enum: ['minimumPurchase','firstPurchase'],
+    enum: ['minimumPurchase','firstPurchase','forAll'],
     required: true,
   },
   discountValue: {
