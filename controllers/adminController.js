@@ -150,48 +150,67 @@ adminController.gamesOrderedPerYear = async (req, res) => {
 
 
 
+
+
 adminController.gamesDownloadedPerMonthInYear = async (req, res) => {
   try {
-      const { year } = req.query;
-    console.log("Year  :  ",year)
-      // Fetch monthly game download data for the specified year
-      const startDate = new Date(`${year}-01-01`);
-      const endDate = new Date(`${year}-12-31`);
+    const { year } = req.query;
+    console.log("Year: ", year);
 
-      const monthlyGameData = await Games.aggregate([
-          {
-              $match: {
-                  released: {
-                      $gte: startDate,
-                      $lte: endDate,
-                  },
-              },
-          },
-          {
-              $group: {
-                  _id: { $month: '$released' },
-                  count: { $sum: 1 },
-              },
-          },
-      ]);
+    const startDate = new Date(`${year}-01-01`);
+    const endDate = new Date(`${year}-12-31`);
 
-      const monthlyGameCounts = {};
-      monthlyGameData.forEach((monthData) => {
-          const monthNames = [
-              'January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December'
-          ];
-          const monthName = monthNames[monthData._id - 1]; 
-          
-          // Populate the monthly game download counts
-          monthlyGameCounts[monthName] = monthData.count;
-      });
-      console.log("new : ",monthlyGameCounts)
-      res.json({ monthlyGameCounts });
+    const orderDates = await Orders.aggregate([
+      {
+        $match: {
+          orderDate: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          orderStatus: 'Downloaded', // Consider only downloaded orders
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$orderDate' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const monthlyOrderCounts = {
+      January: 0,
+      February: 0,
+      March: 0,
+      April: 0,
+      May: 0,
+      June: 0,
+      July: 0,
+      August: 0,
+      September: 0,
+      October: 0,
+      November: 0,
+      December: 0,
+    };
+
+    orderDates.forEach((monthData) => {
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const monthName = monthNames[monthData._id - 1];
+
+      // Populate the monthly order counts
+      monthlyOrderCounts[monthName] = monthData.count;
+    });
+
+    console.log("Monthly Order Counts: ", monthlyOrderCounts);
+    res.json({ monthlyOrderCounts });
   } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 adminController.mostInstalledGames= async(req,res)=>{
   try {
     const topGames = await Games.aggregate([
@@ -218,6 +237,46 @@ adminController.mostInstalledGames= async(req,res)=>{
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+
+adminController.revenue= async (req, res) => {
+  try {
+    const revenueData = await getRevenueData();
+    res.status(200).json(revenueData);
+  } catch (error) {
+    console.error('Error fetching revenue data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+async function getRevenueData() {
+  try {
+    const revenuePerDate = await Orders.aggregate([
+      {
+        $match: {
+          orderStatus: 'Downloaded', 
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$orderDate' } },
+          totalRevenue: { $sum: '$totalAmount' },
+        },
+      },
+      {
+        $sort: { _id: 1 }, 
+      },
+    ]);
+
+    const dates = revenuePerDate.map((item) => item._id);
+    const revenueValues = revenuePerDate.map((item) => item.totalRevenue);
+
+    return { dates, revenueValues };
+  } catch (error) {
+    console.error('Error getting revenue data:', error);
+    throw error;
   }
 }
 

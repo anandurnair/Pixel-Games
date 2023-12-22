@@ -123,13 +123,14 @@ adminRouter.post("/editGenre/:id", adminGenre.editGenreData);
 //orders
 
 adminRouter.get("/orderlist", adminOrder.orderList);
-adminRouter.get('/salesReport',userId,adminController.salesReport)
+adminRouter.get('/salesReport',adminController.salesReport)
 //comment
 
 adminRouter.get('/commentList',adminComment.commentList)
 adminRouter.post('/adminDeleteComment',adminComment.adminDeleteComment)
 //coupon
 
+adminRouter.get('/revenues',adminController.revenue)
 adminRouter.get('/gamesOrderedPerYear',adminController.gamesOrderedPerYear)
 adminRouter.get('/gamesDownloadedPerMonthInYear',adminController.gamesDownloadedPerMonthInYear)
 adminRouter.get('/mostInstalledGames',adminController.mostInstalledGames)

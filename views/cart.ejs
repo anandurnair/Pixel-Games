@@ -1,50 +1,198 @@
 <%- include('header') %>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<style>
-    #snackbar {
-       
-        visibility: hidden;
-        min-width: 250px;
-        margin-left: -125px;
-        background-color: #4eb81c;
-        color: #fff;
-        text-align: center;
-        border-radius: 5px;
-        padding: 10px;
-        position: fixed;
-        z-index: 1;
-        left: 50%;
-        bottom: 30px;
-        font-size: 17px;
-      }
-      
-      #snackbar.show {
-        visibility: visible;
-        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        animation: fadein 0.5s, fadeout 0.5s 2.5s;
-      }
-      
-      @-webkit-keyframes fadein {
-        from {bottom: 0; opacity: 0;} 
-        to {bottom: 30px; opacity: 1;}
-      }
-      
-      @keyframes fadein {
-        from {bottom: 0; opacity: 0;}
-        to {bottom: 30px; opacity: 1;}
-      }
-      
-      @-webkit-keyframes fadeout {
-        from {bottom: 30px; opacity: 1;} 
-        to {bottom: 0; opacity: 0;}
-      }
-      
-      @keyframes fadeout {
-        from {bottom: 30px; opacity: 1;}
-        to {bottom: 0; opacity: 0;}
-      }
-</style>
+    <style>
+        #snackbar {
+
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #4eb81c;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 10px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        /* Set a style for all buttons */
+        .modal-content button {
+            background-color: #04AA6D;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 30%;
+            opacity: 0.9;
+            margin-right: 25px
+        }
+
+        .modal-content p {
+            width: 500px;
+        }
+
+        .modal-content button:hover {
+            opacity: 1;
+        }
+
+        /* Float cancel and delete buttons and add an equal width */
+        .cancelbtn,
+        .deletebtn {
+            float: left;
+            width: 50%;
+        }
+
+        /* Add a color to the cancel button */
+        .cancelbtn {
+            background-color: #ccc;
+            color: black;
+        }
+
+        /* Add a color to the delete button */
+        .deletebtn {
+            background-color: #f44336;
+        }
+
+        /* Add padding and center-align text to the container */
+        .container {
+            padding: 16px;
+            text-align: center;
+        }
+
+        /* The Modal (background) */
+        .modal {
+            height: 300px;
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: #0000004f;
+            padding-top: 150px;
+
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            padding-left: 40PX;
+            background-color: #fefefe;
+            margin: 8% auto 15% auto;
+            /* 5% from the top, 15% from the bottom and centered */
+            border: 1px solid #888;
+            width: 35%;
+            /* Could be more or less, depending on screen size */
+        }
+
+        /* Style the horizontal ruler */
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+
+        /* The Modal Close Button (x) */
+        .close {
+            position: absolute;
+            right: 35px;
+            top: 15px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #f1f1f1;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #f44336;
+            cursor: pointer;
+        }
+
+        /* Clear floats */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        /* Change styles for cancel button and delete button on extra small screens */
+        @media screen and (max-width: 300px) {
+
+            .cancelbtn,
+            .deletebtn {
+                width: 100%;
+            }
+        }
+
+        .modal-content h1 {
+            font-size: 20px;
+        }
+    </style>
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="./images/image-4-o1s.png">
         <div class="container">
@@ -52,7 +200,7 @@
                 <div class="col-lg-12 text-center">
                     <div class="breadcrumb__text">
                         <h2>Shopping Cart</h2>
-                        
+
                     </div>
                 </div>
             </div>
@@ -62,10 +210,10 @@
 
     <!-- Shoping Cart Section Begin -->
     <section class="shoping-cart spad">
-        
+
         <div class="container">
             <div class="row">
-               
+
                 <div class="col-lg-12">
                     <div class="shoping__cart__table">
                         <table>
@@ -78,38 +226,36 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% if (items !== null && items !== undefined) { %>
-                                    <% items.forEach(game => { %>                
+                                <% if (items !==null && items !==undefined) { %>
+                                    <% items.forEach(game=> { %>
                                         <tr id="<%= game._id %>">
                                             <td class="shoping__cart__item">
                                                 <img src="<%= game.gameId.gameImages[0] %>" width="200px" alt="">
-                                                <h5><%= game.gameId.gameName %></h5>
+                                                <h5>
+                                                    <%= game.gameId.gameName %>
+                                                </h5>
                                             </td>
                                             <td class="shoping__cart__price">
                                                 ₹<%= game.gameId.price %>
                                             </td>
                                             <td class="shoping__cart__item__close">
-                                                
-                                                    
-                                                    <button type="submit" onclick="moveToWishlist('<%= game._id %>')" id="removeBtn">Move To Wishlist</button>
-                                                 
-
-                                                    
+                                                <button type="submit" onclick="moveToWishlist('<%= game._id %>')"
+                                                    id="removeBtn">Move To Wishlist</button>
                                             </td>
-                                            <td class="shoping__cart__item__close" >
-                                               
-                                                    <button type="submit" onclick="removeGame('<%= game._id %>')" id="removeBtn1">Remove</button>
-                                               
+                                            <td class="shoping__cart__item__close">
+                                                <!-- Button to trigger the modal -->
+                                                <button id="removeBtn" onclick="openModal('<%= game._id %>')">Remove</button>
                                             </td>
                                         </tr>
-                                    <% }); %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="3" style="font-size: 20px; color:#ffffff">No items in the cart</td>
-                                    </tr>
-                                <% } %>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="3" style="font-size: 20px; color:#ffffff">No items in
+                                                        the cart</td>
+                                                </tr>
+                                                <% } %>
                             </tbody>
-                            
+
                         </table>
                     </div>
                 </div>
@@ -118,98 +264,117 @@
                 <div class="col-lg-12">
                     <div class="shoping__cart__btns">
                         <a href="/categories" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
-                        
+
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    
+
                 </div>
                 <div class="col-lg-6">
                     <div class="shoping__checkout">
                         <h5>Cart Total</h5>
-                        <ul>                            
+                        <ul>
                             <li>Total <span>₹<%= totalSum %></span></li>
                         </ul>
-                        <a href="/cart/Checkout/:value" class="primary-btn">PROCEED TO CHECKOUT</a>
+                        <a href="/cart/Checkout" class="primary-btn">PROCEED TO CHECKOUT</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
     <div id="snackbar"></div>
- 
-        <script>
-            document.addEventListener('DOMContentLoaded', (event) => {
-                const Swal = '<%= Swal %>';
+    <div id="id01" class="modal">
+        <span onclick="closeModal()" class="close" title="Close Modal">&times;</span>
+        <div class="container modal-content">
+            <p>Are you sure you want to remove the game ?</p>
+            <div class="clearfix">
+                <button type="button" id="cancelbtn" onclick="closeModal()">Cancel</button>
+                <button type="button" id="deleteGameBtn" onclick="removeGame()">Delete</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var modal = document.getElementById('id01');
+
+        function openModal(gameId) {
+            document.getElementById('id01').style.display = 'block';
+            document.getElementById('deleteGameBtn').setAttribute('data-game-id', gameId);
+        }
+        function closeModal() {
+            document.getElementById('id01').style.display = 'none';
+        }
         
-                async function removeGame(gameId) {
-                    try {
-                        const confirmation = await Swal.fire({
-                            title: 'Are you sure?',
-                            text: 'Do you want to remove this game from the cart?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, remove it!'
-                        });
-        
-                        if (confirmation.isConfirmed) {
-                            const response = await fetch('/removeCart', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ gameId: gameId })
-                            });
-        
-                            const data = await response.json();
-                            if (data.status) {
-                                showToast('Game removed', 'green');
-                                document.getElementById(`${gameId}`).style.display = 'none';
-                            } else {
-                                showToast('Something wrong in removing', 'red');
-                            }
-                        }
-                    } catch (error) {
-                        console.log(error);
-                    }
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('deletebtn')) {
+                const gameId = event.target.getAttribute('data-game-id');
+                console.log(gameId)// Get gameId from data attribute
+                removeGame(gameId);
+            }
+        });
+
+        async function removeGame(gameId) {
+            try {
+                const gameId = document.getElementById('deleteGameBtn').getAttribute('data-game-id');
+                console.log('working')
+                console.log(gameId)
+                modal.style.display = "none";
+
+                const response = await fetch('/removeCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ gameId: gameId })
+                });
+
+                const data = await response.json();
+                if (data.status) {
+                    showToast('Game removed', 'green');
+                    document.getElementById(`${gameId}`).style.display = 'none';
+                } else {
+                    showToast('Something wrong in removing', 'red');
                 }
-        
-        
-                async function moveToWishlist(gameId){
-                    try{
-                        const response = await fetch('/moveToWishlist', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ gameId: gameId })
-                        });
-        
-                        const data = await response.json();
-                        if(data.status){
-                            showToast('Moved to wishlist', 'green');
-                            document.getElementById(`${gameId}`).style.display = 'none';
-                        } else {
-                            showToast('Already in the wishlist', 'red');
-                        }
-                    } catch(error) {
-                        console.log(error);
-                    }
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+
+        async function moveToWishlist(gameId) {
+            try {
+                const response = await fetch('/moveToWishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ gameId: gameId })
+                });
+
+                const data = await response.json();
+                if (data.status) {
+                    showToast('Moved to wishlist', 'green');
+                    document.getElementById(`${gameId}`).style.display = 'none';
+                } else {
+                    showToast('Already in the wishlist', 'red');
                 }
-        
-                function showToast(message, color) {
-                    var x = document.getElementById("snackbar");
-                    document.getElementById('snackbar').textContent = message;
-                    document.getElementById('snackbar').style.backgroundColor = color;
-                    x.className = "show";
-                    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-                }
-        
-                // Your other JavaScript code if any
-            });
-        </script>
-        
-   
-<%- include('footer') %>
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        function showToast(message, color) {
+            var x = document.getElementById("snackbar");
+            document.getElementById('snackbar').textContent = message;
+            document.getElementById('snackbar').style.backgroundColor = color;
+            x.className = "show";
+            setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        // Your other JavaScript code if any
+
+    </script>
+
+
+    <%- include('footer') %>

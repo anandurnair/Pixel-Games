@@ -7,6 +7,9 @@ const Comment = require("../Models/gameComments");
 const Coupons = require("../Models/coupon");
 const Wallet = require("../Models/wallet");
 const fs = require('fs'); // Ensure 'fs' module is required
+const { v4: uuidv4 } = require('uuid');
+const PDFDocument = require('pdfkit');
+
 
 const ejs = require('ejs');
 const Swal = require('sweetalert2')
@@ -921,6 +924,7 @@ homeController.orderSuccessful = async (req, res) => {
       // Generate the invoice
       easyinvoice.createInvoice(invoiceDataString, async function ( result) {
         try {
+          const uniqueToken = uuidv4();
 
        
           const emailContent = `
@@ -928,7 +932,7 @@ homeController.orderSuccessful = async (req, res) => {
             Your download links:\n
             ${downloadGames.map(game => {
               const formattedGame = game.replace(/\s+/g, '-');
-              return `${game}: https://pixelgames.com/download/${formattedGame}`;
+              return `${game}: https://pixelgames.com/download/${formattedGame}?token=${uniqueToken}`;
             }).join('\n')}
             
             Enjoy your games!\n
@@ -972,7 +976,72 @@ homeController.orderSuccessful = async (req, res) => {
 };
 
 
+homeController.invoice= async (req,res) =>{
+  try {
+    if (!req.session.isLoggedIn) {
+      return res.redirect('/');
+    }
 
+    const userId = req.session.userId;
+
+    const user = await Users.findById(userId);
+    const order = await Orders.findOne({ userId: userId })
+  .sort({ orderDate: -1 }) // Sort by orderDate in descending order (-1)
+  .populate('gameItems.gameId')
+  .exec();
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    const orderId = order._id
+    const doc = new PDFDocument();
+    const fileName = `invoice_${orderId}.pdf`;
+    
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    
+    doc.pipe(res);
+    
+    // Add your company logo 
+    // doc.image('path_to_your_logo', 50, 50, { width: 100 });
+    
+    // Company details
+    doc.font('Helvetica-Bold').fontSize(20).text('Pixel Games', { align: 'center' }).moveDown(0.5);
+    doc.font('Helvetica').fontSize(12).text('123 Main Street, Maradu', { align: 'center' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text('Kochi, India', { align: 'center' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text('Phone: +1 234-567-8900', { align: 'center' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text('Email: pixelgames@gmail.com', { align: 'center' }).moveDown(0.5);
+    
+    // User details
+    doc.font('Helvetica-Bold').fontSize(16).text(`User: ${user.fullName}`, { align: 'left' }).moveDown(0.5);
+    doc.font('Helvetica').fontSize(12).text(`Email: ${user.email}`, { align: 'left' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text(`Order Date: ${order.orderDate.toLocaleDateString()}`, { align: 'left' }).moveDown(0.5);
+    
+    // Order details
+    doc.font('Helvetica-Bold').fontSize(16).text('Order Details:', { align: 'left' }).moveDown(0.5);
+    
+    order.gameItems.forEach(game => {
+      doc.font('Helvetica').fontSize(12).text(`Game Name: ${game.gameId.gameName}`, { align: 'left' });
+      doc.font('Helvetica').fontSize(12).text(`Publisher: ${game.gameId.publisher}`, { align: 'left' });
+      doc.font('Helvetica').fontSize(12).text(`Game Size: ${game.gameId.gameSize}`, { align: 'left' });
+      doc.moveDown(0.5);
+    });
+    
+    // Total amount
+    doc.font('Helvetica-Bold').fontSize(16).text(`Total Amount: ${order.totalAmount}`, { align: 'left' }).moveDown(0.5);
+    
+    // Thank you message
+    doc.font('Helvetica').fontSize(14).text('Thank you for your purchase!', { align: 'center' }).moveDown(0.5);
+    
+    // Finalize the PDF and end the response
+    doc.end();
+    
+
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 homeController.walletPlaceOrderData = async (req, res) => {
   try {

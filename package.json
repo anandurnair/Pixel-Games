@@ -28,7 +28,7 @@
     "paginate": "^0.1.1",
     "path-to-regexp": "^6.2.1",
     "pdfkit": "^0.14.0",
-    "razorpay": "^0.0.0",
+    "razorpay": "^2.9.2",
     "sweetalert2": "^11.6.13",
     "twilio": "^4.19.0"
   }

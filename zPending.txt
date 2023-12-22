@@ -1,194 +1,27 @@
-- Small bug in Resend OTP 
-- resend in forgot password
-- can insert new coupons
+
+FRIDAY
+
+Study Git   
+Invoice download ✅
+Admin Dashboard - Chart with filter(yearly,monthly etc.)✅
 
 
 
-homeController.orderSuccessful = async (req, res) => {
-  try {
-    if (req.session.isLoggedIn) {
-      const userId = req.session.userId;
-      let downloadGames = req.query.downloadGames.split(',');
-      const user = await Users.findById(userId);
+SATURDAY
 
-      // Find the latest order for the user
-      const order = await Orders.findOne({ userId }).sort({ orderDate: -1 }).populate('userId').populate('gameItems.gameId');
-      console.log("Order :", order);
-
-      // Construct the invoice data
-      const invoiceData = {
-        // If not using the free version, set your API key
-      // "apiKey": "123abc", // Get apiKey through: https://app.budgetinvoice.com/register
-      
-      // Customize enables you to provide your own templates
-      // Please review the documentation for instructions and examples
-      "customize": {
-      //  "template": fs.readFileSync('template.html', 'base64') // Must be base64 encoded html 
-      },
-      "images": {
-      // The logo on top of your invoice
-      "logo": "https://public.budgetinvoice.com/img/logo_en_original.png",
-      // The invoice background
-      "background": "https://public.budgetinvoice.com/img/watermark-draft.jpg"
-      },
-      // Your own data
-      "sender": {
-      "company": "Pixel Games",
-      "address": "Maradu",
-      "zip": "686007",
-      "city": "Kochi",
-      "country": "India"
-      //"custom1": "custom value 1",
-      //"custom2": "custom value 2",
-      //"custom3": "custom value 3"
-      },
-      // Your recipient
-      "client": {
-      "company": user.fullName,
-      // "address": "Clientstreet 456",
-      // "zip": "4567 CD",
-      // "city": "Clientcity",
-      // "country": "Clientcountry"
-      // "custom1": "custom value 1",
-      // "custom2": "custom value 2",
-      // "custom3": "custom value 3"
-      },
-      "information": {
-      // Invoice number
-      "number": "2021.0001",
-      // Invoice data
-      "date": order.orderDate.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' }),
-      // Invoice due date
-      // "due-date": "31-12-2021"
-      },
-      // The products you would like to see on your invoice
-      // Total values are being calculated automatically
-      "products": [{
-      "products": order.gameItems.map(game => ({
-      "description": game.gameId.gameName,
-      // Other properties like quantity, tax-rate, price, etc. as needed
-      })),
-      "price": order.total
-      },
-      
-      
-      
-      ],
-      // The message you would like to display on the bottom of your invoice
-      "bottom-notice": "Kindly pay your invoice within 15 days.",
-      // Settings to customize your invoice
-      "settings": {
-      "currency": "INR", // See documentation 'Locales and Currency' for more info. Leave empty for no currency.
-      // "locale": "nl-NL", // Defaults to en-US, used for number formatting (See documentation 'Locales and Currency')        
-      // "margin-top": 25, // Defaults to '25'
-      // "margin-right": 25, // Defaults to '25'
-      // "margin-left": 25, // Defaults to '25'
-      // "margin-bottom": 25, // Defaults to '25'
-      // "format": "A4", // Defaults to A4, options: A3, A4, A5, Legal, Letter, Tabloid
-      // "height": "1000px", // allowed units: mm, cm, in, px
-      // "width": "500px", // allowed units: mm, cm, in, px
-      // "orientation": "landscape", // portrait or landscape, defaults to portrait
-      },
-      // Translate your invoice to your preferred language
-      "translate": {
-      // "invoice": "FACTUUR",  // Default to 'INVOICE'
-      // "number": "Nummer", // Defaults to 'Number'
-      // "date": "Datum", // Default to 'Date'
-      // "due-date": "Verloopdatum", // Defaults to 'Due Date'
-      // "subtotal": "Subtotaal", // Defaults to 'Subtotal'
-      // "products": "Producten", // Defaults to 'Products'
-      // "quantity": "Aantal", // Default to 'Quantity'
-      // "price": "Prijs", // Defaults to 'Price'
-      // "product-total": "Totaal", // Defaults to 'Total'
-      // "total": "Totaal", // Defaults to 'Total'
-      // "vat": "btw" // Defaults to 'vat'
-      },
-      };
-
-      // Generate the invoice
-      easyinvoice.createInvoice(invoiceData, async function (error, result) {
-        if (error) {
-          console.error("Error creating invoice:", error);
-          return res.status(500).json({ error: "Error creating invoice" });
-        }
-      
-        try {
-          const emailContent = `
-            Thank you for your purchase, ${user.fullName}!\n\n
-            Your download links:\n
-            ${downloadGames.map(game => {
-              const formattedGame = game.replace(/\s+/g, '-');
-              return `${game}: https://pixelgames.com/download/${formattedGame}`;
-            }).join('\n')}
-            
-            Enjoy your games!\n
-            Regards,\n
-            Your Company
-            
-            Please find the invoice attached.
-          `;
-      
-          const mailOptions = {
-            from: "anandurpallam@gmail.com",
-            to: user.email,
-            subject: "Download Links for Purchased Games and Invoice",
-            text: emailContent,
-            attachments: [{
-              filename: `invoice_${userId}.pdf`,
-              content: result.pdf,
-              encoding: 'base64'
-            }]
-          };
-      
-          // Send email with the invoice attachment
-          await transporter.sendMail(mailOptions);
-          res.render("orderSuccessful", { user, downloadGames });
-        } catch (sendMailError) {
-          console.log(error)
-          console.error("Error sending email with invoice:", sendMailError);
-          return res.status(500).json({ error: "Error sending email with invoice" });
-        }
-      });
-    } else {
-      return res.redirect("/");
-    }
-  } catch (error) {
-    console.error("Error processing order:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+Sales Report - Pdf and excel download(with order summary)
+Download times and clicked user authentication
 
 
- const invoiceData = {
-        customize: {
-          //  "template": fs.readFileSync('template.html', 'base64') // Must be base64 encoded html 
-          },
-          images: {
-          // The logo on top of your invoice
-          logo: "https://public.budgetinvoice.com/img/logo_en_original.png",
-          // The invoice background
-          background: "https://public.budgetinvoice.com/img/watermark-draft.jpg"
-          },
-          sender: {
-            company: "Pixel Games",
-            address: "Maradu",
-            zip: "686007",
-            city: "Kochi",
-            country: "India"
-            //"custom1": "custom value 1",
-            //"custom2": "custom value 2",
-            //"custom3": "custom value 3"
-            },
-        client: {
-          company: user.fullName,
-          // Add other client information if available
-        },
-        information: {
-          number: "2021.0001",
-          date: order.orderDate.toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }),
-          // Add due date if available
-        },
-        products: products,
-        price: order.total,
-        // Other invoice data and settings
-      };
+SUNDAY
+
+Banner
+Small bug in Resend OTP 
+resend in forgot password
+cart total price
+Use whole wallet balance even if the total is greater
+
+
+
+
+

@@ -1,7 +1,15 @@
-Confirm dialog before deleting from cart
-List coupons and apply on click in checkout page
 Use whole wallet balance even if the total is greater
 Download times and clicked user authentication
+Invoice download
+Admin Dashboard - Chart with filter(yearly,monthly etc.)
+Sales Report - Pdf and excel download(with order summary)
+
+
+- Small bug in Resend OTP 
+- resend in forgot password
+- can insert new coupons
+cart total price
+
 
 
 
@@ -10,8 +18,6 @@ COMPLETED
 Add all credentials and api keys in .env file
 Improve review and ratings UI
 Highlight which filter is selected in product list
-
-
-
-
+Confirm dialog before deleting from cart
+List coupons and apply on click in checkout page
 year select and set the year to backend

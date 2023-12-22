@@ -1,5 +1,7 @@
 
 <%- include('header') %>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
 
 <style>
   .labl {
@@ -14,10 +16,14 @@
     cursor:pointer;
     border:2px solid transparent;
 }
-.labl > input:checked + div{ /* (RADIO CHECKED) DIV STYLES */
-    background-color: #ffd6bb;
-    border: 1px solid #ff6600;
+
+#couponText{
+  margin-bottom: 0px;
+  font-weight: 700;
+  color:#fff;
+  font-size:18px
 }
+
     .flip-card {
       width: 250px;
       background-color: #05121B;
@@ -59,8 +65,12 @@
 
 
     }
-    
-
+    .labl > input:checked + div .flip-card-front{ /* (RADIO CHECKED) DIV STYLES */
+      background-color: #fff;
+  }
+  .labl > input:checked + div #couponText{
+    color: #05121B;
+  }
     /* Style the front side (fallback if image is missing) */
     .flip-card-front {
       background-color: #05121B;
@@ -117,6 +127,15 @@
     @keyframes fadeout {
       from {bottom: 30px; opacity: 1;}
       to {bottom: 0; opacity: 0;}
+    }
+    #useBtn{
+      width: 100px;
+      height: 35px;
+      border: 2px solid #fff ;
+      color: #fff;
+      font-size: 18px;
+      border-radius: 5px;
+      text-align: center;
     }
   </style>
   <!-- Breadcrumb Section Begin -->
@@ -175,11 +194,12 @@
                   <% if(isCouponAvailable){ %>
                     <% availableCoupons.forEach(coupon=>{ %>
                       <label  class="labl">
-                        <input type="radio" name="radioname" value="coupon" checked="checked"/>
+                        <input type="radio" name="radioname" value=<%= coupon.discountPercent %> />
+
                         <div class="flip-card" >
                           <div class="flip-card-inner">
-                            <div class="flip-card-front" style="display: flex;flex-direction: column;padding:3px; padding-top:20px">
-                              <p style="margin-bottom: 0px;font-weight: 700;color:#fff;font-size:18px">
+                            <div class="flip-card-front" id='<%= coupon.discountValue %>' onclick="applyCoupon('<%= coupon.discountValue %>')" style="display: flex;flex-direction: column;padding:3px; padding-top:20px">
+                              <p id="couponText">
                                 Get <span id="discountPercentValue"><%= coupon.discountValue %></span>% Off for the
                                   <% if(coupon.discountType=='firstPurchase' ){ %>
                                     First Purchase
@@ -213,7 +233,7 @@
                 <form id="checkoutForm" >
 
                   <div class="shoping__discount">
-                    <h5>Choose Payment Method</h5>
+                    <h5> Payment Method</h5>
 
                     <div class="form-check form-check-inline radio-btn">
                       <input class="form-check-input" type="radio" name="paymentOption" id="onlinePayment"
@@ -223,12 +243,25 @@
                     </div>
                     <div class="form-check form-check-inline radio-btn">
                       <input class="form-check-input" type="radio" name="paymentOption" id="walletPayment"
-                        value="walletPayment">
+                        value="walletPayment" disabled>
                       <label class="form-check-label" for="walletPayment"
-                        style="font-weight: 500; margin-right:20px">Wallet</label>
+                        style="font-weight: 500; margin-right:20px">Others</label>
                     </div>
 
                   </div>
+                  <div class="shoping__discount" style="width: 400px;align-items: center;display:flex;border-radius:5px;border:2px solid #fff;padding:15px">
+                    <div style="width:70%">
+                      <h5> Use wallet balance</h5>
+                  
+                    <p>Balance : <span><%= balance %></span></p>
+                   <% if(balanceErr){ %>
+                    <span style="color: red;">Insuffient balance</span>
+                    <% } %>
+                    </div>
+                    
+                    <div id="useBtn" >Use </div>
+                  </div>
+                 
           </div>
 
           <div class="col-lg-4 col-md-6">
@@ -251,13 +284,13 @@
               <div class="checkout__order__subtotal2" id="appliedCoupons" style="display: flex;position:relative;height: 110px; display:none">
                 <div style="position: absolute;left:10%">
                   <p style="margin-bottom: 5px;font-weight: 600;" >Applied Coupon</p> 
-                  <p style="margin-bottom: 5px;font-size: 14px;">Coupon code : <span id="appliedCode"></span> </p>
-                  <p style="margin-bottom: 5px;font-size: 14px;"><span id="discountPercent"></span>% off</p>
+                  <!-- <p style="margin-bottom: 5px;font-size: 14px;">Coupon code : <span id="appliedCode"></span> </p> -->
+                  <p style="margin-bottom: 5px;font-size: 14px;"><span id="discountPercent"></span> off for this purchase</p>
                 </div>
                
                   <div style="position: absolute;right:20px;" id="closeBtn">
-                  <button onclick="removeCoupon()" style="background-color: transparent;padding: 0%;border:none;"> <i class="fa-solid fa-xmark"></i></button> 
-                  </div>
+                  <div onclick="removeCoupon()"  style="background-color: transparent;padding: 0%;border:none;"> <i class="fa-solid fa-xmark"></i></div> 
+                  </div>  
               </div>
               <div class="checkout__order__subtotal">
                 Discount <span id="discountField"></span>
@@ -269,10 +302,10 @@
 
 
 
-              <button id="rzp-button" onclick="btnClick()" type="button" class="site-btn">PLACE ORDER</button>
+              <button id="" onclick="btnClick()" type="button" class="site-btn">PLACE ORDER</button>
 
             </div>
-          </div>
+          </div>  
           </form> 
         </div>
 
@@ -288,53 +321,78 @@
   <script>
 
 
-   
-    async function applyCoupon(){
-      let subTotal ='<%= subTotal %>' 
-      subTotal=parseInt(subTotal)
-      var couponInput = document.getElementById("couponCode");
-       var couponCode = couponInput.value; 
-      const response = await fetch('/couponCode', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-         couponCode
-        }),
-      });
-      const data = await response.json();
-      let discountValue =0
-      if(data.status){
-        var couponInput = document.getElementById("couponCode");
-       var couponCode = couponInput.value;
-       document.getElementById('appliedCode').innerText=couponCode 
-        let discountPercent = parseInt(data.discountValue)
-        discountValue = parseInt((discountPercent / 100) * subTotal);
-        let totalAmount = subTotal - discountValue;
-       const discountPercentValue = document.getElementById('discountPercentValue').innerText
-       console.log("percent : ",discountPercentValue)
-       document.getElementById('discountPercent').textContent=discountPercentValue
-        document.getElementById('totalAmount').innerText='₹'+totalAmount
-        document.getElementById('total').value= totalAmount
-        document.getElementById('discountField').innerText='₹'+discountValue
-        document.getElementById('availableCoupons').style.display="none"
-        document.getElementById("noCoupons").innerText="No Coupons"
-        document.getElementById("appliedCoupons").style.display="block"
-        showToast('Coupon applied',"green");
-      }else{
-        showToast('Invalid coupon',"red");
+
+
+    async function applyCoupon(discountPercent) {
+      try {
+        console.log(discountPercent)
+       
+        let subTotal = parseInt('<%= subTotal %>');
+      
+      
+    
+        const discountPercentElement = document.getElementById('discountPercent');
+        const totalAmountElement = document.getElementById('totalAmount');
+        const totalInputElement = document.getElementById('total');
+        const discountFieldElement = document.getElementById('discountField');
+        const appliedCouponsElement = document.getElementById('appliedCoupons');
+        const availableCouponsElement = document.getElementById('availableCoupons');
+        //document.getElementById(`${discountPercent}`).style.backgroundColor='#fff'
+        
+          // Uncheck other radio buttons in the group
+         
+      
+          const discountValue = parseInt((discountPercent / 100) * subTotal);
+          const totalAmount = subTotal - discountValue;
+        
+          discountPercentElement.textContent = discountPercent + '%';
+          totalAmountElement.innerText = '₹' + totalAmount;
+          totalInputElement.value = totalAmount;
+          discountFieldElement.innerText = '₹' + discountValue;
+        
+          appliedCouponsElement.style.display = 'block';
+//availableCouponsElement.style.display = 'none';
+        
+          showToast('Coupon applied', 'green');
+        
+      } catch (error) {
+        console.error('Error applying coupon:', error);
       }
     }
 
-   function removeCoupon(){
-    let subTotal ='<%= subTotal %>' 
-    subTotal=parseInt(subTotal)
-    document.getElementById("appliedCoupons").style.display="none"
-    document.getElementById('availableCoupons').style.display="block"
-    document.getElementById('totalAmount').innerText='₹'+subTotal
-    window.location.href('/cart/Checkout/:value')
-   }
+
+    function removeCoupon(){
+      let subTotal ='<%= subTotal %>' 
+      subTotal=parseInt(subTotal)
+      document.getElementById("appliedCoupons").style.display="none"
+      document.getElementById('availableCoupons').style.display="block"
+      document.getElementById('totalAmount').innerText='₹'+subTotal
+     
+      uncheckRadioButtons()
+
+      document.getElementById('discountField').innerText=0
+      showToast('Coupon removed', 'red');
+
+     }
+     const radioButtons = document.getElementsByName('radioname');
+     function uncheckRadioButtons() {
+      radioButtons.forEach(radio => {
+        radio.checked = false;
+      });
+      
+    }
+    radioButtons.forEach(radio => {
+      radio.addEventListener('change', handleRadioChange);
+    });
+    function handleRadioChange() {
+      for (let i = 0; i < radioButtons.length; i++) {
+        if (radioButtons[i].checked) {
+          const selectedColor = radioButtons[i].value;
+          targetDiv.style.backgroundColor = selectedColor;
+          break;
+        }
+      }
+    }
 
     function showToast(message,color) {
       var x = document.getElementById("snackbar");
@@ -351,22 +409,6 @@
 
 
 
-
-
-    function myFunction() {
-      var copyText = document.getElementById("myInput");
-      copyText.select();
-      copyText.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(copyText.value);
-      
-      var tooltip = document.getElementById("myTooltip");
-      tooltip.innerHTML = "Copied: " + copyText.value;
-    }
-    
-    function outFunc() {
-      var tooltip = document.getElementById("myTooltip");
-      tooltip.innerHTML = "Copy to clipboard";
-    }
   
   async function btnClick() {
       try {
@@ -482,7 +524,7 @@ function paymentFailed(order) {
     .then(response => response.json())
     .then(data => {
       if (data.status) {
-        window.location.href = '/cart/Checkout/:value';
+        window.location.href = '/cart/Checkout';
         /* Additional handling for success */
       } else {
         /* Handle other scenarios */
@@ -501,7 +543,7 @@ function paymentFailed(order) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-         totalAmount:data.totalAmount
+         totalAmount:data.totalAmount/  
         })
       })
       .then(response => {

@@ -123,7 +123,8 @@
                     <select id="timeRange">
                         <option value="yearly">Yearly</option>
                         <option value="monthly">Monthly</option>
-                        
+                        <!-- <option value="weekly">Weekly</option> -->
+
                     </select>
                     <label for="yearSelection" class="yearLog" style="display: none;">Select Year:</label>
                     <select id="yearSelection"  style="display: none;">
@@ -137,12 +138,12 @@
                 <div class="col-lg-6" style="padding: 80px;">
                     <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Top Installed Games</h2>
 
-                    <canvas id="chart-pie2"></canvas>
+                    <canvas id="chart-pie"></canvas>
                 </div>
-                <div class="col-lg-6">
-                    <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Order Chart</h2>
+                <div class="col-lg-6" style="padding-top: 80px;">
+                    <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Revenue Graph</h2>
 
-                    <canvas id="chart-pie2"></canvas>
+                    <canvas id="chart-line"></canvas>
                 </div>
             </div>
         </div>
@@ -165,6 +166,7 @@
                 await gamesReleasedPerYear();
                 await fetchGameCountsPerYear()
                 await pieChart()
+                await lineChart()
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -177,16 +179,15 @@
     
             function handleTimeRangeChange() {
                 const selectedValue = timeRangeSelect.value;
-    
+            
                 if (selectedValue === 'yearly') {
-                    document.getElementById('yearSelection').style.display='none'
-
-                    gamesReleasedPerYear()
-                    } else if (selectedValue === 'monthly') {
-                    document.getElementById('yearSelection').style.display='block'
-
-                    fetchMonthlyGameData() 
-                    
+                    document.getElementById('yearSelection').style.display = 'none';
+                    gamesReleasedPerYear();
+                } else if (selectedValue === 'monthly') {
+                    document.getElementById('yearSelection').style.display = 'block';
+                    fetchMonthlyGameData(); // Assuming this fetches data for the monthly chart
+                    // Call the function to generate the monthly chart
+                    generateMonthlyChart(); // Pass the appropriate data to this function
                 }
             }
            
@@ -218,34 +219,39 @@
             async function fetchMonthlyGameData() {
                 try {
                     const year = document.getElementById('yearSelection').value;
-                    console.log(year)
                     const response = await fetch(`/gamesDownloadedPerMonthInYear?year=${year}`);
                     const data = await response.json();
-        
-                    // Process 'data' and update the chart accordingly
-                    updateMonthlyGameChart(data);
+                    console.log("Recieved data : ",data.monthlyOrderCounts)
+                    
+                    // Update the chart based   on the fetched data
+                    generateMonthlyChart(data.monthlyOrderCounts);
                 } catch (error) {
                     console.error('Error:', error);
                 }
             }
-            async function updateMonthlyGameChart(data) {
+            async function generateMonthlyChart(data) {
                 try {
-                    const monthlyGameCounts = data.monthlyGameCounts;
+                    const monthlyGameCounts = data;
+                    console.log("Monthly Game Counts:", monthlyGameCounts);
             
                     const months = Object.keys(monthlyGameCounts);
                     const counts = Object.values(monthlyGameCounts);
-                    
+                    console.log("Months:", months);
+                    console.log("Counts:", counts);
+            
                     const ctxBar = document.getElementById('chart-bar').getContext('2d');
+            
                     const dataBar = {
                         labels: months,
                         datasets: [
                             {
-                                label: 'Games Released',
+                                label: 'orders',
                                 data: counts,
                                 backgroundColor: 'rgba(66,133,244,0.6)',
                             },
                         ],
                     };
+            
                     const configBar = {
                         type: 'bar',
                         data: dataBar,
@@ -253,10 +259,10 @@
                             plugins: {
                                 title: {
                                     display: true,
-                                    text: 'Games Released Per Month', // Set your desired title here
+                                    text: 'Orders per Month',
                                     font: {
                                         size: 18,
-                                        family: 'Arial' // Adjust the font size if needed
+                                        family: 'Arial',
                                     },
                                 },
                             },
@@ -267,19 +273,26 @@
                             },
                         },
                     };
-                    
             
-                    // Destroy the existing chart if it exists
-                    if (window.myBarChart instanceof Chart) {
-                        window.myBarChart.destroy();
+                    const existingChart = window.myYearlyChart;
+                    console.log("Existing Chart:", existingChart);
+            
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                    
+                    const existingChart2 = window.myMonthlyChart;
+                    if (existingChart2) {
+                        existingChart2.destroy();
                     }
             
-                    window.myBarChart = new Chart(ctxBar, configBar);
-                
+                    window.myMonthlyChart = new Chart(ctxBar, configBar);
                 } catch (error) {
                     console.error('Error:', error);
                 }
             }
+            
+            
             
           
 
@@ -297,7 +310,7 @@
                       labels: years, 
                       datasets: [
                         {
-                          label: 'Games Released',
+                          label: 'Orders',
                           data: counts,
                           backgroundColor: '#3399ff',
                         },
@@ -307,7 +320,16 @@
                       type: 'bar',
                       data: dataBar,    
                       options: {
-                        
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Orders per Year',
+                                font: {
+                                    size: 18,
+                                    family: 'Arial',
+                                },
+                            },
+                        },
                         scales: {
                           y: {
                             beginAtZero: true
@@ -315,53 +337,114 @@
                         }
                       },
                     };
-                    new Chart(ctxBar, configBar);
+
+                    const existingChart = window.myMonthlyChart;
+                    console.log("Is exist  : ",existingChart)
+                    // Check if the existing chart instance exists and destroy it
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+            
+                  window.myYearlyChart =  new Chart(ctxBar, configBar);
+                  console.log("yearly chart  : ",myYearlyChart)
                   } catch (error) {
                     console.error('Error:', error);
                   }
             }
-            function  showGraph(data){
+         
 
+
+
+            async function lineChart() {
+                try {
+                    const response = await fetch('/revenues'); // Replace with your endpoint URL
+                    const data = await response.json();
+                    
+                    // Extract relevant data for the line chart (e.g., dates and revenue)
+                    const dates = data.dates; // Assuming 'dates' contains the dates for the X-axis
+                    const revenueValues = data.revenueValues; // Assuming 'revenueValues' contains revenue data
+                    console.log(dates)
+                    function formatDate(dateString) {
+                        const date = new Date(dateString);
+                        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                        return date.toLocaleDateString(undefined, options);
+                      }
+                      const formattedDates = dates.map(formatDate);
+
+                    // Get the canvas element by ID
+                    const ctx = document.getElementById('chart-line').getContext('2d');
+        
+                    // Create the line chart
+                    const lineChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: formattedDates, // X-axis labels (dates)
+                            datasets: [{
+                                label: 'Revenue', // Label for the dataset
+                                data: revenueValues, // Revenue values for the Y-axis
+                                borderColor: 'rgba(75, 192, 192, 1)', // Color of the line
+                                borderWidth: 1,
+                                fill: false // Disable filling the area under the line
+                            }]
+                        },
+                        options: {
+                            // Customize options as needed, e.g., title, scales, etc.
+                            scales: {
+                                y: {
+                                    beginAtZero: true // Start Y-axis at 0
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Revenue Over Time' // Title of the chart
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error:', error);
+                }
             }
 
-           async function pieChart(){
-            try {
-                const response = await fetch('/mostInstalledGames');
-                const data = await response.json();
-                const topGames = data.topGames;
-              
-                const gameNames = topGames.map((game) => game.gameName);
-                const ordersCount = topGames.map((game) => game.ordersCount);
-              
-                const ctxPie = document.getElementById('chart-pie2').getContext('2d');
-                const dataPie = {
-                  labels: gameNames,
-                  datasets: [
-                    {
-                      data: ordersCount,
-                      backgroundColor: [
-                        '#3399ff',
-                        '#cc66ff',
-                        '#33cc33',
-                        '#ffcc00',
-                        '#ff3333', // Add more colors if needed
+            async function pieChart(){
+                try {
+                    const response = await fetch('/mostInstalledGames');
+                    const data = await response.json();
+                    const topGames = data.topGames;
+                  
+                    const gameNames = topGames.map((game) => game.gameName);
+                    const ordersCount = topGames.map((game) => game.ordersCount);
+                  
+                    const ctxPie = document.getElementById('chart-pie').getContext('2d');
+                    const dataPie = {
+                      labels: gameNames,
+                      datasets: [
+                        {
+                          data: ordersCount,
+                          backgroundColor: [
+                            '#3399ff',
+                            '#cc66ff',
+                            '#33cc33',
+                            '#ffcc00',
+                            '#ff3333', // Add more colors if needed
+                          ],
+                        },
                       ],
-                    },
-                  ],
-                };
-                const configPie = {
-                  type: 'pie',
-                  data: dataPie,
-                  options: {
-                    // You can add options here if needed
-                  },
-                };
-                new Chart(ctxPie, configPie);
-              } catch (error) {
-                console.error(error);
-                // Handle error here
-              }
-           } 
+                    };
+                    const configPie = {
+                      type: 'pie',
+                      data: dataPie,
+                      options: {
+                        // You can add options here if needed
+                      },
+                    };
+                    new Chart(ctxPie, configPie);
+                  } catch (error) {
+                    console.error(error);
+                    // Handle error here
+                  }
+               } 
              
         
         });
@@ -375,4 +458,4 @@
 
 
 
- 
+   

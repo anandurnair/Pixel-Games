@@ -7,7 +7,10 @@
 body {
     background-color: #f8f8f8;
 }
-
+::-webkit-scrollbar {
+	width: 0;
+	background: transparent; /* Optional: Set scrollbar background color */
+  }
 #wrapper {
     width: 100%;
 }
