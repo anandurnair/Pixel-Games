@@ -7,10 +7,12 @@ Admin Dashboard - Chart with filter(yearly,monthly etc.)✅
 
 
 
+
 SATURDAY
 
-Sales Report - Pdf and excel download(with order summary)
 Download times and clicked user authentication
+Sales Report - Pdf and excel download(with order summary)
+
 
 
 SUNDAY

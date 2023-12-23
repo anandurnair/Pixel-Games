@@ -886,43 +886,10 @@ homeController.orderSuccessful = async (req, res) => {
 
      
     //Create your invoice! Easy!
-    const data = {
-      currency: 'Rupees', // Change this to your preferred currency
-      taxNotation: 'vat', // Change as needed
-      marginTop: 25,
-      marginRight: 25,
-      marginLeft: 25,
-      marginBottom: 25,
-      logo: './', // Replace with your company's logo URL
-      sender: {
-        company: 'Pixel Games',
-        address: '123 Main Street',
-        city: 'Kochi',
-        zip: '686004',
-        country: 'India',
-        email: 'pixelGames@gmail.com',
-        phone: '+1 (123) 456-7890',
-      },
-      client: {
-        company:user.fullName, 
-        email: user.email ?? 'Unavailable', 
-        phone: user.phone ?? 'Unavailable', 
-      },
-      invoiceNumber: 'INV-001', // Replace with your invoice number
-      invoiceDate: new Date().toLocaleDateString(), // Use the invoice date
-      products: [
-        {
-          
-          description: products,
-          tax: 0, 
-          price:order.totalAmount,
-        },
-      ],
-    };
-    const invoiceDataString = JSON.stringify(data);
+    
 
       // Generate the invoice
-      easyinvoice.createInvoice(invoiceDataString, async function ( result) {
+    
         try {
           const uniqueToken = uuidv4();
 
@@ -947,11 +914,7 @@ homeController.orderSuccessful = async (req, res) => {
             to: user.email,
             subject: "Download Links for Purchased Games and Invoice",
             text: emailContent,
-            attachments: [{
-              filename: `invoice_${userId}.pdf`,
-              content: result.pdf,
-              encoding: 'base64'
-            }]
+            
           };
 
           // Send email with the invoice attachment
@@ -961,9 +924,7 @@ homeController.orderSuccessful = async (req, res) => {
           console.error("Error sending email with invoice:", error);
           return res.status(500).json({ error: "Error sending email with invoice" });
         }
-        }).catch((error)=>{
-          console.log(error)
-        })
+       
        
      
     } else {
