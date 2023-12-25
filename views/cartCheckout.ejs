@@ -137,6 +137,127 @@
       border-radius: 5px;
       text-align: center;
     }
+    #cancelButton{
+      width: 100px;
+      height: 35px;
+      border: 2px solid #fff ;
+      color: #fff;
+      font-size: 18px;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .modal-content button {
+      background-color: #04AA6D;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 40%;
+      opacity: 0.9;
+      margin-right: 25px
+  }
+
+  .modal-content p {
+      width: 500px;
+  }
+
+  .modal-content button:hover {
+      opacity: 1;
+  }
+
+  /* Float cancel and delete buttons and add an equal width */
+  .cancelbtn,
+  .deletebtn {
+      float: left;
+      width: 50%;
+  }
+
+  /* Add a color to the cancel button */
+  .cancelbtn {
+      background-color: #ccc;
+      color: black;
+  }
+
+  /* Add a color to the delete button */
+  .deletebtn {
+      background-color: #f44336;
+  }
+
+  /* Add padding and center-align text to the container */
+ 
+
+  /* The Modal (background) */
+  .modal {
+      height: 300px;
+      display: none;
+      /* Hidden by default */
+      position: fixed;
+      /* Stay in place */
+      z-index: 1;
+      /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      /* Full width */
+      height: 100%;
+      /* Full height */
+      overflow: auto;
+      /* Enable scroll if needed */
+      background-color: #0000004f;
+      padding-top: 150px;
+
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+      padding: 40px;
+      background-color: #fefefe;
+      margin: 8% auto 8% auto;
+      /* 5% from the top, 15% from the bottom and centered */
+      border: 1px solid #888;
+      width: 25%;
+      /* Could be more or less, depending on screen size */
+  }
+
+  /* Style the horizontal ruler */
+ 
+
+  /* The Modal Close Button (x) */
+  .close {
+      position: absolute;
+      right: 35px;
+      top: 15px;
+      font-size: 40px;
+      font-weight: bold;
+      color: #f1f1f1;
+  }
+
+  .close:hover,
+  .close:focus {
+      color: #f44336;
+      cursor: pointer;
+  }
+
+  /* Clear floats */
+  .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+  }
+
+  /* Change styles for cancel button and delete button on extra small screens */
+  @media screen and (max-width: 300px) {
+
+      .cancelbtn,
+      .deletebtn {
+          width: 100%;
+      }
+  }
+
+  .modal-content h1 {
+      font-size: 20px;
+  }
   </style>
   <!-- Breadcrumb Section Begin -->
   <section class="breadcrumb-section set-bg" data-setbg="/images/banner3.jpg ">
@@ -253,13 +374,13 @@
                     <div style="width:70%">
                       <h5> Use wallet balance</h5>
                   
-                    <p>Balance : <span><%= balance %></span></p>
-                   <% if(balanceErr){ %>
-                    <span style="color: red;">Insuffient balance</span>
-                    <% } %>
+                    <p>Balance : <span id="balance"><%= balance %></span></p>
+                   <span id="noBalance"> </span>
                     </div>
                     
-                    <div id="useBtn" >Use </div>
+                    <div type="button" id="useBtn" >Use </div>
+                    <div type="button" id="cancelButton" onclick="cancelWallet()" style="display: none;">Cancel </div>
+
                   </div>
                  
           </div>
@@ -295,6 +416,9 @@
               <div class="checkout__order__subtotal">
                 Discount <span id="discountField"></span>
               </div>
+              <div class="checkout__order__subtotal" id="walletDiscountDisplay" style="display: none;">
+                Wallet <span id="walletDiscount"></span>
+              </div>
               <div class="checkout__order__total">
                 Total <span id="totalAmount">₹<%= totalAmount %></span>
               </div>
@@ -313,13 +437,89 @@
     </div>
 
     <div id="snackbar"></div>
-
+    <div id="id01" class="modal">
+      <span onclick="closeModal()" class="close" title="Close Modal">&times;</span>
+      <div class="container modal-content">
+          <p>Are you sure you want to proceed ? </p>
+          <div class="clearfix">
+              <button type="button" id="cancelbtn" onclick="closeModal()">Cancel</button>
+              <button type="button" id="deleteGameBtn" onclick="proceedOrder()">Proceed</button>
+          </div>
+      </div>
+  </div>
   </section>
   <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <script>
+    window.walletApplied=false
+      if('<%= balance %>'==0){
+        document.getElementById('useBtn').style.display='none'
+        document.getElementById('noBalance').innerText='No Balance'
+      }
 
+    //USE WALLET
+
+    document.getElementById('useBtn').addEventListener('click',useWallet)
+    document.getElementById('cancelbutton').addEventListener('click',cancelWallet)
+
+    async function useWallet(){
+      try{
+        let totalAmount=document.getElementById('total').value
+        totalAmount=parseInt(totalAmount)
+        let balance = `<%= balance%>`
+        balance= parseInt(balance)
+        let  moneyUsed;
+        if(balance < totalAmount){
+          totalAmount=totalAmount-balance
+          moneyUsed=balance
+          balance=0
+          window.walletApplied=true
+        }else{
+          window.walletApplied=true
+
+          moneyUsed=totalAmount
+          balance=balance-totalAmount
+          totalAmount=0
+        }
+        document.getElementById('total').value=totalAmount;
+        document.getElementById('totalAmount').innerText=`${totalAmount}`
+        document.getElementById('balance').innerHTML=balance
+        document.getElementById('walletDiscountDisplay').style.display='block'
+        document.getElementById('walletDiscount').innerText=moneyUsed
+        document.getElementById('useBtn').style.display='none'
+        document.getElementById('cancelButton').style.display='block'
+      }catch(error){
+        console.error('Error applying coupon:', error);
+      }
+    }
+
+   function cancelWallet(){
+      try{
+        window.walletApplied=false
+        if(window.couponApplied){
+          let totalAmount=document.getElementById('total').value
+        totalAmount=parseInt(totalAmount)
+        let balance = `<%= balance%>`
+        balance= parseInt(balance)
+        totalAmount=totalAmount+balance
+        document.getElementById('total').value=totalAmount;
+        document.getElementById('totalAmount').innerText=totalAmount
+        }else{
+          document.getElementById('total').value=`<%= totalAmount %>`;
+          document.getElementById('totalAmount').innerText=`<%= totalAmount %>`
+        }
+        
+        
+        document.getElementById('balance').innerHTML=`<%= balance %>`
+        document.getElementById('walletDiscountDisplay').style.display='none'
+        document.getElementById('walletDiscount').innerText=0
+        document.getElementById('useBtn').style.display='block'
+        document.getElementById('cancelButton').style.display='none'
+      }catch(error){        
+        console.error('Error applying coupon:', error);
+      }
+    }
 
 
 
@@ -341,7 +541,7 @@
         
           // Uncheck other radio buttons in the group
          
-      
+        window.couponApplied = true
           const discountValue = parseInt((discountPercent / 100) * subTotal);
           const totalAmount = subTotal - discountValue;
         
@@ -360,14 +560,25 @@
       }
     }
 
-
     function removeCoupon(){
+      window.couponApplied = false
+
       let subTotal ='<%= subTotal %>' 
       subTotal=parseInt(subTotal)
+      let balance = `<%= balance%>`
+        balance= parseInt(balance)
       document.getElementById("appliedCoupons").style.display="none"
       document.getElementById('availableCoupons').style.display="block"
-      document.getElementById('totalAmount').innerText='₹'+subTotal
-     
+      
+      if(window.walletApplied){
+        subTotal=subTotal-balance
+        document.getElementById('totalAmount').innerText='₹'+subTotal
+
+      }else{
+
+        document.getElementById('totalAmount').innerText='₹'+subTotal
+      }
+
       uncheckRadioButtons()
 
       document.getElementById('discountField').innerText=0
@@ -375,11 +586,16 @@
 
      }
      const radioButtons = document.getElementsByName('radioname');
+
      function uncheckRadioButtons() {
+      const radioButtons = document.getElementsByName('radioname');
+
+      console.log('hi')
       radioButtons.forEach(radio => {
         radio.checked = false;
       });
-      
+      console.log('hi3')
+
     }
     radioButtons.forEach(radio => {
       radio.addEventListener('change', handleRadioChange);
@@ -404,10 +620,48 @@
 
 
 
+  function openModal(){
+    document.getElementById('id01').style.display = 'block';
+  }
+  function closeModal() {
+    document.getElementById('id01').style.display = 'none';
+}
+
+  async function proceedOrder(){
+
+    let totalAmount='<%= subTotal %>'
+    totalAmount=parseInt(totalAmount)
+    let balance =document.getElementById('balance').innerHTML
+    balance=parseInt(balance)
+
+    try{
+      const response = await fetch('/proceedOrder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+        
+          totalAmount: totalAmount,
+          balance:balance
+        }),
+      })
+      const responseData = await response.json();
+    console.log(responseData)
+    if (responseData.status) {
+      let downloadGames = responseData.downloadGames;
+    
+      const queryParams = `?downloadGames=${downloadGames}`;
+      window.location.href = `/orderSuccessfull/${queryParams}`;
+    } else {
+      alert('Payment Failed. Try again later.');
+    }
 
 
-
-
+    }catch(error){
+      console.error('Error verifying payment:', error)
+    }
+  }
 
   
   async function btnClick() {
@@ -415,57 +669,63 @@
         const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
         let totalAmount = document.getElementById('total').value;
         totalAmount=parseInt(totalAmount)
-        const response = await fetch('/createOrder', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            paymentOption: paymentOption, 
-            totalAmount: totalAmount,
-            currency: 'INR',
-          }),
-        });
-        const data = await response.json();
-        console.log('DATA : ', data);
-    
-        if (data.method=='wallet') {
-          const balanceErr=data.balanceErr
-          const totalAmount=data.totalAmount
-          const queryParams = `?balanceErr=${balanceErr}&totalAmount=${totalAmount}`;
+        console.log("Total : ",totalAmount)
+        if(totalAmount==0){
+          openModal()
+        }else{
 
-         window.location.href=`/walletPlaceOrder/${queryParams}`
-        } else {
-          // If it's for online payment, proceed with Razorpay
-          const options = {
-            key: 'rzp_test_rWizGdKAm2zOqw',
-            amount: data.amount,
-            currency: data.currency,
-            name: 'Pixel Games',
-            description: 'Test Transaction',
-            order_id: data.id,
-            handler:  function (response) {
-              console.log(response);
-              verifyPayment(response, data)
+          const response = await fetch('/createOrder', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-            "modal": {
-              "ondismiss": function () {
-                console.log('Payment window closed');
-                paymentFailed(data);
-              }
-            },
-            prefill: {
-              name: 'John Doe',
-              email: 'john@example.com',
-              contact: '9000090000',
-            },
-            theme: {
-              color: '#05121B',
-            },
-          };
-          
-          const rzp = new Razorpay(options);
-          rzp.open();
+            body: JSON.stringify({
+              paymentOption: paymentOption, 
+              totalAmount: totalAmount,
+              currency: 'INR',
+            }),
+          });
+          const data = await response.json();
+          console.log('DATA : ', data);
+      
+          if (data.method=='wallet') {
+            const balanceErr=data.balanceErr
+            const totalAmount=data.totalAmount
+            const queryParams = `?balanceErr=${balanceErr}&totalAmount=${totalAmount}`;
+  
+           window.location.href=`/walletPlaceOrder/${queryParams}`
+          } else {
+            // If it's for online payment, proceed with Razorpay
+            const options = {
+              key: 'rzp_test_rWizGdKAm2zOqw',
+              amount: data.amount,
+              currency: data.currency,
+              name: 'Pixel Games',
+              description: 'Test Transaction',
+              order_id: data.id,
+              handler:  function (response) {
+                console.log(response);
+                verifyPayment(response, data)
+              },
+              "modal": {
+                "ondismiss": function () {
+                  console.log('Payment window closed');
+                  paymentFailed(data);
+                }
+              },
+              prefill: {
+                name: 'John Doe',
+                email: 'john@example.com',
+                contact: '9000090000',
+              },
+              theme: {
+                color: '#05121B',
+              },
+            };
+            
+            const rzp = new Razorpay(options);
+            rzp.open();
+          }
         }
       } catch (error) {
         console.error('Error initiating payment:', error);
@@ -484,7 +744,7 @@
 async function verifyPayment(payment, order) {
   try {
     const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
-
+    let isWalletUsed = window.walletApplied
     const response = await fetch('/verifyPayment', {
       method: 'POST',
       headers: {
@@ -493,7 +753,8 @@ async function verifyPayment(payment, order) {
       body: JSON.stringify({
         payment,
         order,
-        paymentOption
+        paymentOption,
+        isWalletUsed
       })
     });
     const responseData = await response.json();

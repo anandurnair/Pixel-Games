@@ -123,7 +123,9 @@ adminRouter.post("/editGenre/:id", adminGenre.editGenreData);
 //orders
 
 adminRouter.get("/orderlist", adminOrder.orderList);
-adminRouter.get('/salesReport',adminController.salesReport)
+adminRouter.get('/pdfReport',adminController.PDFReport)
+adminRouter.get('/excelReport',adminController.ExcelReport)
+
 //comment
 
 adminRouter.get('/commentList',adminComment.commentList)

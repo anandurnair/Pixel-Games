@@ -2245,6 +2245,7 @@ ol {
 	font-weight: 700;
 	font-size: 20px;
 	margin-bottom: 28px;
+	margin-left: -400px;
 }
 
 .shoping__checkout ul {
@@ -2260,6 +2261,7 @@ ol {
 	border-bottom: 1px solid #ebebeb;
 	padding-bottom: 13px;
 	margin-bottom: 18px;
+	margin-left:-400px
 }
 
 .shoping__checkout ul li:last-child {

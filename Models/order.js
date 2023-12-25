@@ -1,5 +1,11 @@
 // models/user.js
-const mongoose = require("../config/db"); // Import the mongoose connection from db.js
+const mongoose = require("../config/db"); // Import the mongoose connection from db.jsc
+const crypto = require('crypto')
+
+const generateToken = () => {
+  return crypto.randomBytes(16).toString('hex');
+};
+
 
 const orderSchema = new mongoose.Schema({
   userId: {
@@ -15,6 +21,14 @@ const orderSchema = new mongoose.Schema({
         ref: "games", // Assuming you have a Game model
         required: true,
       },
+      downloadToken: {
+        type: String,
+        default: generateToken,
+      },
+      downloadLimit: {
+        type: Number,
+        default: 1, 
+      }
      
     },
   ],

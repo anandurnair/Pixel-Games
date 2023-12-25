@@ -8,6 +8,9 @@ const path =require('path')
 const adminController = {};
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
+const fs = require('fs')
+const Excel = require('exceljs');
+
 
 // Set up Multer for file uploads
 const storage = multer.diskStorage({
@@ -240,23 +243,27 @@ adminController.mostInstalledGames= async(req,res)=>{
   }
 }
 
+const moment = require('moment'); // If you're not already using it, install the 'moment' library: npm install moment
 
 adminController.revenue= async (req, res) => {
   try {
     const revenueData = await getRevenueData();
+    console.log(revenueData)
     res.status(200).json(revenueData);
   } catch (error) {
     console.error('Error fetching revenue data:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 async function getRevenueData() {
   try {
+    const today = moment(); 
+const sevenDaysAgo = moment().subtract(7, 'days'); 
     const revenuePerDate = await Orders.aggregate([
       {
         $match: {
-          orderStatus: 'Downloaded', 
+          orderStatus: 'Downloaded',
+          orderDate: { $gte: new Date(sevenDaysAgo), $lte: new Date(today) }, 
         },
       },
       {
@@ -266,80 +273,112 @@ async function getRevenueData() {
         },
       },
       {
-        $sort: { _id: 1 }, 
+        $sort: { _id: 1 },
       },
     ]);
 
     const dates = revenuePerDate.map((item) => item._id);
     const revenueValues = revenuePerDate.map((item) => item.totalRevenue);
-
+    console.log("dates ",dates)
+    console.log("revenues : ",revenueValues)
     return { dates, revenueValues };
   } catch (error) {
-    console.error('Error getting revenue data:', error);
+    console.error('Error getting revenue data for the last 7 days:', error);
     throw error;
   }
 }
 
 
-adminController.salesReport=async(req,res)=>{
+adminController.PDFReport=async  (req,res)=>{
   try {
-    const orders = await Orders.find().populate('gameItems.gameId', 'name price');
-    console.log('Or : ',orders)
-    // Create a PDF document
-    const pdfDoc = new PDFDocument();
-    const pdfFileName = 'sales_report.pdf';
-    pdfDoc.pipe(res);
-    pdfDoc.fontSize(14).text('Sales Report\n\n');
+    const salesData = await Orders.find({
+      orderDate: {
+        $gte: new Date('2023-01-01'),
+        $lte: new Date('2023-12-31'),
+      },
+    }).populate('userId').populate('gameItems.gameId')
 
-    // Add sales data to PDF
-    orders.forEach((order, index) => {
-      pdfDoc.text(`Order ${index + 1}:`);
-      pdfDoc.text(`Order Date: ${order.orderDate}`);
-      pdfDoc.text(`Payment Method: ${order.paymentMethod}`);
-      pdfDoc.text('Games Purchased:');
-      order.gameItems.forEach((item) => {
-        pdfDoc.text(`- ${item.gameId.gameName}: $${item.gameId.price}`);
-      });
-      pdfDoc.text(`Total Amount: $${order.totalAmount}\n\n`);
+    const doc = new PDFDocument();
+    const fileName = 'sales_report_2023.pdf';
+    const stream = doc.pipe(fs.createWriteStream(fileName));
+
+    doc.fontSize(18).text('Sales Report for 2023', { align: 'center' });
+
+    salesData.forEach((order, index) => {
+      let gameCounter = 1
+      doc.moveDown().fontSize(12).text(`Order ${index + 1}`);
+      doc.text(`Order ID: ${order._id}`);
+      doc.text(`costumer : ${order.userId.fullName}`)
+      order.gameItems.forEach(game=>{
+        doc.text(`Game ${gameCounter}: ${game.gameId.gameName}`)
+        gameCounter++
+      })
+      doc.text(`Total Amount: ${order.totalAmount}`);
+      doc.text(`Order date : ${order.orderDate.toDateString()}`)
+      // Add more order details as needed
     });
 
-    pdfDoc.end();
-
-    // Create an Excel workbook and worksheet
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Sales');
-
-    // Add headers to the Excel worksheet
-    worksheet.columns = [
-      { header: 'Order Date', key: 'orderDate', width: 20 },
-      { header: 'Payment Method', key: 'paymentMethod', width: 15 },
-      { header: 'Games Purchased', key: 'gamesPurchased', width: 30 },
-      { header: 'Total Amount', key: 'totalAmount', width: 15 },
-    ];
-
-    // Add sales data to Excel worksheet
-    orders.forEach((order) => {
-      const gamesPurchased = order.gameItems.map((item) => `${item.gameId.name}: $${item.gameId.price}`).join(', ');
-      worksheet.addRow({
-        orderDate: order.orderDate,
-        paymentMethod: order.paymentMethod,
-        gamesPurchased,
-        totalAmount: order.totalAmount,
+    doc.end();
+    stream.on('finish', () => {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+      res.download(fileName, (err) => {
+        if (err) {
+          console.error('Error sending PDF:', err);
+        }
+        fs.unlinkSync(fileName); // Remove the generated file after download
       });
     });
-
-    // Set response headers for Excel download
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
-
-    // Generate Excel file and send as downloadable
-    await workbook.xlsx.write(res);
-    res.end();
   } catch (error) {
-    console.error("Error in admin login:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error generating PDF report:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+adminController.ExcelReport = async (req, res) => {
+  try {
+    const salesData = await Orders.find({
+      orderDate: {
+        $gte: new Date('2023-01-01'),
+        $lte: new Date('2023-12-31'),
+      },
+    }).populate('userId').populate('gameItems.gameId');
+
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    worksheet.addRow(['Order Number', 'Order ID', 'Customer', 'Game Name', 'Total Amount', 'Order Date']);
+
+    salesData.forEach((order, index) => {
+      order.gameItems.forEach((game) => {
+        worksheet.addRow([
+          index + 1,
+          order._id.toString(),
+          order.userId.fullName,
+          game.gameId.gameName,
+          order.totalAmount,
+          order.orderDate.toDateString(),
+        ]);
+      });
+    });
+
+    const fileName = 'sales_report_2023.xlsx';
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+
+    workbook.xlsx.write(res)
+      .then(() => {
+        res.end();
+      })
+      .catch((error) => {
+        console.error('Error sending Excel:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      });
+  } catch (error) {
+    console.error('Error generating Excel report:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 adminController.adminLogout = (req, res) => {
   try {

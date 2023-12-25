@@ -62,9 +62,8 @@ userRouter.post('/editProfileData',userBlocked,homeController.editProfileData)
 
 userRouter.get('/changePassword',userBlocked,homeController.changePassword)
 userRouter.post('/changePasswordData',userBlocked,homeController.changePasswordData)
-
-
-//cart
+userRouter.get('/totalInCart',userBlocked,homeController.totalInCart)
+userRouter.get('/downloadgame',homeController.downloadGame)
 
 
 userRouter.get('/cart',userBlocked,homeController.cart)
@@ -94,7 +93,7 @@ userRouter.post('/uninstallGame',userBlocked,homeController.uninstalledGame)
 userRouter.get('/orderHistory',userBlocked,homeController.orderHistory)
 //logout
 userRouter.post('/downloading',userBlocked,homeController.downloading)
-
+userRouter.post('/checkToken',homeController.checkToken)
 userRouter.get('/wishlist',userBlocked,homeController.wishlist)
 
 userRouter.post('/addToWishlist',userBlocked,homeController.addToWishlist)
@@ -111,10 +110,12 @@ userRouter.post('/deleteComment',userBlocked,homeController.deleteComment)
 
 userRouter.post('/couponCode',userBlocked,homeController.couponCode)
 
+userRouter.get('/download/:formattedGame',homeController.verifyDownload)
 
+userRouter.post('/checkPassword',homeController.checkPassword)
 //Wallet
 
-
+userRouter.post('/proceedOrder',userBlocked,homeController.proceedOrder)
 
 userRouter.post('/walletPlaceOrderData',userBlocked,homeController.walletPlaceOrderData)
 // userRouter.get('/walletPlaceOrder',homeController.walletPlaceOrder)

@@ -10,20 +10,29 @@ Admin Dashboard - Chart with filter(yearly,monthly etc.)✅
 
 SATURDAY
 
-Download times and clicked user authentication
-Sales Report - Pdf and excel download(with order summary)
+Sales Report - Pdf and excel download(with order summary) ✅
+
+
+
 
 
 
 SUNDAY
 
+Use whole wallet balance even if the total is greater
+Download times and clicked user authentication✅
+cart total price✅
+
+MONDAY
+
 Banner
+Extra :
 Small bug in Resend OTP 
 resend in forgot password
-cart total price
-Use whole wallet balance even if the total is greater
+
+Personal Tasks
 
 
+Errors 
 
-
-
+cancelling wallet  after coupon apllied
