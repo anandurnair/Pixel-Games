@@ -464,7 +464,9 @@
     document.getElementById('cancelbutton').addEventListener('click',cancelWallet)
 
     async function useWallet(){
+      console.log("coupon ,",window.couponApplied)
       try{
+        
         let totalAmount=document.getElementById('total').value
         totalAmount=parseInt(totalAmount)
         let balance = `<%= balance%>`
@@ -482,6 +484,7 @@
           balance=balance-totalAmount
           totalAmount=0
         }
+        
         document.getElementById('total').value=totalAmount;
         document.getElementById('totalAmount').innerText=`${totalAmount}`
         document.getElementById('balance').innerHTML=balance
@@ -498,11 +501,18 @@
       try{
         window.walletApplied=false
         if(window.couponApplied){
+          let subTotal = parseInt('<%= subTotal %>');
+          let discountValue=document.getElementById('discountField').innerText
+          console.log("discount",discountValue)
+          discountValue= parseInt(discountValue)
+          
           let totalAmount=document.getElementById('total').value
         totalAmount=parseInt(totalAmount)
         let balance = `<%= balance%>`
         balance= parseInt(balance)
-        totalAmount=totalAmount+balance
+        totalAmount=document.getElementById('walletDiscount').innerText
+        totalAmount=parseInt(totalAmount)
+        
         document.getElementById('total').value=totalAmount;
         document.getElementById('totalAmount').innerText=totalAmount
         }else{
@@ -526,7 +536,7 @@
     async function applyCoupon(discountPercent) {
       try {
         console.log(discountPercent)
-       
+        
         let subTotal = parseInt('<%= subTotal %>');
       
       
@@ -542,18 +552,42 @@
           // Uncheck other radio buttons in the group
          
         window.couponApplied = true
+
+        if(window.walletApplied){
           const discountValue = parseInt((discountPercent / 100) * subTotal);
           const totalAmount = subTotal - discountValue;
-        
           discountPercentElement.textContent = discountPercent + '%';
-          totalAmountElement.innerText = '₹' + totalAmount;
-          totalInputElement.value = totalAmount;
-          discountFieldElement.innerText = '₹' + discountValue;
-        
+         
+          discountFieldElement.innerText =  discountValue;
+          let balance = document.getElementById('balance').innerHTML
+          balance=parseInt(balance)
+          balance=balance+discountValue
+          document.getElementById('balance').innerHTML=balance
+       let moneyUsed=  document.getElementById('walletDiscount').innerText
+       moneyUsed=parseInt(moneyUsed)
+       moneyUsed=moneyUsed-discountValue
+       console.log('moneyUsed',moneyUsed)
+       document.getElementById('walletDiscount').innerText=moneyUsed
           appliedCouponsElement.style.display = 'block';
 //availableCouponsElement.style.display = 'none';
         
           showToast('Coupon applied', 'green');
+
+        }else{
+          const discountValue = parseInt((discountPercent / 100) * subTotal);
+          const totalAmount = subTotal - discountValue;
+        
+          discountPercentElement.textContent = discountPercent + '%';
+          totalAmountElement.innerText =  totalAmount;
+          totalInputElement.value = totalAmount;
+          discountFieldElement.innerText =  discountValue;
+         
+          appliedCouponsElement.style.display = 'block';
+//availableCouponsElement.style.display = 'none';
+        
+          showToast('Coupon applied', 'green');
+        }
+          
         
       } catch (error) {
         console.error('Error applying coupon:', error);
@@ -569,14 +603,26 @@
         balance= parseInt(balance)
       document.getElementById("appliedCoupons").style.display="none"
       document.getElementById('availableCoupons').style.display="block"
-      
+    
+       
       if(window.walletApplied){
-        subTotal=subTotal-balance
-        document.getElementById('totalAmount').innerText='₹'+subTotal
+       // subTotal=subTotal-balance
+      //  document.getElementById('totalAmount').innerText=subTotal
+      let moneyUsed=  document.getElementById('walletDiscount').innerText
+      moneyUsed=parseInt(moneyUsed)
+      let discountValue=document.getElementById('discountField').innerText
+      discountValue= parseInt(discountValue)
+      document.getElementById('walletDiscount').innerText=moneyUsed+discountValue
+      let balance=document.getElementById('balance').innerHTML
+      balance=parseInt(balance)
+      document.getElementById('balance').innerHTML=balance-discountValue
+      
+
 
       }else{
+        document.getElementById('total').value=subTotal;
 
-        document.getElementById('totalAmount').innerText='₹'+subTotal
+        document.getElementById('totalAmount').innerText=subTotal
       }
 
       uncheckRadioButtons()
@@ -585,6 +631,8 @@
       showToast('Coupon removed', 'red');
 
      }
+
+
      const radioButtons = document.getElementsByName('radioname');
 
      function uncheckRadioButtons() {
