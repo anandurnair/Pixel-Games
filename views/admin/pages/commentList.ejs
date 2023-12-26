@@ -80,7 +80,7 @@
                         <tr class="odd gradeX">
                           
                           <td><%= comment.gameId.gameName%></td>
-                          <td><%= comment.commentId.text %></td>
+                          <td><%= comment.commentId ? comment.commentId.text : 'N/A' %></td>
                            <td><%= comment.reason %></td>
                           <td><%= comment.date.toLocaleDateString("en-IN",{ day: '2-digit', month: 'short', year: 'numeric' })%></td>
                           <td><form action="/adminDeleteComment" method="post">

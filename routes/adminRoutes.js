@@ -18,7 +18,7 @@ const adminGame = require("../controllers/adminGame");
 const adminGenre = require("../controllers/adminGenre");
 const adminOrder = require("../controllers/adminOrder");
 const adminCoupon=require('../controllers/adminCoupon')
-
+const adminBanner = require('../controllers/adminBanner')
 //middlewares
 
 const userBlocked=require('../middlewares/userBlocked')
@@ -131,7 +131,7 @@ adminRouter.get('/excelReport',adminController.ExcelReport)
 adminRouter.get('/commentList',adminComment.commentList)
 adminRouter.post('/adminDeleteComment',adminComment.adminDeleteComment)
 //coupon
-
+adminRouter.get('/bannerList',adminBanner.bannerList)
 adminRouter.get('/revenues',adminController.revenue)
 adminRouter.get('/gamesOrderedPerYear',adminController.gamesOrderedPerYear)
 adminRouter.get('/gamesDownloadedPerMonthInYear',adminController.gamesDownloadedPerMonthInYear)
