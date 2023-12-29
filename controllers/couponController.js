@@ -1,9 +1,9 @@
-const adminCoupon={}
+const couponController={}
 const Coupon = require("../Models/coupon");
 const Coupons = require("../Models/coupon");
 
 let insertCoupon;
-adminCoupon.couponList=async(req,res)=>{
+couponController.couponList=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
 
@@ -33,7 +33,7 @@ adminCoupon.couponList=async(req,res)=>{
 }
 
 
-adminCoupon.insertCoupon=async(req,res)=>{
+couponController.insertCoupon=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
             res.render("admin/pages/insertCoupon", { message1: "" });
@@ -60,7 +60,7 @@ function generateCouponCode(length) {
   }
  
 
-adminCoupon.insertCouponData=async(req,res)=>{
+couponController.insertCouponData=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
             const newCouponCode = generateCouponCode(6);
@@ -85,7 +85,6 @@ adminCoupon.insertCouponData=async(req,res)=>{
                 const coupons = await Coupons.find().sort({_id:-1})
                 .skip(skipValue)
                 .limit(perPage);
-                console.log("HElloooo")
                 res.redirect('/couponList')
             }else{
                 res.render("admin/pages/insertCoupon", {
@@ -101,7 +100,7 @@ adminCoupon.insertCouponData=async(req,res)=>{
     }
 }
 
-adminCoupon.activeCoupon=async(req,res)=>{
+couponController.activeCoupon=async(req,res)=>{
     try {
         const coupon = await Coupons.findById(req.params.id);
         coupon.isActive=true
@@ -113,7 +112,7 @@ adminCoupon.activeCoupon=async(req,res)=>{
         res.status(500).json({ error: "Internal server error" });
     }
 }
-adminCoupon.deactiveCoupon=async(req,res)=>{
+couponController.deactiveCoupon=async(req,res)=>{
     try {
         const coupon = await Coupons.findById(req.params.id);
         coupon.isActive=false;
@@ -126,7 +125,7 @@ adminCoupon.deactiveCoupon=async(req,res)=>{
     }
 }
 
-adminCoupon.editCoupon=async(req,res)=>{
+couponController.editCoupon=async(req,res)=>{
     try {
         if(req.session.adminLogIn){
             const couponId= req.params.id
@@ -141,7 +140,7 @@ adminCoupon.editCoupon=async(req,res)=>{
     }
 }
 
-adminCoupon.editCouponData=async(req,res)=>{
+couponController.editCouponData=async(req,res)=>{
     try {
         const couponId=req.params.id
         const coupon = await Coupons.findById(couponId)
@@ -179,4 +178,4 @@ adminCoupon.editCouponData=async(req,res)=>{
 
  
 
-module.exports = adminCoupon;
+module.exports = couponController;

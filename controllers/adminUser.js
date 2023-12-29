@@ -89,7 +89,6 @@ adminUser.insertUserData = async (req, res) => {
       });
 
       const user = await Users.findOne({ email });
-      console.log(user);
 
       if (!user) {
         const savedUser = await newUser.save();

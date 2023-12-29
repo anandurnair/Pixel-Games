@@ -13,18 +13,14 @@ const userController = require("../controllers/userController");
 const homeController = require("../controllers/homeController");
 const adminController = require("../controllers/adminController");
 
-const adminUser = require("../controllers/adminUser");
-const adminGame = require("../controllers/adminGame");
-const adminGenre = require("../controllers/adminGenre");
-const adminOrder = require("../controllers/adminOrder");
-const adminCoupon=require('../controllers/adminCoupon')
+
 
 //middlewares
 
 const userBlocked=require('../middlewares/userBlocked')
 const isValidUser = require('../middlewares/isValidUser');
 const { AddOnResultContext } = require("twilio/lib/rest/api/v2010/account/recording/addOnResult");
-const adminComment = require("../controllers/adminComment");
+const adminComment = require("../controllers/commentController");
 
 
 //login

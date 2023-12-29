@@ -103,7 +103,6 @@ userController.resendOTP=async(req,res)=>{
     
 
   } catch (error) {
-    console.log(error)
     res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -139,7 +138,6 @@ userController.signupData = async (req, res) => {
      
 
       const user = await Users.findOne({ email });
-      console.log(user);
 
       if (!user) {
         transporter.sendMail(mailOptions, (error, info) => {
@@ -180,7 +178,6 @@ let timeDifference = (newTime-oldTime ) / 1000;
 
 let isExpired = timeDifference > 60;
     const isOtpValid = otpCode === generatedOTP;
-    console.log(isOtpValid);
 
     if(isExpired){
       res.render("otp", {
@@ -262,7 +259,6 @@ userController.forgotPasswordData = async (req, res) => {
      
 
       const user = await Users.findOne({ email });
-      console.log(user);
 
       
         transporter.sendMail(mailOptions, (error, info) => {
@@ -301,7 +297,6 @@ userController.passwordOTPData=async(req,res)=>{
    
 
     const isOtpValid = otpCode === generatedOTP;
-    console.log(isOtpValid);
 
     if(isExpired){
       res.render('passwordOTP',{

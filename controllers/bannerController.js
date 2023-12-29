@@ -1,11 +1,11 @@
 const Banner = require('../Models/banner')
-const adminBanner={}
+const bannerController={}
 const path = require('path')
 const fs = require('fs')
 const multer = require('multer');
 
 
-adminBanner.bannerList=async (req,res)=>{
+bannerController.bannerList=async (req,res)=>{
     try{
       const banners = await Banner.find()
       res.render('admin/pages/bannerList',{banners})
@@ -14,7 +14,7 @@ adminBanner.bannerList=async (req,res)=>{
       res.status(500).json({ error: "Internal server error" });
     }
   }
-  adminBanner.insertBanner=async(req,res)=>{
+  bannerController.insertBanner=async(req,res)=>{
     try {
         if (req.session.adminLogIn) {
             res.render("admin/pages/insertBanner", { message1: "" });
@@ -28,7 +28,7 @@ adminBanner.bannerList=async (req,res)=>{
 }
 
 
-adminBanner.insertBannerData=async(req,res)=>{
+bannerController.insertBannerData=async(req,res)=>{
   try {
     const { title } = req.body;
     const imageUrls = '/views/uploads/' + req.file.filename;
@@ -49,7 +49,7 @@ adminBanner.insertBannerData=async(req,res)=>{
 }
 
 
-adminBanner.editBanner=async(req,res)=>{
+bannerController.editBanner=async(req,res)=>{
   try {
       if (req.session.adminLogIn) {
 
@@ -65,7 +65,7 @@ adminBanner.editBanner=async(req,res)=>{
       res.status(500).json({ error: "Internal server error" });
   }
 }
-adminBanner.editBannerData=async(req,res)=>{
+bannerController.editBannerData=async(req,res)=>{
   try {
       if (req.session.adminLogIn) {
         const bannerId = req.query.bannerId;
@@ -93,7 +93,7 @@ adminBanner.editBannerData=async(req,res)=>{
   }
 }
 
-adminBanner.deactiveBanner=async(req,res)=>{
+bannerController.deactiveBanner=async(req,res)=>{
   try {
     const banner =await Banner.findById(req.params.id)
     banner.isActive=false
@@ -104,7 +104,7 @@ adminBanner.deactiveBanner=async(req,res)=>{
     res.status(500).json({ error: "Internal server error" });
   }
 }
-adminBanner.activeBanner=async(req,res)=>{
+bannerController.activeBanner=async(req,res)=>{
   try {
     const banner =await Banner.findById(req.params.id)
     banner.isActive=true
@@ -115,6 +115,6 @@ adminBanner.activeBanner=async(req,res)=>{
     res.status(500).json({ error: "Internal server error" });
   }
 }
-module.exports = adminBanner
+module.exports = bannerController
 
   

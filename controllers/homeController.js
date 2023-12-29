@@ -41,7 +41,6 @@ homeController.homePage = async (req, res) => {
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const banners = await Banner.find()
-      console.log("bannres : ",banners)
       const games =await Games
       .find({ unlist: false }) 
       .sort({ _id: -1 }) 
@@ -97,7 +96,6 @@ homeController.categories = async (req, res) => {
       let games = await Games.find()
         .skip(skipValue)
         .limit(perPage);
-      console.log("Game genre : ", req.query.gameGenre)
       req.session.gameGenre = '*'
       const gameGenre = req.query.gameGenre
       if (req.query.gameGenre) {
@@ -172,7 +170,6 @@ homeController.gameDetails = async (req, res) => {
         "userId"
       );
       let userRating = await Comment.find({ gameId: gameId, userId: userId })
-      console.log("u : ", userRating)
       let userRated = 0
       if (userRating.length != 0) {
         userRated = userRating[0].rating
@@ -202,7 +199,6 @@ homeController.gameDetails = async (req, res) => {
 
       const commentsRate = await Comment.find({ gameId, rating: { $gt: 0 } }, { _id: 0, rating: 1 });
 
-      console.log("Ratings : ", commentsRate);
 
       let averageRating = 0;
 
@@ -213,9 +209,7 @@ homeController.gameDetails = async (req, res) => {
         averageRating = 0;
       }
 
-      console.log("Average rating : ", averageRating);
       const rateCount = commentsRate.length
-      console.log("COmments : ", comments)
       await Games.updateOne({ _id: gameId }, { $set: { gameRate: averageRating } })
       released = game.released;
       released = released.toLocaleDateString("en-IN");
@@ -335,7 +329,6 @@ homeController.changePasswordData = async (req, res) => {
     const userId = req.session.userId;
     const user = await Users.findById(userId);
     const check =await bcrypt.compare(currentPassword, user.password);
-    console.log("Check : ",check)
     if (check) {
       passwordError = false;
       await Users.findByIdAndUpdate(userId, { password: hashedPassword });
@@ -456,7 +449,6 @@ homeController.addToCart = async (req, res) => {
     }
 
     let cart = await Cart.findOne({ userId })
-    console.log("Cart : ", cart)
     if (!cart) {
       cart = new Cart({ userId, items: [] });
       await cart.save();
@@ -469,7 +461,6 @@ homeController.addToCart = async (req, res) => {
     const existingItem = cart.items.find(
       (item) => String(item.gameId) === String(gameId)
     );
-    console.log("Existing : ", existingItem)
     if (existingItem) {
       return res.json({ status: false })
     } else {
@@ -522,12 +513,10 @@ homeController.cartCheckout = async (req, res) => {
     if (req.session.isLoggedIn) {
       let discountValue = 0;
 
-      console.log("DISCOUNT : ", discountValue);
 
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
-      console.log("CART : ", cart.items);
       if (cart.items.length === 0) {
         return res.redirect("/cart");
       }
@@ -537,7 +526,6 @@ homeController.cartCheckout = async (req, res) => {
       const coupons = await Coupons.find();
       let subTotal = totalSum;
       let discount = 0;
-      console.log("HIII", req.params.value);
       if (!isNaN(req.params.value)) {
         let discountPercent = parseFloat(req.params.value);
 
@@ -551,7 +539,6 @@ homeController.cartCheckout = async (req, res) => {
 
       const wallet = await Wallet.findOne({ userId });
       const balance = wallet.balance
-      console.log("hel", typeof totalAmount, typeof balance)
       let balanceErr = false;
       if (totalAmount > wallet.balance) {
         balanceErr = true;
@@ -585,7 +572,6 @@ homeController.cartCheckout = async (req, res) => {
         }
       }
 
-      console.log("AvilableCoupons : ", availableCoupons)
       if (!cart) {
         res.render("cart", {
           user,
@@ -595,7 +581,6 @@ homeController.cartCheckout = async (req, res) => {
           couponError,
         });
       } else {
-        console.log("Discount Value: ", discountValue);
 
         res.render("cartCheckout", {
           user,
@@ -622,11 +607,9 @@ homeController.cartCheckout = async (req, res) => {
 homeController.couponCode = async (req, res) => {
   try {
     const { couponCode } = req.body;
-    console.log("couponCode", couponCode);
 
     const coupon = await Coupons.find({ code: couponCode });
     const oneCoupon = coupon[0];
-    console.log(oneCoupon);
     if (coupon[0] == undefined || oneCoupon.isActive == false) {
       couponError = true;
       return res.json({ status: false })
@@ -672,7 +655,6 @@ homeController.createOrder = async (req, res) => {
   try {
     const userId = req.session.userId;
     let { paymentOption, totalAmount, currency } = req.body;
-    console.log("BODY : ", totalAmount, paymentOption, currency);
     const user = await Users.findById(userId);
     const wallet = await Wallet.findOne({ userId });
 
@@ -684,7 +666,6 @@ homeController.createOrder = async (req, res) => {
       if (totalAmount > wallet.balance) {
         balanceErr = true;
       }
-      console.log("HOI : ", balanceErr);
       return res.json({ method: 'wallet', balanceErr, totalAmount })
 
 
@@ -696,7 +677,6 @@ homeController.createOrder = async (req, res) => {
         notes: {},
       };
       const order = await instance.orders.create(options);
-      console.log("ORDER : ", order);
       return res.json(order); // Return JSON response for other payment options
     }
   } catch (error) {
@@ -713,7 +693,6 @@ homeController.cartPlaceOrder = async (req, res) => {
     if (req.session.isLoggedIn) {
       const userId = req.session.userId;
       let { totalAmount } = req.body;
-      console.log("TOTAL : ", totalAmount);
       const user = await Users.findById(userId);
       const wallet = await Wallet.findOne({ userId });
 
@@ -766,7 +745,6 @@ homeController.cartPlaceOrder = async (req, res) => {
 
         await order.save();
         await installedGame.save();
-        console.log("Orders Placed");
         return res.json({ user, downloadGames })
 
       }
@@ -774,7 +752,6 @@ homeController.cartPlaceOrder = async (req, res) => {
       return res.redirect("/");
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Internal server error1" });
   }
 };
@@ -796,11 +773,9 @@ homeController.verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (hmac === payment.razorpay_signature) {
-      console.log("Verified ...!")
       const userId = req.session.userId;
 
       let totalAmount = order.amount
-      console.log("TOTAL : ", totalAmount);
       totalAmount=totalAmount * 0.01
       let finalAmount= totalAmount-discountValue
       const user = await Users.findById(userId);
@@ -883,15 +858,13 @@ homeController.verifyPayment = async (req, res) => {
 
         await newOrder.save();
         await installedGame.save();
-        console.log("Orders Placed");
-        console.log("nooop : ", downloadGames)
+       
         return res.json({ status: true, downloadGames })
 
       }
 
 
     } else {
-      console.log("Verification Failed")
       res.json({ status: false });
     }
   } catch (error) {
@@ -904,7 +877,6 @@ homeController.verifyPayment = async (req, res) => {
 homeController.paymentFailed = async (req, res) => {
   try {
     const order = req.body;
-    console.log("Pay ment failed")
     res.json({ status: true });
   } catch (error) {
     console.log(error);
@@ -984,15 +956,11 @@ homeController.verifyDownload=async(req,res)=>{
     const { formattedGame } = req.params;
     const { token } = req.query;
     
-    console.log("game : ",formattedGame)
-    console.log("token : ",token)
     const order = await Orders.findOne({
       "gameItems.downloadToken": token,
     });
     
-    console.log("Orders :",order)
     const userId= order.userId
-    console.log("user",userId)
     if (order) {
       res.render("verifyDownload",{formattedGame,userId,token})
     } else {
@@ -1009,11 +977,8 @@ homeController.verifyDownload=async(req,res)=>{
 homeController.checkPassword= async (req,res)=>{
   try {
     const {game,userId,password}=req.body
-    console.log('game :',game, userId,password)
     const user = await Users.findById(userId);
-    console.log("user :",user )
     const check = await bcrypt.compare(password, user.password);
-    console.log(check)
     if(check){
       return res.json({status:true})
     }else{
@@ -1053,7 +1018,6 @@ homeController.checkToken= async (req,res)=>{
     const order = await Orders.findOne({
       "gameItems.downloadToken": token,
     });
-    console.log("ord : ",order)
     if (order) {
       const gameItem = order.gameItems.find(item => item.downloadToken === token);
       if(gameItem){
@@ -1154,7 +1118,6 @@ homeController.invoiceDownload = async (req, res) => {
       return res.redirect('/');
     }
     const orderId = req.query.orderId
-    console.log("order id : ",orderId)
     const userId = req.session.userId;
 
     const user = await Users.findById(userId);
@@ -1219,7 +1182,6 @@ homeController.proceedOrder=async(req,res)=>{
   try {
     let {totalAmount,balance}=req.body
     totalAmount=parseInt(totalAmount)
-    console.log(totalAmount,"  ",balance)
     const userId = req.session.userId;
     const user = await Users.findById(userId);
     const wallet = await Wallet.findOne({ userId });
@@ -1296,8 +1258,7 @@ homeController.proceedOrder=async(req,res)=>{
 
       await newOrder.save();
       await installedGame.save();
-      console.log("Orders Placed");
-      console.log("nooop : ", downloadGames)
+     
       return res.json({ status: true, downloadGames })
 
     }
@@ -1397,7 +1358,6 @@ homeController.walletPlaceOrderData = async (req, res) => {
 
         await newOrder.save();
         await installedGame.save();
-        console.log("Orders Placed");
         res.render("orderSuccessful", { user, downloadGames });
       }
     } else {
@@ -1466,7 +1426,6 @@ homeController.uninstalledGame = async (req, res) => {
 
       const user = await Users.findById(userId);
       const { gameId } = req.body;
-      console.log(gameId);
       const installedGame = await installedGames.findOne({ userId });
       await installedGames.updateOne(
         { userId },
@@ -1494,7 +1453,6 @@ homeController.orderHistory = async (req, res) => {
         );
       let items = null;
       let orderNull = "";
-      console.log("OR : ", orders.length)
       if (orders.length == 0) {
         orderNull = "No orders";
       }
@@ -1514,12 +1472,10 @@ homeController.downloading = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { gameTitle } = req.body;
-    console.log("game title :", gameTitle);
     // const result = await Orders.updateOne(
     //   { userId, 'gameItems.gameTitle': gameTitle },
     //   { $set: { 'gameItems.$.orderStatus': 'Downloaded' } }
     // );
-    console.log("Order status updated successfully:", result);
   } catch (err) {
     console.error("Error updating order status:", err);
   }
@@ -1532,10 +1488,8 @@ homeController.addToWishlist = async (req, res) => {
     const userId = req.session.userId; // Assuming you store userId in the session
     let gameId = req.body.gameId
     gameId = new ObjectId(gameId)
-    console.log("Gmae id : ", gameId)
 
     const game = await Games.findById(gameId);
-    console.log(game)
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
@@ -1598,7 +1552,6 @@ homeController.wishlist = async (req, res) => {
 
       if (!wishlist) {
         cartNull = "No Games in wishlist";
-        console.log("wishlist not found for user:", userId);
         res.render("wishlist", {
           user,
           items,
@@ -1668,18 +1621,15 @@ homeController.removeWishlist = async (req, res) => {
 
 homeController.moveToCart = async (req, res) => {
   try {
-    console.log("working");
     const userId = req.session.userId;
     let gameId = req.body.gameId;
     gameId = new ObjectId(gameId)
-    console.log('gameId : ', gameId)
     const wishlist = await Wishlist.findOne({ userId });
     // const item = wishlist.items.id(gameId1);
     // console.log("Items : ",item)
     // const gameId = item.gameId;
 
     const game = await Games.findById(gameId);
-    console.log("move  : ", game)
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
@@ -1738,11 +1688,9 @@ homeController.moveToWishlist = async (req, res) => {
   try {
     const userId = req.session.userId;
     const gameId1 = new ObjectId(req.body.gameId);
-    console.log("Working")
     const cart = await Cart.findOne({ userId })
     const item = cart.items.id(gameId1);
     const gameId = item.gameId;
-    console.log("Existing : ", gameId)
 
     const game = await Games.findById(gameId);
 
@@ -1768,7 +1716,6 @@ homeController.moveToWishlist = async (req, res) => {
     const existingItem = wishlist.items.find(
       (item) => String(item.gameId) === String(gameId)
     );
-    console.log("Existing : ", existingItem)
     if (existingItem) {
       isExistInWishlist = true;
       return res.json({ status: false })
@@ -1777,7 +1724,6 @@ homeController.moveToWishlist = async (req, res) => {
         gameId,
       });
 
-      console.log("Game added to wishlist");
       await wishlist.save();
 
       const updateResult = await Cart.findOneAndUpdate(
@@ -1836,7 +1782,6 @@ homeController.createOrder2 = async (req, res) => {
   try {
     const userId = req.session.userId;
     let { amount } = req.body;
-    console.log("Amount : ", amount)
     const options = {
       amount: amount * 100, // Amount in paise
       currency: 'INR',
@@ -1844,7 +1789,6 @@ homeController.createOrder2 = async (req, res) => {
       notes: {},
     };
     const order = await instance2.orders.create(options);
-    console.log("ORDER : ", order);
     return res.json({ order, status: true });
   } catch (error) {
     console.error("Error searching for games:", error);
@@ -1854,30 +1798,21 @@ homeController.createOrder2 = async (req, res) => {
 
 homeController.verifyPayment2 = async (req, res) => {
   try {
-    console.log("Verifying")
     const { payment, order } = req.body
-    console.log("Order : ", order)
     const crypto = require("crypto");
     const hmac = crypto
       .createHmac("sha256", process.env.key_secret)
       .update(payment.razorpay_order_id + "|" + payment.razorpay_payment_id)
       .digest("hex");
-    console.log("Is true : ", hmac === payment.razorpay_signature)
     if (hmac === payment.razorpay_signature) {
-      console.log("Verified ...!")
       const userId = req.session.userId;
       let amount = order.order.amount
-      console.log("Amount : ", amount)
       amount = parseInt(amount) / 100
-      console.log("Amount2 : ", amount)
 
       const user = await Users.findById(userId);
       const wallet = await Wallet.findOne({ userId });
-      console.log(wallet)
       let balance = wallet.balance
-      console.log("BALANCE :", balance, "Amount :", amount)
       let newAmount = balance + amount
-      console.log("New Amount :", newAmount)
       await Wallet.updateOne({ userId }, { $set: { balance: newAmount } })
       await Wallet.updateOne(
         { userId },
@@ -1893,7 +1828,6 @@ homeController.verifyPayment2 = async (req, res) => {
       return res.json({ status: true, newAmount })
 
     } else {
-      console.log("Verification Failed")
 
       return res.json({ status: false })
 
@@ -1912,7 +1846,6 @@ homeController.verifyPayment2 = async (req, res) => {
 homeController.paymentFailed2 = async (req, res) => {
   try {
     const order = req.body;
-    console.log("Pay ment failed")
     res.json({ status: true });
   } catch (error) {
     console.log(error);
@@ -1988,7 +1921,6 @@ homeController.deleteComment = async (req, res) => {
 
 homeController.rating = async (req, res) => {
   try {
-    console.log("Rating worked")
     const userId = req.session.userId;
     let { rate, gameId } = req.body
     gameId = new ObjectId(gameId)
@@ -2026,7 +1958,6 @@ homeController.gameFilter = async (req, res) => {
     const genres = await Genres.find()
     const installedGame = await installedGames.findOne({ userId }).populate('gameItems.gameId')
     const items = installedGame.gameItems
-    console.log("Items : ", items)
     let currentPage = parseInt(req.query.page) || 1;
     const perPage = 8;
     if (currentPage < 1) {
@@ -2087,7 +2018,6 @@ homeController.searchGames = async (req, res) => {
     }
 
     const skipValue = (currentPage - 1) * perPage;
-    console.log("Gmae nme : ", gameName)
     const totalGames = await Games.countDocuments();
     const totalPages = Math.ceil(totalGames / perPage);
 
@@ -2108,7 +2038,6 @@ homeController.searchGames = async (req, res) => {
 
 
 
-    console.log("Games : ", games)
 
     const genres = await Genres.find();
 

@@ -3,9 +3,9 @@ const multer = require("multer");
 const Comments = require('../Models/gameComments')
 const reportedComments =require('../Models/reportedComments')
 
-const adminComment = {};
+const commentController = {};
 
-adminComment.commentList = async (req, res) => {
+commentController.commentList = async (req, res) => {
   try {
     if (req.session.adminLogIn) {
 
@@ -24,7 +24,6 @@ adminComment.commentList = async (req, res) => {
       .find()
       .populate('gameId').populate('commentId')
        
-      console.log("report : ",reportComments)
       
       res.render('admin/pages/commentList', { reportComments, currentPage, totalPages,message: "" });
     } else {
@@ -39,7 +38,7 @@ adminComment.commentList = async (req, res) => {
 
 
 
-adminComment.adminDeleteComment = async (req, res) => {
+commentController.adminDeleteComment = async (req, res) => {
   try {
     const commentId = req.body.commentId
    const deleteOne= await Comments.findByIdAndDelete(
@@ -56,4 +55,4 @@ adminComment.adminDeleteComment = async (req, res) => {
 };
 
 
-module.exports= adminComment;
+module.exports= commentController;

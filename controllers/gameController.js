@@ -1,11 +1,11 @@
 const Games = require("../Models/game");
 const multer = require("multer");
 const Genres = require("../Models/genre");
-const adminGame = {};
+const gameController = {};
 const path = require('path')
 const fs = require('fs')
 let gameInsert =false 
-adminGame.gameList = async (req, res) => {
+gameController.gameList = async (req, res) => {
   try {
     if (req.session.adminLogIn) {
 
@@ -34,7 +34,7 @@ adminGame.gameList = async (req, res) => {
   }
 };
 
-adminGame.searchGame = async (req, res) => { 
+gameController.searchGame = async (req, res) => { 
   try {
     const { gameName } = req.query;
     let currentPage = parseInt(req.query.page) || 1;
@@ -72,11 +72,10 @@ adminGame.searchGame = async (req, res) => {
   }
 };
 
-adminGame.insertGame = async(req, res) => {
+gameController.insertGame = async(req, res) => {
   try {
     if (req.session.adminLogIn) {
       const genres = await Genres.find()
-      console.log('Directory : ',__dirname)
   
       res.render("admin/pages/insertGame", { message1: "" ,genres});
     } else {
@@ -89,7 +88,7 @@ adminGame.insertGame = async(req, res) => {
   
 };
 
-adminGame.insertGameData = async (req, res) => {
+gameController.insertGameData = async (req, res) => {
 
   try {
     const genres = await Genres.find()
@@ -111,10 +110,8 @@ adminGame.insertGameData = async (req, res) => {
 
 
     const games = await Games.findOne({ gameName });
-    console.log("GAMES N : ",games)
     if (!games) {
       const croppedImageData = JSON.parse(req.body.croppedImageData);
-      console.log("Cropped image data : ",croppedImageData)
       
       const gameImages = req.files.map(file => `/views/gameImages/${file.filename}`);
 
@@ -163,7 +160,7 @@ adminGame.insertGameData = async (req, res) => {
 }
 }
 
-adminGame.unlistGame = async (req, res) => {
+gameController.unlistGame = async (req, res) => {
   try {
     const game = await Games.findById(req.params.id);
     game.unlist = true; 
@@ -174,7 +171,7 @@ adminGame.unlistGame = async (req, res) => {
   }
 };
 
-adminGame.listGame = async (req, res) => {
+gameController.listGame = async (req, res) => {
   try {
     const game = await Games.findById(req.params.id);
 
@@ -186,7 +183,7 @@ adminGame.listGame = async (req, res) => {
   }
 };
 
-adminGame.editGame = async (req, res) => {
+gameController.editGame = async (req, res) => {
   if (req.session.adminLogIn) {
     try {
       const genres = await Genres.find();
@@ -199,7 +196,7 @@ adminGame.editGame = async (req, res) => {
     res.redirect("/adminLogin");
   }
 };
-adminGame.editGameData = async (req, res) => {
+gameController.editGameData = async (req, res) => {
   try {
     const genres = await Genres.find();
     const game = await Games.findById(req.params.id);
@@ -269,4 +266,4 @@ adminGame.editGameData = async (req, res) => {
   }
 };
 
-module.exports = adminGame;
+module.exports = gameController;

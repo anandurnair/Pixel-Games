@@ -1,8 +1,8 @@
 const Genres = require("../Models/genre");
 
-const adminGenre = {};
+const genreController = {};
 
-adminGenre.genreList = async (req, res) => {
+genreController.genreList = async (req, res) => {
   try {
     if (req.session.adminLogIn) {
       let currentPage = parseInt(req.query.page) || 1;
@@ -32,7 +32,7 @@ adminGenre.genreList = async (req, res) => {
 
 };
 
-adminGenre.unlistGenre = async (req, res) => {
+genreController.unlistGenre = async (req, res) => {
   try {
     const genre = await Genres.findById(req.params.id);
     genre.unlistGenre = true; // Assuming you have a 'unlist' property in your Games model
@@ -44,7 +44,7 @@ adminGenre.unlistGenre = async (req, res) => {
   }
 };
 
-adminGenre.listGenre = async (req, res) => {
+genreController.listGenre = async (req, res) => {
   try {
     const genre = await Genres.findById(req.params.id);
     genre.unlistGenre = false; // Assuming you have a 'unlist' property in your Games model
@@ -56,7 +56,7 @@ adminGenre.listGenre = async (req, res) => {
   }
 };
 
-adminGenre.searchGenre = async (req, res) => {
+genreController.searchGenre = async (req, res) => {
   const { genreName } = req.query;
   try {
     let currentPage = parseInt(req.query.page) || 1;
@@ -93,7 +93,7 @@ adminGenre.searchGenre = async (req, res) => {
   }
 };
 
-adminGenre.insertGenre = async (req, res) => {
+genreController.insertGenre = async (req, res) => {
   if (req.session.adminLogIn) {
     res.render("admin/pages/insertGenre", { message1: "" });
   } else {
@@ -101,7 +101,7 @@ adminGenre.insertGenre = async (req, res) => {
   }
 };
 
-adminGenre.insertGenreData = async (req, res) => {
+genreController.insertGenreData = async (req, res) => {
   try {
     const { genreName } = req.body;
     const genre = await Genres.findOne({ genreName });
@@ -122,7 +122,7 @@ adminGenre.insertGenreData = async (req, res) => {
   }
 };
 
-adminGenre.editGenre = async (req, res) => {
+genreController.editGenre = async (req, res) => {
   if (req.session.adminLogIn) {
     try {
       const genre = await Genres.findById(req.params.id);
@@ -135,7 +135,7 @@ adminGenre.editGenre = async (req, res) => {
   }
 };
 
-adminGenre.editGenreData = async (req, res) => {
+genreController.editGenreData = async (req, res) => {
   try {
     const { genreName } = req.body;
     const genre = await Genres.findOne({ _id: req.params.id });
@@ -154,4 +154,4 @@ adminGenre.editGenreData = async (req, res) => {
   }
 };
 
-module.exports = adminGenre;
+module.exports = genreController;
