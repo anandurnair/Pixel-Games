@@ -117,39 +117,31 @@
             </div>
             <!-- /.row -->
             <div class="row" style="margin-bottom: 50px;margin-left:200px;">
-                <div class="col-lg-10"  >
+                <div class="col-lg-10">
                     <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Order Chart</h2>
                     <label for="timeRange">Select Time Range:</label>
                     <select id="timeRange">
                         <option value="yearly">Yearly</option>
                         <option value="monthly">Monthly</option>
-                        <!-- <option value="weekly">Weekly</option> -->
-
+                        <option value="daily">Select a date</option>
                     </select>
+
+                    <div id="datePickerContainer" style="display: none;">
+                        <label for="selectedDate">Select a date:</label>
+                        <input type="date" id="selectedDate">
+                    </div>
                     <label for="yearSelection" class="yearLog" style="display: none;">Select Year:</label>
-                    <select id="yearSelection"  style="display: none;">
+                    <select id="yearSelection" style="display: none;">
                     </select>
                     <canvas id="chart-bar"></canvas>
 
                 </div>
 
             </div>
-            <div class="row"  style="margin-bottom: 50px;text-align: center;">
-                <div class="col-lg-6" style="padding: 80px;">
-                    <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Top Installed Games</h2>
-
-                    <canvas id="chart-pie"></canvas>
-                </div>
-                <div class="col-lg-6" style="padding-top: 80px;">
-                    <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Revenue Graph</h2>
-
-                    <canvas id="chart-line"></canvas>
-                </div>
-            </div>
             <div class="col-lg-12" style="margin-bottom: 50px;">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                       <h4>Download Sales Report</h4> 
+                        <h4>Download Sales Report</h4>
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body" style="padding: 10px;">
@@ -162,11 +154,24 @@
                 </div>
                 <!-- /.panel -->
             </div>
+            <div class="row" style="margin-bottom: 50px;text-align: center;">
+                <div class="col-lg-6" style="padding: 80px;">
+                    <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Top Installed Games</h2>
+
+                    <canvas id="chart-pie"></canvas>
+                </div>
+                <div class="col-lg-6" style="padding-top: 80px;">
+                    <h2 style="text-align: center;font-weight:600;margin-bottom:30px">Revenue Graph</h2>
+
+                    <canvas id="chart-line"></canvas>
+                </div>
+            </div>
+
         </div>
-        
+
         <!-- /.row -->
     </div>
-   
+
     <!-- /.container-fluid -->
     </div>
     <!-- /#page-wrapper -->
@@ -176,18 +181,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.11.0/mdb.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const timeRangeSelect = document.getElementById('timeRange');
+        const datePickerContainer = document.getElementById('datePickerContainer');
+
+        // Add event listener to the select element
+        timeRangeSelect.addEventListener('change', function () {
+            const selectedValue = timeRangeSelect.value;
+
+            // Show/hide date picker based on the selected option
+            if (selectedValue === 'daily') {
+                datePickerContainer.style.display = 'block';
+                document.getElementById('yearSelection').style.display = 'none';
+
+            } else {
+                datePickerContainer.style.display = 'none';
+            }
+        });
+
+
         document.addEventListener('DOMContentLoaded', async function () {
-            document.getElementById('pdf').addEventListener('click',pdfReport)
-            document.getElementById('excel').addEventListener('click',excelReport)
-            async function pdfReport(){                                     
+
+
+
+            const selectedDateInput = document.getElementById('selectedDate');
+
+            selectedDateInput.addEventListener('change', function () {
+                const selectedDate = selectedDateInput.value;
+                window.date = selectedDate
+
+                console.log('Selected date:', window.date);
+                handleTimeRangeChange()
+            });
+
+
+
+
+            document.getElementById('pdf').addEventListener('click',function(){
+                const selectedValue = timeRangeSelect.value;
+
+                if(selectedValue==='yearly'){
+                    pdfReport()
+                }else if(selectedValue === 'monthly'){
+                    pdfReportByMonth()
+                }else if(selectedValue === 'daily'){
+                    pdfReportByDay()
+                }
+            }
+            
+            )
+           
+
+
+
+            async function pdfReport() {
                 try {
-                    const response = await fetch('/PDFReport');
+                    const response = await fetch('/PDFReport')
                     if (!response.ok) {
-                      throw new Error(`Failed to fetch PDF (${response.status} ${response.statusText})`);
+                        throw new Error(`Failed to fetch PDF (${response.status} ${response.statusText})`);
                     }
                     const blob = await response.blob();
-                    console.log('Fetched Blob:', blob); // Log the blob to see if it's a valid PDF blob
-                
+                    console.log('Fetched Blob:', blob); 
+
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
@@ -195,34 +249,136 @@
                     document.body.appendChild(link);
                     link.click();
                     link.parentNode.removeChild(link);
-                  } catch (error) {
+                } catch (error) {
                     console.log('Error fetching PDF:', error);
-                  }
+                }
+            }
+            async function pdfReportByMonth() {
+                try {
+                    const year = document.getElementById('yearSelection').value;
+
+                    const response = await fetch(`/PDFReportByMonth?year=${year}`)
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch PDF (${response.status} ${response.statusText})`);
+                    }
+                    const blob = await response.blob();
+                    console.log('Fetched Blob:', blob); 
+
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'sales_report_Monthly.pdf');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                } catch (error) {
+                    console.log('Error fetching PDF:', error);
+                }
+            }
+            async function pdfReportByDay() {
+                try {
+                    let date = window.date
+
+                    const response = await fetch(`/PDFReportByDay?date=${date}`)
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch PDF (${response.status} ${response.statusText})`);
+                    }
+                    const blob = await response.blob();
+                    console.log('Fetched Blob:', blob); 
+
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'sales_report_daily.pdf');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                } catch (error) {
+                    console.log('Error fetching PDF:', error);
+                }
             }
 
+            document.getElementById('excel').addEventListener('click', function(){
+                const selectedValue = timeRangeSelect.value;
+
+                if(selectedValue==='yearly'){
+                    excelReport()
+                }else if(selectedValue === 'monthly'){
+                    excelReportByMonth()
+                }else if(selectedValue === 'daily'){
+                    excelReportByDay()
+                }
+            })
 
             async function excelReport() {
                 try {
-                  const response = await fetch('/ExcelReport'); // Fetch the Excel report endpoint
-                  if (!response.ok) {
-                    throw new Error(`Failed to fetch Excel (${response.status} ${response.statusText})`);
-                  }
-              
-                  const blob = await response.blob();
-                  console.log('Fetched Blob:', blob); // Log the blob to see if it's a valid Excel blob
-              
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.setAttribute('download', 'sales_report_2023.xlsx');
-                  document.body.appendChild(link);
-                  link.click();
-                  link.parentNode.removeChild(link);
+                    const response = await fetch('/ExcelReport'); 
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch Excel (${response.status} ${response.statusText})`);
+                    }
+
+                    const blob = await response.blob();
+                    console.log('Fetched Blob:', blob); 
+
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'sales_report_yearly.xlsx');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
                 } catch (error) {
-                  console.log('Error fetching Excel:', error);
+                    console.log('Error fetching Excel:', error);
                 }
-              }
-              
+            }
+            async function excelReportByMonth() {
+                try {
+                    const year = document.getElementById('yearSelection').value;
+
+                    const response = await fetch(`/excelReportByMonth?year=${year}`); 
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch Excel (${response.status} ${response.statusText})`);
+                    }
+
+                    const blob = await response.blob();
+                    console.log('Fetched Blob:', blob); 
+
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'sales_report_Monthly.xlsx');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                } catch (error) {
+                    console.log('Error fetching Excel:', error);
+                }
+            }
+
+            async function excelReportByDay() {
+                try {
+                    let date = window.date
+
+                    const response = await fetch(`/excelReportByDay?date=${date}`); 
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch Excel (${response.status} ${response.statusText})`);
+                    }
+
+                    const blob = await response.blob();
+
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'sales_report_daily.xlsx');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                } catch (error) {
+                    console.log('Error fetching Excel:', error);
+                }
+            }
+
+
             try {
                 await gamesReleasedPerYear();
                 await fetchGameCountsPerYear()
@@ -237,10 +393,10 @@
 
             const timeRangeSelect = document.getElementById('timeRange');
             timeRangeSelect.addEventListener('change', handleTimeRangeChange);
-    
+
             function handleTimeRangeChange() {
                 const selectedValue = timeRangeSelect.value;
-            
+
                 if (selectedValue === 'yearly') {
                     document.getElementById('yearSelection').style.display = 'none';
                     gamesReleasedPerYear();
@@ -249,16 +405,18 @@
                     fetchMonthlyGameData(); // Assuming this fetches data for the monthly chart
                     // Call the function to generate the monthly chart
                     generateMonthlyChart(); // Pass the appropriate data to this function
+                } else if (selectedValue === 'daily') {
+                    fetchDailyData();
                 }
             }
-           
+
 
             async function fetchGameCountsPerYear() {
                 try {
                     const response = await fetch('/gamesOrderedPerYear');
                     const data = await response.json();
                     const gameCounts = data.gameCounts;
-        
+
                     populateYearDropdown(Object.keys(gameCounts));
                 } catch (error) {
                     console.error('Error:', error);
@@ -268,7 +426,7 @@
             function populateYearDropdown(years) {
                 const yearSelection = document.getElementById('yearSelection');
                 yearSelection.innerHTML = '';
-                
+
                 years.forEach((year) => {
                     const option = document.createElement('option');
                     option.value = year;
@@ -277,31 +435,119 @@
                 });
             }
 
-            async function fetchMonthlyGameData() {
+
+            async function fetchDailyData() {
                 try {
+                    let date = window.date
+                    console.log("Working")
+                    console.log("Date : ", date)
+                    const response = await fetch(`/gamesDownloadedPerDay?date=${date}`)
+                    const data = await response.json();
+                    generateDailyChart(data.dailyOrderCounts)
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            async function generateDailyChart(data) {
+                try {
+                    const dailyGameCounts = data;
+                    console.log("Monthly Game Counts:", dailyGameCounts);
+
+                    const day = Object.keys(dailyGameCounts);
+                    const counts = Object.values(dailyGameCounts);
+                    console.log("Day:", day);
+                    console.log("Counts:", counts);
+
+                    const ctxBar = document.getElementById('chart-bar').getContext('2d');
+
+                    const dataBar = {
+                        labels: day,
+                        datasets: [
+                            {
+                                label: 'orders',
+                                data: counts,
+                                backgroundColor: 'rgba(66,133,244,0.6)',
+                            },
+                        ],
+                    };
+
+                    const configBar = {
+                        type: 'bar',
+                        data: dataBar,
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Orders per day',
+                                    font: {
+                                        size: 18,
+                                        family: 'Arial',
+                                    },
+                                },
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                },
+                            },
+                        },
+                    };
+
+                    const existingChart = window.myYearlyChart;
+                    console.log("Existing Chart:", existingChart);
+
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+
+                    const existingChart2 = window.myMonthlyChart;
+                    if (existingChart2) {
+                        existingChart2.destroy();
+                    }
+                    const existingChart3 = window.myDailyChart;
+                    if (existingChart3) {
+                        existingChart3.destroy();
+                    }
+
+                    window.myDailyChart = new Chart(ctxBar, configBar);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            
+
+            async function fetchMonthlyGameData() {
+                try {  
+
                     const year = document.getElementById('yearSelection').value;
                     const response = await fetch(`/gamesDownloadedPerMonthInYear?year=${year}`);
                     const data = await response.json();
-                    console.log("Recieved data : ",data.monthlyOrderCounts)
-                    
+
                     // Update the chart based   on the fetched data
                     generateMonthlyChart(data.monthlyOrderCounts);
                 } catch (error) {
                     console.error('Error:', error);
                 }
             }
+
+
+            
+
+
+
+
             async function generateMonthlyChart(data) {
                 try {
                     const monthlyGameCounts = data;
                     console.log("Monthly Game Counts:", monthlyGameCounts);
-            
+
                     const months = Object.keys(monthlyGameCounts);
                     const counts = Object.values(monthlyGameCounts);
                     console.log("Months:", months);
                     console.log("Counts:", counts);
-            
+
                     const ctxBar = document.getElementById('chart-bar').getContext('2d');
-            
+
                     const dataBar = {
                         labels: months,
                         datasets: [
@@ -312,7 +558,7 @@
                             },
                         ],
                     };
-            
+
                     const configBar = {
                         type: 'bar',
                         data: dataBar,
@@ -334,104 +580,112 @@
                             },
                         },
                     };
-            
+
                     const existingChart = window.myYearlyChart;
                     console.log("Existing Chart:", existingChart);
-            
+
                     if (existingChart) {
                         existingChart.destroy();
                     }
-                    
+
                     const existingChart2 = window.myMonthlyChart;
                     if (existingChart2) {
                         existingChart2.destroy();
                     }
-            
+                    const existingChart3 = window.myDailyChart;
+                    if (existingChart3) {
+                        existingChart3.destroy();
+                    }
+
                     window.myMonthlyChart = new Chart(ctxBar, configBar);
                 } catch (error) {
                     console.error('Error:', error);
                 }
             }
-            
-            
-            
-          
 
-            async function gamesReleasedPerYear(){
+
+
+
+
+            async function gamesReleasedPerYear() {
                 try {
                     const response = await fetch('/gamesOrderedPerYear');
                     const data = await response.json();
                     const gameCountsJSON = data.gameCounts
-                    
+
                     const years = Object.keys(gameCountsJSON);
                     const counts = Object.values(gameCountsJSON);
-              
+
                     const ctxBar = document.getElementById('chart-bar').getContext('2d');
                     const dataBar = {
-                      labels: years, 
-                      datasets: [
-                        {
-                          label: 'Orders',
-                          data: counts,
-                          backgroundColor: '#3399ff',
-                        },
-                      ],
+                        labels: years,
+                        datasets: [
+                            {
+                                label: 'Orders',
+                                data: counts,
+                                backgroundColor: '#3399ff',
+                            },
+                        ],
                     };
                     const configBar = {
-                      type: 'bar',
-                      data: dataBar,    
-                      options: {
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'Orders per Year',
-                                font: {
-                                    size: 18,
-                                    family: 'Arial',
+                        type: 'bar',
+                        data: dataBar,
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Orders per Year',
+                                    font: {
+                                        size: 18,
+                                        family: 'Arial',
+                                    },
                                 },
                             },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
                         },
-                        scales: {
-                          y: {
-                            beginAtZero: true
-                          }
-                        }
-                      },
                     };
 
                     const existingChart = window.myMonthlyChart;
-                    console.log("Is exist  : ",existingChart)
+                    console.log("Is exist  : ", existingChart)
                     if (existingChart) {
                         existingChart.destroy();
                     }
-            
-                  window.myYearlyChart =  new Chart(ctxBar, configBar);
-                  console.log("yearly chart  : ",myYearlyChart)
-                  } catch (error) {
+                    const existingChart3 = window.myDailyChart;
+                    if (existingChart3) {
+                        existingChart3.destroy();
+                    }
+
+                    window.myYearlyChart = new Chart(ctxBar, configBar);
+                    console.log("yearly chart  : ", myYearlyChart)
+                } catch (error) {
                     console.error('Error:', error);
-                  }
+                }
             }
-         
+
 
 
 
             async function lineChart() {
                 try {
-                    const response = await fetch('/revenues'); 
+                    const response = await fetch('/revenues');
                     const data = await response.json();
-            
+
                     const dates = data.dates;
                     const revenueValues = data.revenueValues;
-            
+
                     function formatDate(dateString) {
                         const date = new Date(dateString);
                         const options = { year: 'numeric', month: 'short', day: 'numeric' };
                         return date.toLocaleDateString(undefined, options);
                     }
                     const formattedDates = dates.map(formatDate);
-            
+
                     const ctx = document.getElementById('chart-line').getContext('2d');
-            
+
                     const lineChart = new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -463,56 +717,47 @@
                     console.error('Error:', error);
                 }
             }
-            
-            async function pieChart(){
+
+            async function pieChart() {
                 try {
                     const response = await fetch('/mostInstalledGames');
                     const data = await response.json();
                     const topGames = data.topGames;
-                  
+
                     const gameNames = topGames.map((game) => game.gameName);
                     const ordersCount = topGames.map((game) => game.ordersCount);
-                  
+
                     const ctxPie = document.getElementById('chart-pie').getContext('2d');
                     const dataPie = {
-                      labels: gameNames,
-                      datasets: [
-                        {
-                          data: ordersCount,
-                          backgroundColor: [
-                            '#3399ff',
-                            '#cc66ff',
-                            '#33cc33',
-                            '#ffcc00',
-                            '#ff3333', // Add more colors if needed
-                          ],
-                        },
-                      ],
+                        labels: gameNames,
+                        datasets: [
+                            {
+                                data: ordersCount,
+                                backgroundColor: [
+                                    '#3399ff',
+                                    '#cc66ff',
+                                    '#33cc33',
+                                    '#ffcc00',
+                                    '#ff3333', // Add more colors if needed
+                                ],
+                            },
+                        ],
                     };
                     const configPie = {
-                      type: 'pie',
-                      data: dataPie,
-                      options: {
-                        // You can add options here if needed
-                      },
+                        type: 'pie',
+                        data: dataPie,
+                        options: {
+                            // You can add options here if needed
+                        },
                     };
                     new Chart(ctxPie, configPie);
-                  } catch (error) {
+                } catch (error) {
                     console.error(error);
                     // Handle error here
-                  }
-               } 
-             
-        
+                }
+            }
+
+
         });
-      </script>
+    </script>
     <%- include('./includes/adminFooter.ejs'); -%>
-
-
-
-
-
-
-
-
-   

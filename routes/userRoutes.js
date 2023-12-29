@@ -48,7 +48,7 @@ userRouter.post("/forgotPasswordData",userController.forgotPasswordData)
 userRouter.post("/passwordOTPData",userController.passwordOTPData)
 userRouter.post("/newPasswordData",userController.newPasswordData)
 
-
+userRouter.get("/community",userBlocked,homeController.community)
 
 userRouter.get("/home",userBlocked, homeController.homePage);
 userRouter.get("/categories",userBlocked, homeController.categories);
@@ -76,6 +76,8 @@ userRouter.get('/cart/checkout',userBlocked,homeController.cartCheckout)
 userRouter.get('/checkout/:id',userBlocked,homeController.checkout)
 
 userRouter.get('/invoice',userBlocked,homeController.invoice)
+userRouter.get('/invoiceDownload',userBlocked,homeController.invoiceDownload)
+
 //PLACE ORDER
 
 // userRouter.post('/cart/placeOrder/:id',homeController)
@@ -83,7 +85,7 @@ userRouter.get('/invoice',userBlocked,homeController.invoice)
 userRouter.post('/cart/placeOrder',userBlocked,homeController.cartPlaceOrder)
 // userRouter.post('/placeOrder/:id',userBlocked,homeController.placeOrder)
 userRouter.post('/createOrder',userBlocked,homeController.createOrder)
-
+userRouter.get('/termsAndConditions',userBlocked,homeController.termsAndConditions)
 //  installed games
 
 userRouter.get('/installedGames',userBlocked,homeController.installedGames)

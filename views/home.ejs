@@ -8,28 +8,45 @@
       font-size: 20px;
       margin-top: 20px;
     }
+    /* Add CSS styles for carousel, items, controls as needed */
+.carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  height: 670px;
+  margin-bottom: 50px;
+  /* Add any other styles for positioning, size, etc. */
+}
+
+.carousel-inner {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.carousel-item {
+  min-width: 100%;
+  /* Adjust as needed */
+  display: inline-block;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  /* Adjust as needed */
+  cursor: pointer;
+  /* Add styles for arrows/icons */
+}
+
    
   </style>
+
   <!-- Hero Section Begin -->
-  <section class="hero">
+  <!-- <section class="hero">
 
     <div class="row" style="position: relative;">
-      <!-- <div class="col-lg-3">
-                    <div class="hero__categories">
-                        <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>All genres</span>
-                        </div>
-                        <ul>
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Adventure</a></li>
-                            <li><a href="#">Racing</a></li>
-                            <li><a href="#">Sports</a></li>
-                            <li><a href="#">Stratergy</a></li>
-
-                        </ul>
-                    </div>
-                </div> -->
+      
       <div class="col-lg-12">
 
         <div class="hero__item set-bg" data-setbg="/images/b3.jpg">
@@ -37,7 +54,7 @@
 
 
 
-          </div> <!-- <a href="#" class="primary-btn">SHOP NOW</a> -->
+          </div> 
         </div>
       </div>
       <div style="position: absolute;left:13%;bottom: 17%;">
@@ -49,7 +66,34 @@
     </div>
     </div>
 
-  </section>
+  </section> -->
+
+
+  <div id="demo" class="carousel" >
+    <!-- The slideshow -->
+
+   
+    <div class="carousel-inner">
+      <% banners.forEach(banner =>{  %>
+        <% if(banner.isActive){ %>
+        <div class="carousel-item active">
+          <img src="<%= banner.imageUrls %>" alt="Los Angeles" height="100%;"  width="100%" style="opacity: 0.8;">
+          <div style="position: absolute;left:13%;bottom: 35%;width:500px">
+            <h2 style="font-size: 56px;font-weight:800;text-shadow: 5px 5px 8px #000000;"><%= banner.title %></h2>
+            <p style="color: #fff;font-size:20px;margin-top:20px">Explore the world of games</p>
+           <a href="/categories"> <button class="btn explorebtn btn-outline-light" >Explore  <i style="margin-left:10px" class="fa-solid fa-arrow-right" style="color: #ffffff;"></i></button></a>
+          </div>
+       
+      </div>
+        <% } }) %>
+        
+        
+    </div>
+  
+    <!-- Left and right controls -->
+    <a class="carousel-control-prev" href="#" onclick="prevSlide()">&laquo;</a>
+    <a class="carousel-control-next" href="#" onclick="nextSlide()">&raquo;</a>
+</div>
   <!-- Hero Section End -->
 
   <!-- Categories Section Begin -->
@@ -80,10 +124,8 @@
     <hr class="featurette-divider">
     <div class="row featurette ">
       <div class="col-md-7 ">
-        <h2 class="featurette-heading ">First featurette heading. </h2>
-        <p style="margin-top: 15px;" class="lead  ">An international digital games and entertainment company. We
-          develop, publish and distribute multiplayer mobile games. We reach over 400 million players each month, and
-          our audience keeps growing.</p>
+        <h2 class="featurette-heading ">New Releases</h2>
+        <p style="margin-top: 15px;" class="lead  ">Be the first to dive into recently launched games, experiencing the thrill of exploring uncharted worlds and gripping storylines.</p>
       </div>
       <div class="col-md-5">
         <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b2.jpg"
@@ -97,9 +139,8 @@
 
     <div class="row featurette">
       <div class="col-md-7 order-md-2">
-        <h2 class="featurette-heading">Oh yeah, it’s that good. </h2>
-        <p style="margin-top: 15px;" class="lead">Another featurette? Of course. More placeholder content here to give
-          you an idea of how this layout would work with some actual real-world content in place.</p>
+        <h2 class="featurette-heading">Upcoming Titles</h2>
+        <p style="margin-top: 15px;" class="lead">Get a sneak peek at upcoming releases and pre-order to secure your copy in advance, ensuring you're among the first to embark on new gaming adventures.</p>
       </div>
       <div class="col-md-5 order-md-1">
         <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b1.jpg"
@@ -113,10 +154,9 @@
 
     <div class="row featurette">
       <div class="col-md-7">
-        <h2 class="featurette-heading">And lastly, this one. </h2>
-        <p style="margin-top: 15px;" class="lead">And yes, this is the last block of representative placeholder content.
-          Again, not really intended to be actually read, simply here to give you a better view of what this would look
-          like with some actual content. Your content.</p>
+        <h2 class="featurette-heading">Exciting Updates </h2>
+        <p style="margin-top: 15px;" class="lead"> Discover downloadable content (DLC), expansion packs, and updates that breathe fresh life into your favorite games, offering new challenges and experiences.
+        </p>
       </div>
       <div class="col-md-5">
         <img class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" src="/images/b4.jpg"
@@ -131,6 +171,33 @@
   </div>
 
   <!-- Featured Section End -->
+<script>
+  let slideIndex = 0;
 
+function showSlide(n) {
+    const slides = document.getElementsByClassName("carousel-item");
+    if (n >= slides.length) {
+        slideIndex = 0;
+    }
+    if (n < 0) {
+        slideIndex = slides.length - 1;
+    }
+    for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    slides[slideIndex].style.display = "inline-block";
+}
+
+function prevSlide() {
+    showSlide(--slideIndex);
+}
+
+function nextSlide() {
+    showSlide(++slideIndex);
+}
+
+showSlide(slideIndex);
+
+</script>
 
   <%- include('footer') %>

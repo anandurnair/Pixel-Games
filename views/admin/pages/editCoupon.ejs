@@ -23,6 +23,7 @@
                                         <select name="discountType" id="discountType">
                                             <option value="minimumPurchase" <%= coupon.discountType === 'minimumPurchase' ? 'selected' : '' %>>Minimum Purchase</option>
                                             <option value="firstPurchase" <%= coupon.discountType === 'firstPurchase' ? 'selected' : '' %>>First Purchase</option>
+                                            <option value="forAll" <%= coupon.discountType === 'forAll' ? 'selected' : '' %>>For all Purchase</option>
                                         </select>
                                         <div id="errorGameName" style="color: red;"></div>
                                     </div>

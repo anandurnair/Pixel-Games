@@ -791,6 +791,8 @@
 
 async function verifyPayment(payment, order) {
   try {
+    let discountValue=document.getElementById('discountField').innerText
+      discountValue= parseInt(discountValue)
     const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
     let isWalletUsed = window.walletApplied
     const response = await fetch('/verifyPayment', {
@@ -801,6 +803,7 @@ async function verifyPayment(payment, order) {
       body: JSON.stringify({
         payment,
         order,
+        discountValue,
         paymentOption,
         isWalletUsed
       })

@@ -23,10 +23,15 @@
       </li>  -->
       <!-- /.col-lg-12 -->
     </div>
+    
     <!-- /.row -->
     <div class="row">
       <div class="col-lg-12">
         <div class="panel panel-default">
+          <div class="panel-heading">
+            <a href="/insertBanner"><button>Insert Banner</button></a>
+             
+         </div>
           <div class="panel-heading">Banner List</div>
          
           <!-- /.panel-heading -->
@@ -51,8 +56,22 @@
                   </tr>
                 </thead>
                 <tbody>
-                 
-                </tbody>
+                  <% banners.forEach(banner=>{ %>
+                  <tr class="odd gradeX">                                   
+                      <td><%= banner.title %></td>
+                      <td class="center"><img src="<%= banner.imageUrls %>" alt="" width="100px"> </td>                      
+                      <td class="center"><%= banner.isActive? "Active" : "Not active"%></td>
+                      <td class="center"><% if (banner.isActive==true) { %>
+                          
+                          <a href="/deactiveBanner/<%= banner._id %>">Deactive</a>
+                        <% } else { %>
+                          <a href="/activeBanner/<%= banner._id %>">Active</a>                                                                                                                                 
+                        <% } %></td>
+                      <td class="center"><a href="/editBanner?bannerId=<%= banner._id %>">Edit</a></td>
+
+                  </tr>
+                  <% }); %>
+              </tbody>
                 
               </table>
             </div>

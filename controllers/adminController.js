@@ -27,6 +27,8 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+adminController.upload4= multer({ storage: storage });
+
 adminController.upload = upload.array("gameImage",3);
 adminController.upload2 = multer({  
   storage: storage,
@@ -143,7 +145,6 @@ adminController.gamesOrderedPerYear = async (req, res) => {
       const year = item._id;
       gameCounts[year.toString()] = item.count;
     });
-    console.log('games : ',gameCounts)
     res.json({ gameCounts });
   } catch (error) {
     console.error(error);
@@ -153,12 +154,68 @@ adminController.gamesOrderedPerYear = async (req, res) => {
 
 
 
+adminController.gamesDownloadedPerDay = async (req, res) => {
+  try {
+    const { date } = req.query;
 
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    endDate.setDate(endDate.getDate() + 1); // Increment date by 1 to get the next day
 
+    const orderDates = await Orders.aggregate([
+      {
+        $match: {
+          orderDate: {
+            $gte: startDate,
+            $lt: endDate,
+          },
+          orderStatus: 'Downloaded', // Consider only downloaded orders
+        },
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: '$orderDate' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const dailyOrderCounts = {};
+
+    orderDates.forEach((dayData) => {
+      const dayOfMonth = dayData._id;
+      const formattedDate = startDate.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+      dailyOrderCounts[formattedDate] = dayData.count;
+    });
+
+    // Fill in missing days with count 0
+    for (let i = startDate.getDate(); i < endDate.getDate(); i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(i);
+      const formattedDate = currentDate.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+      if (!(formattedDate in dailyOrderCounts)) {
+        dailyOrderCounts[formattedDate] = 0;
+      }
+    }
+
+    res.json({ dailyOrderCounts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+ 
 adminController.gamesDownloadedPerMonthInYear = async (req, res) => {
   try {
     const { year } = req.query;
-    console.log("Year: ", year);
 
     const startDate = new Date(`${year}-01-01`);
     const endDate = new Date(`${year}-12-31`);
@@ -207,7 +264,6 @@ adminController.gamesDownloadedPerMonthInYear = async (req, res) => {
       monthlyOrderCounts[monthName] = monthData.count;
     });
 
-    console.log("Monthly Order Counts: ", monthlyOrderCounts);
     res.json({ monthlyOrderCounts });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
@@ -235,7 +291,6 @@ adminController.mostInstalledGames= async(req,res)=>{
       { $sort: { ordersCount: -1 } },
       { $limit: 5 },
     ]);
-    console.log("top : ",topGames)
     res.status(200).json({ topGames });
   } catch (error) {
     console.log(error)
@@ -243,12 +298,10 @@ adminController.mostInstalledGames= async(req,res)=>{
   }
 }
 
-const moment = require('moment'); // If you're not already using it, install the 'moment' library: npm install moment
-
+const moment = require('moment'); 
 adminController.revenue= async (req, res) => {
   try {
     const revenueData = await getRevenueData();
-    console.log(revenueData)
     res.status(200).json(revenueData);
   } catch (error) {
     console.error('Error fetching revenue data:', error);
@@ -279,8 +332,7 @@ const sevenDaysAgo = moment().subtract(7, 'days');
 
     const dates = revenuePerDate.map((item) => item._id);
     const revenueValues = revenuePerDate.map((item) => item.totalRevenue);
-    console.log("dates ",dates)
-    console.log("revenues : ",revenueValues)
+    
     return { dates, revenueValues };
   } catch (error) {
     console.error('Error getting revenue data for the last 7 days:', error);
@@ -335,6 +387,139 @@ adminController.PDFReport=async  (req,res)=>{
   }
 }
 
+
+
+adminController.PDFReportByMonth = async (req, res) => {
+  try {
+    const { year } = req.query;
+
+    const salesData = await Orders.find({
+      orderDate: {
+        $gte: new Date(`${year}-01-01`),
+        $lte: new Date(`${year}-12-31`),
+      },
+    }).populate('userId').populate('gameItems.gameId');
+
+    const monthlyOrderCounts = {
+      January: 0,
+      February: 0,
+      March: 0,
+      April: 0,
+      May: 0,
+      June: 0,
+      July: 0,
+      August: 0,
+      September: 0,
+      October: 0,
+      November: 0,
+      December: 0,
+    };
+
+    salesData.forEach((order) => {
+      const month = order.orderDate.getMonth();  
+      const monthName = new Date(0, month).toLocaleDateString('en-US', { month: 'long' });
+      monthlyOrderCounts[monthName] += 1;
+    });
+
+    const doc = new PDFDocument();
+    const fileName = `sales_report_${year}.pdf`;
+    const stream = doc.pipe(fs.createWriteStream(fileName));
+
+    doc.fontSize(18).text(`Sales Report for ${year}`, { align: 'center' });
+
+    Object.keys(monthlyOrderCounts).forEach((month) => {
+      doc.moveDown().fontSize(12).text(`${month}: ${monthlyOrderCounts[month]} orders`);
+    });
+
+    salesData.forEach((order, index) => {
+      let gameCounter = 1;
+      doc.moveDown().fontSize(12).text(`Order ${index + 1}`);
+      doc.text(`Order ID: ${order._id}`);
+      doc.text(`Customer: ${order.userId.fullName}`);
+      order.gameItems.forEach((game) => {
+        doc.text(`Game ${gameCounter}: ${game.gameId.gameName}`);
+        gameCounter++;
+      });
+      doc.text(`Total Amount: ${order.totalAmount}`);
+      doc.text(`Order date: ${order.orderDate.toDateString()}`);
+      // Add more order details as needed
+    });
+
+    doc.end();
+    stream.on('finish', () => {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+      res.download(fileName, (err) => {
+        if (err) {
+          console.error('Error sending PDF:', err);
+        }
+        fs.unlinkSync(fileName); // Remove the generated file after download
+      });
+    });
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+adminController.PDFReportByDay = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    const startDate = new Date(date);
+    const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Next day
+
+    const salesData = await Orders.find({
+      orderDate: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    }).populate('userId').populate('gameItems.gameId');
+
+    const doc = new PDFDocument();
+    const fileName = `orders_report_${date}.pdf`;
+    const stream = doc.pipe(fs.createWriteStream(fileName));
+
+    doc.fontSize(18).text(`Orders Report for ${date}`, { align: 'center' });
+
+    doc.moveDown().fontSize(12).text(`Total Orders: ${salesData.length}`);
+
+    salesData.forEach((order, index) => {
+      let gameCounter = 1;
+      doc.moveDown().fontSize(12).text(`Order ${index + 1}`);
+      doc.text(`Order ID: ${order._id}`);
+      doc.text(`Customer: ${order.userId.fullName}`);
+      order.gameItems.forEach((game) => {
+        doc.text(`Game ${gameCounter}: ${game.gameId.gameName}`);
+        gameCounter++;
+      });
+      doc.text(`Total Amount: ${order.totalAmount}`);
+      doc.text(`Order date: ${order.orderDate.toDateString()}`);
+      // Add more order details as needed
+    });
+
+    doc.end();
+    stream.on('finish', () => {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+      res.download(fileName, (err) => {
+        if (err) {
+          console.error('Error sending PDF:', err);
+        }
+        fs.unlinkSync(fileName); // Remove the generated file after download
+      });
+    });
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+
 adminController.ExcelReport = async (req, res) => {
   try {
     const salesData = await Orders.find({
@@ -363,6 +548,111 @@ adminController.ExcelReport = async (req, res) => {
     });
 
     const fileName = 'sales_report_2023.xlsx';
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+
+    workbook.xlsx.write(res)
+      .then(() => {
+        res.end();
+      })
+      .catch((error) => {
+        console.error('Error sending Excel:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      });
+  } catch (error) {
+    console.error('Error generating Excel report:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+adminController.excelReportByMonth = async (req, res) => {
+  try {
+    const { year } = req.query;
+
+
+    const salesData = await Orders.find({
+      orderDate: {
+        $gte: new Date(`${year}-01-01`),
+        $lte: new Date(`${year}-12-31`),
+      },
+    }).populate('userId').populate('gameItems.gameId');
+
+    const workbook = new Excel.Workbook();
+
+    // Loop through each month to create a worksheet for each month
+    for (let month = 0; month < 12; month++) {
+      const monthSales = salesData.filter(order => order.orderDate.getMonth() === month);
+      
+      const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
+      const worksheet = workbook.addWorksheet(monthName);
+
+      worksheet.addRow(['Order Number', 'Order ID', 'Customer', 'Game Name', 'Total Amount', 'Order Date']);
+
+      monthSales.forEach((order, index) => {
+        order.gameItems.forEach((game) => {
+          worksheet.addRow([
+            index + 1,
+            order._id.toString(),
+            order.userId.fullName,
+            game.gameId.gameName,
+            order.totalAmount,
+            order.orderDate.toDateString(),
+          ]);
+        });
+      });
+    }
+
+    const fileName = `sales_report_${year}.xlsx`;
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+
+    workbook.xlsx.write(res)
+      .then(() => {
+        res.end();
+      })
+      .catch((error) => {
+        console.error('Error sending Excel:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      });
+  } catch (error) {
+    console.error('Error generating Excel report:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+adminController.excelReportByDay = async (req, res) => {
+  try {
+
+    const { date } = req.query;
+
+    const salesData = await Orders.find({
+      orderDate: {
+        $gte: new Date(date),
+        $lt: new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000), // Next day
+      },
+    }).populate('userId').populate('gameItems.gameId');
+
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    worksheet.addRow(['Order Number', 'Order ID', 'Customer', 'Game Name', 'Total Amount', 'Order Date']);
+
+    salesData.forEach((order, index) => {
+      order.gameItems.forEach((game) => {
+        worksheet.addRow([
+          index + 1,
+          order._id.toString(),
+          order.userId.fullName,
+          game.gameId.gameName,
+          order.totalAmount,
+          order.orderDate.toDateString(),
+        ]);
+      });
+    });
+
+    const fileName = `sales_report_${date}.xlsx`;
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
 

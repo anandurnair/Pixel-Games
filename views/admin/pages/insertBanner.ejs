@@ -1,0 +1,74 @@
+<%- include('./includes/adminHeader.ejs'); -%>
+<div id="page-wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">Insert Banner</h1>
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">Enter Banner details</div>
+          <div class="panel-body">
+                    <form role="form" method="post" action="/insertBannerData" id="" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="type">Title</label>
+                    <input type="text" name="title" id="titleName">
+                        <div id="errorTitle" style="color: red"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <input class="form-control" type="file" name="bannerImage" id="" required />
+                        <div id="errorImage" style="color: red"></div>
+                    </div>
+
+                    <!-- <div class="form-group" id="">
+                        <label>Status</label>
+                        <input class="form-control" type="text" name="minimumPurchaseAmount" id="minimumPurchaseAmount" value="0" />
+                        <div id="errorMinimumPurchase" style="color: red"></div>
+                    </div> -->
+
+                    <!-- <div class="form-group">
+                        <label>Validate Until</label>
+                        <input class="form-control" type="date" name="validUntil" required />
+                        <div id="errorValidUntil" style="color: red"></div>
+                    </div> -->
+
+                    <button type="submit" id="submitBtn" class="btn btn-default">Submit Button</button>
+                    <button type="reset" class="btn btn-default">Reset Button</button>
+                    </form>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+ 
+</script>
+
+
+
+<%- include('./includes/adminFooter.ejs'); -%>
+
+
+
+
+
+
+
+
+
+
+
+

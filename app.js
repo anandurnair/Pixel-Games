@@ -22,6 +22,7 @@ app.use((req, res, next) => {
 });
 // app.use('/views/css', express.static(path.join(__dirname, 'views', 'css')));
 app.use('/views/gameImages', express.static(path.join(__dirname, 'views', 'gameImages')));
+app.use('/views/uploads', express.static(path.join(__dirname, 'views', 'uploads')));
 
 app.set('views','./views')
 // app.set('views','./views/admin')

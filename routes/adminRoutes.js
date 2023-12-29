@@ -123,10 +123,37 @@ adminRouter.post("/editGenre/:id", adminGenre.editGenreData);
 //orders
 
 adminRouter.get("/orderlist", adminOrder.orderList);
-adminRouter.get('/pdfReport',adminController.PDFReport)
-adminRouter.get('/excelReport',adminController.ExcelReport)
+adminRouter.get('/PDFReport',adminController.PDFReport)
+adminRouter.get('/PDFReportByMonth',adminController.PDFReportByMonth)
+adminRouter.get('/PDFReportByDay',adminController.PDFReportByDay)
 
+adminRouter.get('/excelReportByMonth',adminController.excelReportByMonth)
+adminRouter.get('/excelReportByDay',adminController.excelReportByDay)
+
+
+adminRouter.get('/excelReport',adminController.ExcelReport)
+adminRouter.get('/gamesDownloadedPerDay',adminController.gamesDownloadedPerDay)
 //comment
+adminRouter.get('/deactiveBanner/:id',adminBanner.deactiveBanner)
+adminRouter.get('/activeBanner/:id',adminBanner.activeBanner)
+
+adminRouter.get('/insertBanner',adminBanner.insertBanner)
+adminRouter.get('/editBanner',adminBanner.editBanner)
+
+
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join( 'views', 'uploads'));
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+  });
+
+const upload = multer({ storage: storage });  
+adminRouter.post('/insertBannerData', upload.single('bannerImage'),adminBanner.insertBannerData)
+adminRouter.post('/editBannerData', upload.single('bannerImage'),adminBanner.editBannerData)
+
 
 adminRouter.get('/commentList',adminComment.commentList)
 adminRouter.post('/adminDeleteComment',adminComment.adminDeleteComment)

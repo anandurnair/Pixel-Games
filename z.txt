@@ -1,0 +1,12 @@
+Banner Management   ✅
+Show price breakup in invoice  ✅
+sales report with date filter ✅
+
+
+
+Invoice in order history ✅
+Resend in forgotten password ✅
+contact in user side ✅
+change password in user Profile ✅
+coupon title in coupon listing ✅
+

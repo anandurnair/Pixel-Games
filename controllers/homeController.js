@@ -6,6 +6,7 @@ const Orders = require("../Models/order");
 const Comment = require("../Models/gameComments");
 const Coupons = require("../Models/coupon");
 const Wallet = require("../Models/wallet");
+const Banners = require("../Models/banner")
 const fs = require('fs'); // Ensure 'fs' module is required
 const { v4: uuidv4 } = require('uuid');
 const PDFDocument = require('pdfkit');
@@ -38,8 +39,9 @@ homeController.homePage = async (req, res) => {
   try {
     if (req.session.isLoggedIn) {
       const userId = req.session.userId;
-      
       const user = await Users.findById(userId);
+      const banners = await Banner.find()
+      console.log("bannres : ",banners)
       const games =await Games
       .find({ unlist: false }) 
       .sort({ _id: -1 }) 
@@ -52,7 +54,7 @@ homeController.homePage = async (req, res) => {
         await newWallet.save();
       }
 
-      res.render("home", { games, genres, user });
+      res.render("home", { games, genres, user,banners });
     } else {
       res.redirect("/");
     }
@@ -70,6 +72,8 @@ homeController.categories = async (req, res) => {
       const userId = req.session.userId;
       const user = await Users.findById(userId);
       const installedGame = await installedGames.findOne({ userId })
+     
+
       const genres = await Genres.find();
       if (installedGame && installedGame.gameItems) {
         var items = installedGame.gameItems;
@@ -127,7 +131,7 @@ homeController.gameDetails = async (req, res) => {
       const user = await Users.findById(userId);
       const game = await Games.findById(gameId);
       const cart = await Cart.findOne({ userId }).populate("items.gameId");
-
+      const banners = await Banner.find()
       let userInstalled = false
       const order = await Orders.findOne({
         userId: userId,
@@ -229,7 +233,7 @@ homeController.gameDetails = async (req, res) => {
         commentsCount,
         userInstalled,
         averageRating,
-        rateCount,
+        rateCount
 
       });
     } else {
@@ -240,6 +244,23 @@ homeController.gameDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+homeController.community=async(req,res)=>{
+  try {
+    if (req.session.isLoggedIn) {
+      
+      const userId = req.session.userId;
+      const user = await Users.findById(userId);
+      res.render("community", { user });
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 var passwordError = false;
 homeController.userProfile = async (req, res) => {
@@ -309,13 +330,15 @@ homeController.changePassword = async (req, res) => {
 homeController.changePasswordData = async (req, res) => {
   try {
     let { currentPassword, newPassword } = req.body;
-    const password = newPassword;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
     const userId = req.session.userId;
     const user = await Users.findById(userId);
-    const check = await bcrypt.compare(currentPassword, user.password);
+    const check =await bcrypt.compare(currentPassword, user.password);
+    console.log("Check : ",check)
     if (check) {
       passwordError = false;
-      await Users.findByIdAndUpdate(user._id, password);
+      await Users.findByIdAndUpdate(userId, { password: hashedPassword });
       res.redirect("/userProfile");
     } else {
       passwordError = true;
@@ -759,13 +782,14 @@ homeController.cartPlaceOrder = async (req, res) => {
 
 //verify ORDER
 const crypto = require("crypto");
+const Banner = require("../Models/banner");
 
 homeController.verifyPayment = async (req, res) => {
   try {
 
 
-    const { payment, order, paymentOption ,isWalletUsed} = req.body;
-
+    let { payment,discountValue, order, paymentOption ,isWalletUsed} = req.body;
+    discountValue= parseInt(discountValue)
     const hmac = crypto
       .createHmac("sha256", "1O3E3LvWjg5r5ad5TE79za9U")
       .update(payment.razorpay_order_id + "|" + payment.razorpay_payment_id)
@@ -777,6 +801,8 @@ homeController.verifyPayment = async (req, res) => {
 
       let totalAmount = order.amount
       console.log("TOTAL : ", totalAmount);
+      totalAmount=totalAmount * 0.01
+      let finalAmount= totalAmount-discountValue
       const user = await Users.findById(userId);
       const wallet = await Wallet.findOne({ userId });
 
@@ -829,7 +855,10 @@ homeController.verifyPayment = async (req, res) => {
           orderDate: new Date(),
           orderStatus: 'Downloaded',
           paymentMethod: 'Online payment',
-          totalAmount: (totalAmount * 0.01)
+          totalAmount: totalAmount,
+          discountValue:discountValue,
+          finalAmount:finalAmount
+
         })
         if(isWalletUsed){
           const balanceDocument = await Wallet.findOne({ userId }); 
@@ -1008,6 +1037,16 @@ homeController.downloadGame=async (req,res)=>{
   }
 }
 
+homeController.termsAndConditions=async(req,res)=>{
+  try {
+    res.render('termsAndConditions')
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+
 homeController.checkToken= async (req,res)=>{
   try{
     const token = req.body.token
@@ -1086,12 +1125,14 @@ homeController.invoice = async (req, res) => {
     order.gameItems.forEach(game => {
       doc.font('Helvetica').fontSize(12).text(`Game Name: ${game.gameId.gameName}`, { align: 'left' });
       doc.font('Helvetica').fontSize(12).text(`Publisher: ${game.gameId.publisher}`, { align: 'left' });
-      doc.font('Helvetica').fontSize(12).text(`Game Size: ${game.gameId.gameSize}`, { align: 'left' });
+      doc.font('Helvetica').fontSize(12).text(`Game Size: ${game.gameId.gameSize} GB`, { align: 'left' });
       doc.moveDown(0.5);
     });
 
     // Total amount
-    doc.font('Helvetica-Bold').fontSize(16).text(`Total Amount: ${order.totalAmount}`, { align: 'left' }).moveDown(0.5);
+    doc.font('Helvetica').fontSize(14).text(`Discount amount: Rs ${order.discountValue}`, { align: 'left' }).moveDown(0.5);
+
+    doc.font('Helvetica-Bold').fontSize(16).text(`Total Amount: Rs ${order.totalAmount}`, { align: 'left' }).moveDown(0.5);
 
     // Thank you message
     doc.font('Helvetica').fontSize(14).text('Thank you for your purchase!', { align: 'center' }).moveDown(0.5);
@@ -1106,6 +1147,73 @@ homeController.invoice = async (req, res) => {
   }
 }
 
+
+homeController.invoiceDownload = async (req, res) => {
+  try {
+    if (!req.session.isLoggedIn) {
+      return res.redirect('/');
+    }
+    const orderId = req.query.orderId
+    console.log("order id : ",orderId)
+    const userId = req.session.userId;
+
+    const user = await Users.findById(userId);
+    const order = await Orders.findById(orderId).populate('gameItems.gameId')
+      
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    const doc = new PDFDocument();
+    const fileName = `invoice_${orderId}.pdf`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    doc.pipe(res);
+
+    // Add your company logo 
+    // doc.image('path_to_your_logo', 50, 50, { width: 100 });
+
+    // Company details
+    doc.font('Helvetica-Bold').fontSize(20).text('Pixel Games', { align: 'center' }).moveDown(0.5);
+    doc.font('Helvetica').fontSize(12).text('123 Main Street, Maradu', { align: 'center' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text('Kochi, India', { align: 'center' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text('Phone: +1 234-567-8900', { align: 'center' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text('Email: pixelgames@gmail.com', { align: 'center' }).moveDown(0.5);
+
+    // User details
+    doc.font('Helvetica-Bold').fontSize(16).text(`User: ${user.fullName}`, { align: 'left' }).moveDown(0.5);
+    doc.font('Helvetica').fontSize(12).text(`Email: ${user.email}`, { align: 'left' }).moveDown(0.2);
+    doc.font('Helvetica').fontSize(12).text(`Order Date: ${order.orderDate.toLocaleDateString()}`, { align: 'left' }).moveDown(0.5);
+
+    // Order details
+    doc.font('Helvetica-Bold').fontSize(16).text('Order Details:', { align: 'left' }).moveDown(0.5);
+
+    order.gameItems.forEach(game => {
+      doc.font('Helvetica').fontSize(12).text(`Game Name: ${game.gameId.gameName}`, { align: 'left' });
+      doc.font('Helvetica').fontSize(12).text(`Publisher: ${game.gameId.publisher}`, { align: 'left' });
+      doc.font('Helvetica').fontSize(12).text(`Game Size: ${game.gameId.gameSize} GB`, { align: 'left' });
+      doc.moveDown(0.5);
+    });
+
+    // Total amount
+    doc.font('Helvetica').fontSize(14).text(`Discount amount: Rs ${order.discountValue}`, { align: 'left' }).moveDown(0.5);
+
+    doc.font('Helvetica-Bold').fontSize(16).text(`Total Amount: Rs ${order.totalAmount}`, { align: 'left' }).moveDown(0.5);
+
+    // Thank you message
+    doc.font('Helvetica').fontSize(14).text('Thank you for your purchase!', { align: 'center' }).moveDown(0.5);
+
+    // Finalize the PDF and end the response
+    doc.end();
+
+
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 homeController.proceedOrder=async(req,res)=>{
   try {
@@ -1380,7 +1488,7 @@ homeController.orderHistory = async (req, res) => {
     if (req.session.isLoggedIn) {
       let userId = req.session.userId;
       const user = await Users.findById(userId);
-      const orders = await Orders.find({ userId }).sort({ _id: -1 })
+      const orders = await Orders.find({ userId }).sort({ orderDate: -1 })
         .populate(
           "gameItems.gameId"
         );

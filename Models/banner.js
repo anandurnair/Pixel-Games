@@ -13,11 +13,7 @@ const bannerSchema = new mongoose.Schema({
       required: true,
     },
    
-    status:{
-      type:String,
-      enum:['Listed','Unlisted']
-    },
-    isList: {
+    isActive: {
       type: Boolean,
       default: true,
     },
