@@ -630,7 +630,7 @@ adminController.excelReportByDay = async (req, res) => {
     const salesData = await Orders.find({
       orderDate: {
         $gte: new Date(date),
-        $lt: new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000), // Next day
+        $lt: new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000), 
       },
     }).populate('userId').populate('gameItems.gameId');
 
