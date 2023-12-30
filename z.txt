@@ -10,3 +10,4 @@ contact in user side ✅
 change password in user Profile ✅
 coupon title in coupon listing ✅
 
+validate banner

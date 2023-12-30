@@ -918,7 +918,7 @@ homeController.orderSuccessful = async (req, res) => {
         if (gameItem) {
           const token = gameItem.downloadToken || generateToken(); // Use existing token or generate a new one if not available
           const formattedGame = game.replace(/\s+/g, '-');
-          const downloadLink = ` http://localhost:3000/download/${formattedGame}?token=${token}`;
+          const downloadLink = ` https://www.pixelgames.anandu.site/download/${formattedGame}?token=${token}`;
           emailContents.push(`${game}: ${downloadLink}`);
         }
       }
