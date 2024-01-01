@@ -822,6 +822,7 @@ homeController.verifyPayment = async (req, res) => {
             });
           }
         });
+        console.log("Discount value : ",discountValue)
         const newOrder = new Orders({
           userId: userId,
           gameItems: items.map(item => ({
