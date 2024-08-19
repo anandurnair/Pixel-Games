@@ -1046,7 +1046,7 @@ homeController.checkToken= async (req,res)=>{
 homeController.invoice = async (req, res) => {
   try {
     if (!req.session.isLoggedIn) {
-      return res.redirect('/');
+      return res.redirect('/'); 
     }
 
     const userId = req.session.userId;

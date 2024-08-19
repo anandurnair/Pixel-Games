@@ -1,3 +1,4 @@
+const Games = require("../Models/game");
 const Genres = require("../Models/genre");
 
 const genreController = {};
@@ -15,12 +16,14 @@ genreController.genreList = async (req, res) => {
   
       const totalGenres = await Genres.countDocuments();
       const totalPages = Math.ceil(totalGenres / perPage);
-  
-  
+      const numberOfProducts = await Games.aggregate([{$group:{_id:'$genre',count:{$sum:1}}}])
+      console.log(numberOfProducts);
+      
       const genres = await Genres.find().sort({_id:-1})
       .skip(skipValue)
       .limit(perPage);
       
+      +
       res.render("admin/pages/genreList", { genres,currentPage, totalPages, message: "" });
     } else {
       res.redirect("/adminLogin");

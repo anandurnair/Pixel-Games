@@ -391,24 +391,24 @@
             yearSelection.addEventListener('change', fetchMonthlyGameData);
 
 
-            const timeRangeSelect = document.getElementById('timeRange');
-            timeRangeSelect.addEventListener('change', handleTimeRangeChange);
+                const timeRangeSelect = document.getElementById('timeRange');
+                timeRangeSelect.addEventListener('change', handleTimeRangeChange);
 
-            function handleTimeRangeChange() {
-                const selectedValue = timeRangeSelect.value;
+                function handleTimeRangeChange() {
+                    const selectedValue = timeRangeSelect.value;
 
-                if (selectedValue === 'yearly') {
-                    document.getElementById('yearSelection').style.display = 'none';
-                    gamesReleasedPerYear();
-                } else if (selectedValue === 'monthly') {
-                    document.getElementById('yearSelection').style.display = 'block';
-                    fetchMonthlyGameData(); // Assuming this fetches data for the monthly chart
-                    // Call the function to generate the monthly chart
-                    generateMonthlyChart(); // Pass the appropriate data to this function
-                } else if (selectedValue === 'daily') {
-                    fetchDailyData();
+                    if (selectedValue === 'yearly') {
+                        document.getElementById('yearSelection').style.display = 'none';
+                        gamesReleasedPerYear();
+                    } else if (selectedValue === 'monthly') {
+                        document.getElementById('yearSelection').style.display = 'block';
+                        fetchMonthlyGameData(); // Assuming this fetches data for the monthly chart
+                        // Call the function to generate the monthly chart
+                        generateMonthlyChart(); // Pass the appropriate data to this function
+                    } else if (selectedValue === 'daily') {
+                        fetchDailyData();
+                    }
                 }
-            }
 
 
             async function fetchGameCountsPerYear() {
